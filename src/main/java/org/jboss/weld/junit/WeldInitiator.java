@@ -19,6 +19,7 @@ package org.jboss.weld.junit;
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
 
+import javax.enterprise.inject.Instance;
 import javax.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.config.ConfigurationKey;
@@ -30,7 +31,11 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Allows to start a Weld container per test method execution.
+ * Test rule which allows to start a Weld container per test method execution.
+ *
+ * <p>
+ * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean instances.
+ * </p>
  *
  * @author Martin Kouba
  */
@@ -50,7 +55,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     }
 
     /**
-     * The container is configured as with {@link #createWeld()} method and the given bean classes are added.
+     * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added.
      *
      * @param beanClasses
      * @return a new test rule
