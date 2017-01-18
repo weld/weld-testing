@@ -84,7 +84,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     }
 
     @Override
-    public Statement apply(Statement base, Description description) {
+    public Statement apply(final Statement base, Description description) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
