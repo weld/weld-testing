@@ -14,25 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit;
+package org.jboss.weld.junit4.event;
 
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.junit.Rule;
-import org.junit.Test;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 
-/**
- *
- * @author Martin Kouba
- */
-public class SimpleTest {
+import org.jboss.weld.junit4.Foo;
 
-    @Rule
-    public WeldInitiator weld = WeldInitiator.of(Foo.class);
+@ApplicationScoped
+public class DummyObserver {
 
-    @Test
-    public void testFoo() {
-        assertEquals("baz", weld.select(Foo.class).get().getBar());
+    static final List<Foo> MESSAGES = new CopyOnWriteArrayList<>();
+
+    public void observeHelloMessage(@Observes Foo message) {
+        MESSAGES.add(message);
     }
 
 }

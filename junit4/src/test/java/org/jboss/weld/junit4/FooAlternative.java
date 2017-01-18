@@ -14,23 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.ofpackage;
+package org.jboss.weld.junit4;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Alternative;
 
-@Dependent
-public class Alpha {
+@Alternative
+public class FooAlternative extends Foo {
 
-    private String value;
-
-    @PostConstruct
-    public void init() {
-        value = this.getClass().getSimpleName().toLowerCase();
-    }
-
-    public String getValue() {
-        return value;
+    @Override
+    public String getBar() {
+        return super.getBar().toUpperCase();
     }
 
 }

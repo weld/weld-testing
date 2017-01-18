@@ -14,16 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit;
+package org.jboss.weld.junit4;
 
-import javax.enterprise.inject.Alternative;
+import org.jboss.weld.environment.se.WeldContainer;
+import org.jboss.weld.junit4.WeldInitiator;
+import org.junit.Rule;
+import org.junit.Test;
 
-@Alternative
-public class FooAlternative extends Foo {
+/**
+ *
+ * @author Martin Kouba
+ */
+public class ContainerNotRunningTest {
 
-    @Override
-    public String getBar() {
-        return super.getBar().toUpperCase();
+    @Rule
+    public WeldInitiator weld = WeldInitiator.of(WeldInitiator.createWeld().containerId("fiii").beanClasses(Foo.class));
+
+    @Test(expected = IllegalStateException.class)
+    public void testFoo() {
+        // Shutdown container manually
+        WeldContainer.instance("fiii").shutdown();
+        // This should throw IllegalStateException
+        weld.select(Foo.class).get();
     }
 
 }

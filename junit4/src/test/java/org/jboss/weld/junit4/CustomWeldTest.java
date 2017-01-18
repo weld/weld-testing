@@ -14,22 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.inject;
+package org.jboss.weld.junit4;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.jboss.weld.junit4.WeldInitiator.createWeld;
+import static org.junit.Assert.assertEquals;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.jboss.weld.junit4.WeldInitiator;
+import org.junit.Rule;
+import org.junit.Test;
 
-import javax.inject.Qualifier;
+/**
+ *
+ * @author Martin Kouba
+ */
+public class CustomWeldTest {
 
-@Qualifier
-@Target({ TYPE, METHOD, PARAMETER, FIELD })
-@Retention(RUNTIME)
-public @interface Meaty {
+    @Rule
+    public WeldInitiator weld = WeldInitiator.of(createWeld().alternatives(FooAlternative.class).beanClasses(Foo.class, FooAlternative.class));
+
+    @Test
+    public void testFooAlternative() {
+        assertEquals("BAZ", weld.select(Foo.class).get().getBar());
+    }
 
 }

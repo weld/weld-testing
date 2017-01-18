@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.ofpackage;
+package org.jboss.weld.junit4.event;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
-import org.jboss.weld.junit.WeldInitiator;
+import org.jboss.weld.junit4.Foo;
+import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,15 +28,18 @@ import org.junit.Test;
  *
  * @author Martin Kouba
  */
-public class OfPackageTest {
+public class FireEventTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.ofTestPackage();
+    public WeldInitiator weld = WeldInitiator.of(DummyObserver.class);
 
     @Test
-    public void testOfTestPackage() {
-        assertEquals("alpha", weld.select(Alpha.class).get().getValue());
-        assertTrue(weld.select(Bravo.class).isResolvable());
+    public void testEventFired() {
+        DummyObserver.MESSAGES.clear();
+        // Fire an event
+        weld.event().select(Foo.class).fire(new Foo());
+        assertEquals(1, DummyObserver.MESSAGES.size());
+        assertNull(DummyObserver.MESSAGES.get(0).getBar());
     }
 
 }

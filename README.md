@@ -4,15 +4,17 @@
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 
+## JUnit 4
+
 ```xml
 <dependency>
   <groupId>org.jboss.weld</groupId>
-  <artifactId>weld-junit</artifactId>
+  <artifactId>weld-junit4</artifactId>
   <version>${version.weld-junit}</version>
 </dependency>
 ```
 
-## WeldInitiator
+### WeldInitiator
 
 `org.jboss.weld.junit.WeldInitiator` is a `TestRule` (JUnit 4.9+) which allows to start a Weld container per test method execution.
 The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance - see also `WeldInitiator.of(Weld)` static method.
@@ -43,3 +45,43 @@ public class SimpleTest {
 
 }
 ```
+
+It's also possible to use the convenient static method `WeldInitiator.ofTestPackage()` - the container is optimized for testing purposes and all the classes from the test class package are added.
+
+```java
+
+public class AnotherSimpleTest {
+
+    @Rule
+    public WeldInitiator weld = WeldInitiator.ofTestPackage();
+
+    @Test
+    public void testFoo() {
+        // Alpha comes from the same package as AnotherSimpleTest
+        assertEquals(1, weld.select(Alpha.class).ping());
+    }
+
+}
+```
+
+Sometimes, the programmatic lookup can imply unnecessary overhead, e.g. an annotation literal must be used for qualifiers.
+`WeldInitiator.inject(Object)` instructs the rule to inject the given non-contextual instance once the container is started, i.e. during test execution:
+
+```java
+public class InjectTest {
+
+    @Rule
+    public WeldInitiator weld = WeldInitiator.of(Foo.class).inject(this);
+
+    @Inject
+    @MyQualifier
+    Foo foo;
+
+    @Test
+    public void testFoo() {
+        assertEquals(42, foo.getValue());
+    }
+
+}
+```
+

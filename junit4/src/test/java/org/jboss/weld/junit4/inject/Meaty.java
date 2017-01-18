@@ -14,27 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit;
+package org.jboss.weld.junit4.inject;
 
-import org.jboss.weld.environment.se.WeldContainer;
-import org.junit.Rule;
-import org.junit.Test;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- *
- * @author Martin Kouba
- */
-public class ContainerNotRunningTest {
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    @Rule
-    public WeldInitiator weld = WeldInitiator.of(WeldInitiator.createWeld().containerId("fiii").beanClasses(Foo.class));
+import javax.inject.Qualifier;
 
-    @Test(expected = IllegalStateException.class)
-    public void testFoo() {
-        // Shutdown container manually
-        WeldContainer.instance("fiii").shutdown();
-        // This should throw IllegalStateException
-        weld.select(Foo.class).get();
-    }
+@Qualifier
+@Target({ TYPE, METHOD, PARAMETER, FIELD })
+@Retention(RUNTIME)
+public @interface Meaty {
 
 }

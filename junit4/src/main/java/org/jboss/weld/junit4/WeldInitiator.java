@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit;
+package org.jboss.weld.junit4;
 
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
@@ -69,7 +69,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     }
 
     /**
-     * The container is configured with the result of {@link #createWeld()} method and the all the classes from the test class package are added.
+     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class package are added.
      * 
      * @return a new test rule
      */

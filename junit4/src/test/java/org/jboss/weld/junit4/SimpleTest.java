@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.inject;
+package org.jboss.weld.junit4;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import static org.junit.Assert.assertEquals;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import org.jboss.weld.junit4.WeldInitiator;
+import org.junit.Rule;
+import org.junit.Test;
 
-@ApplicationScoped
-public class MeatyStringObserver {
+/**
+ *
+ * @author Martin Kouba
+ */
+public class SimpleTest {
 
-    static final List<String> MESSAGES = new CopyOnWriteArrayList<>();
+    @Rule
+    public WeldInitiator weld = WeldInitiator.of(Foo.class);
 
-    public void observeHelloMessage(@Observes @Meaty String message) {
-        MESSAGES.add(message);
+    @Test
+    public void testFoo() {
+        assertEquals("baz", weld.select(Foo.class).get().getBar());
     }
 
 }

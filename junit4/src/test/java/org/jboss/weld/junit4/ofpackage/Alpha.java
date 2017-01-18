@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.event;
+package org.jboss.weld.junit4.ofpackage;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.Dependent;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+@Dependent
+public class Alpha {
 
-import org.jboss.weld.junit.Foo;
+    private String value;
 
-@ApplicationScoped
-public class DummyObserver {
+    @PostConstruct
+    public void init() {
+        value = this.getClass().getSimpleName().toLowerCase();
+    }
 
-    static final List<Foo> MESSAGES = new CopyOnWriteArrayList<>();
-
-    public void observeHelloMessage(@Observes Foo message) {
-        MESSAGES.add(message);
+    public String getValue() {
+        return value;
     }
 
 }

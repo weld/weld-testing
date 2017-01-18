@@ -14,23 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit;
+package org.jboss.weld.junit4.inject;
 
-import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 
 @ApplicationScoped
-public class Foo {
+public class MeatyStringObserver {
 
-    private String bar;
+    static final List<String> MESSAGES = new CopyOnWriteArrayList<>();
 
-    @PostConstruct
-    public void init() {
-        bar = "baz";
-    }
-
-    public String getBar() {
-        return bar;
+    public void observeHelloMessage(@Observes @Meaty String message) {
+        MESSAGES.add(message);
     }
 
 }

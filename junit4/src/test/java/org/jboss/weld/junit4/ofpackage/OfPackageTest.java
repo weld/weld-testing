@@ -14,15 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.inject;
+package org.jboss.weld.junit4.ofpackage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-
-import org.jboss.weld.junit.Foo;
-import org.jboss.weld.junit.WeldInitiator;
+import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,25 +27,15 @@ import org.junit.Test;
  *
  * @author Martin Kouba
  */
-public class InjectTest {
+public class OfPackageTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(Foo.class, MeatyStringObserver.class).inject(this);
-
-    @Inject
-    Foo foo;
-
-    @Inject
-    @Meaty
-    Event<String> event;
+    public WeldInitiator weld = WeldInitiator.ofTestPackage();
 
     @Test
-    public void testFoo() {
-        MeatyStringObserver.MESSAGES.clear();
-        assertEquals("baz", foo.getBar());
-        event.fire("hello");
-        assertEquals(1, MeatyStringObserver.MESSAGES.size());
-        assertEquals("hello", MeatyStringObserver.MESSAGES.get(0));
+    public void testOfTestPackage() {
+        assertEquals("alpha", weld.select(Alpha.class).get().getValue());
+        assertTrue(weld.select(Bravo.class).isResolvable());
     }
 
 }

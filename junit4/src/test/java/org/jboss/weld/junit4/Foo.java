@@ -14,32 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit.event;
+package org.jboss.weld.junit4;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 
-import org.jboss.weld.junit.Foo;
-import org.jboss.weld.junit.WeldInitiator;
-import org.junit.Rule;
-import org.junit.Test;
+@ApplicationScoped
+public class Foo {
 
-/**
- *
- * @author Martin Kouba
- */
-public class FireEventTest {
+    private String bar;
 
-    @Rule
-    public WeldInitiator weld = WeldInitiator.of(DummyObserver.class);
+    @PostConstruct
+    public void init() {
+        bar = "baz";
+    }
 
-    @Test
-    public void testEventFired() {
-        DummyObserver.MESSAGES.clear();
-        // Fire an event
-        weld.event().select(Foo.class).fire(new Foo());
-        assertEquals(1, DummyObserver.MESSAGES.size());
-        assertNull(DummyObserver.MESSAGES.get(0).getBar());
+    public String getBar() {
+        return bar;
     }
 
 }
