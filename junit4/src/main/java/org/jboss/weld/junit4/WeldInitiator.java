@@ -37,11 +37,27 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Test rule which allows to start a Weld container per test method execution.
+ * Test rule which starts a Weld container per each test method execution.
  *
  * <p>
  * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean instances.
  * </p>
+ * 
+ * <pre>
+ * public class SimpleTest {
+ * 
+ *     &#64;Rule
+ *     public WeldInitiator weld = WeldInitiator.of(Foo.class);
+ * 
+ *     &#64;Test
+ *     public void testFoo() {
+ *         // Weld container is started automatically
+ *         // WeldInitiator can be used to perform programmatic lookup of beans
+ *         assertEquals("baz", weld.select(Foo.class).get().getBaz());
+ *     }
+ * 
+ * }
+ * </pre>
  *
  * @author Martin Kouba
  */
@@ -199,14 +215,8 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
         return container.event();
     }
 
-    private void checkContainer() {
-        if (container == null || !container.isRunning()) {
-            throw new IllegalStateException("Weld container is not running");
-        }
-    }
-
     /**
-     * Instructs the rule to inject the given non-contextual instance once the container is started, i.e. during test execution.
+     * Instructs the {@link WeldInitiator} to inject the given non-contextual instance once the container is started, i.e. during test execution.
      * 
      * @param instance
      * @return self
@@ -216,16 +226,23 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
         return this;
     }
 
+    private void checkContainer() {
+        if (container == null || !container.isRunning()) {
+            throw new IllegalStateException("Weld container is not running");
+        }
+    }
+
     private void injectInstances() {
-        if (!instancesToInject.isEmpty()) {
-            for (Object instance : instancesToInject) {
-                BeanManager beanManager = container.getBeanManager();
-                CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
-                @SuppressWarnings("unchecked")
-                InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
-                        .createInjectionTarget(beanManager.createAnnotatedType(instance.getClass()));
-                injectionTarget.inject(instance, ctx);
-            }
+        if (instancesToInject.isEmpty()) {
+            return;
+        }
+        for (Object instance : instancesToInject) {
+            BeanManager beanManager = container.getBeanManager();
+            CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
+            @SuppressWarnings("unchecked")
+            InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
+                    .createInjectionTarget(beanManager.createAnnotatedType(instance.getClass()));
+            injectionTarget.inject(instance, ctx);
         }
     }
 
