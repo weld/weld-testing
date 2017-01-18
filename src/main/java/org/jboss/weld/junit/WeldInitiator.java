@@ -42,19 +42,6 @@ import org.junit.runners.model.Statement;
 public class WeldInitiator implements TestRule, WeldInstance<Object> {
 
     /**
-     * The returned {@link Weld} instance has:
-     * <ul>
-     * <li>automatic discovery disabled</li>
-     * <li>concurrent deployment disabled</li>
-     * </ul>
-     *
-     * @return a new {@link Weld} instance suitable for testing
-     */
-    public static Weld createWeld() {
-        return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false);
-    }
-
-    /**
      * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added.
      *
      * @param beanClasses
@@ -73,6 +60,19 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
      */
     public static WeldInitiator of(Weld weld) {
         return new WeldInitiator(weld);
+    }
+
+    /**
+     * The returned {@link Weld} instance has:
+     * <ul>
+     * <li>automatic discovery disabled</li>
+     * <li>concurrent deployment disabled</li>
+     * </ul>
+     *
+     * @return a new {@link Weld} instance suitable for testing
+     */
+    public static Weld createWeld() {
+        return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false);
     }
 
     private final Weld weld;
