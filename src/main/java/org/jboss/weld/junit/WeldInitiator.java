@@ -18,9 +18,14 @@ package org.jboss.weld.junit;
 
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.config.ConfigurationKey;
@@ -64,6 +69,15 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     }
 
     /**
+     * The container is configured with the result of {@link #createWeld()} method and the all the classes from the test class package are added.
+     * 
+     * @return a new test rule
+     */
+    public static WeldInitiator ofTestPackage() {
+        return new WeldInitiator(null);
+    }
+
+    /**
      * The returned {@link Weld} instance has:
      * <ul>
      * <li>automatic discovery disabled</li>
@@ -78,18 +92,26 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
 
     private final Weld weld;
 
-    private WeldContainer container;
+    private final List<Object> instancesToInject;
+
+    private volatile WeldContainer container;
 
     private WeldInitiator(Weld weld) {
+        this.instancesToInject = new CopyOnWriteArrayList<>();
         this.weld = weld;
     }
 
     @Override
-    public Statement apply(final Statement base, Description description) {
+    public Statement apply(final Statement base, final Description description) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                Weld weld = WeldInitiator.this.weld;
+                if (weld == null) {
+                    weld = createWeld().addPackage(false, description.getTestClass());
+                }
                 container = weld.initialize();
+                injectInstances();
                 try {
                     base.evaluate();
                 } finally {
@@ -166,7 +188,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
         checkContainer();
         container.destroy(instance);
     }
-    
+
     /**
      * Allows to fire events.
      * 
@@ -180,6 +202,30 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     private void checkContainer() {
         if (container == null || !container.isRunning()) {
             throw new IllegalStateException("Weld container is not running");
+        }
+    }
+
+    /**
+     * Instructs the rule to inject the given non-contextual instance once the container is started, i.e. during test execution.
+     * 
+     * @param instance
+     * @return self
+     */
+    public WeldInitiator inject(Object instance) {
+        this.instancesToInject.add(instance);
+        return this;
+    }
+
+    private void injectInstances() {
+        if (!instancesToInject.isEmpty()) {
+            for (Object instance : instancesToInject) {
+                BeanManager beanManager = container.getBeanManager();
+                CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
+                @SuppressWarnings("unchecked")
+                InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
+                        .createInjectionTarget(beanManager.createAnnotatedType(instance.getClass()));
+                injectionTarget.inject(instance, ctx);
+            }
         }
     }
 

@@ -14,21 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit;
+package org.jboss.weld.junit.ofpackage;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import org.jboss.weld.junit.WeldInitiator;
+import org.junit.Rule;
+import org.junit.Test;
 
-@ApplicationScoped
-public class DummyObserver {
+/**
+ *
+ * @author Martin Kouba
+ */
+public class OfPackageTest {
 
-    static final List<Foo> MESSAGES = new CopyOnWriteArrayList<>();
+    @Rule
+    public WeldInitiator weld = WeldInitiator.ofTestPackage();
 
-    public void observeHelloMessage(@Observes Foo message) {
-        MESSAGES.add(message);
+    @Test
+    public void testOfTestPackage() {
+        assertEquals("alpha", weld.select(Alpha.class).get().getValue());
+        assertTrue(weld.select(Bravo.class).isResolvable());
     }
 
 }
