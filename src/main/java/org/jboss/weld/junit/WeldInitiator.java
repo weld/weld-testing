@@ -19,6 +19,7 @@ package org.jboss.weld.junit;
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
 
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.util.TypeLiteral;
 
@@ -77,7 +78,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
 
     private final Weld weld;
 
-    public WeldContainer container;
+    private WeldContainer container;
 
     private WeldInitiator(Weld weld) {
         this.weld = weld;
@@ -164,6 +165,16 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     public void destroy(Object instance) {
         checkContainer();
         container.destroy(instance);
+    }
+    
+    /**
+     * Allows to fire events.
+     * 
+     * @return an event object
+     */
+    public Event<Object> event() {
+        checkContainer();
+        return container.event();
     }
 
     private void checkContainer() {
