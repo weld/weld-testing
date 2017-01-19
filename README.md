@@ -64,8 +64,8 @@ public class AnotherSimpleTest {
 }
 ```
 
-Sometimes, the programmatic lookup can imply unnecessary overhead, e.g. an annotation literal must be used for qualifiers.
-`WeldInitiator.inject(Object)` instructs the rule to inject the given non-contextual instance once the container is started, i.e. during test execution:
+Sometimes, the programmatic lookup can imply unnecessary overhead, e.g. an annotation literal must be used for parameterized types and qualifiers with members.
+`WeldInitiator.inject(Object)` instructs the rule to inject the given non-contextual instance once the container is started, i.e. during each test method execution:
 
 ```java
 public class InjectTest {
@@ -73,6 +73,7 @@ public class InjectTest {
     @Rule
     public WeldInitiator weld = WeldInitiator.of(Foo.class).inject(this);
 
+	// Gets injected by WeldInitiator when testFoo() is about to be run
     @Inject
     @MyQualifier
     Foo foo;
