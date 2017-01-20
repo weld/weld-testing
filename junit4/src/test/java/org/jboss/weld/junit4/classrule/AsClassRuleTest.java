@@ -37,7 +37,7 @@ public class AsClassRuleTest {
 
     // The container is shared accross all test methods
     @ClassRule
-    public static WeldInitiator weld = WeldInitiator.of(WeldInitiator.createWeld().beanClasses(Charlie.class));
+    public static WeldInitiator weld = WeldInitiator.of(Charlie.class);
 
     static final AtomicReference<String> CONTAINER_ID = new AtomicReference<String>(null);
 
