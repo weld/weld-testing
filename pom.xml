@@ -2,7 +2,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>weld-junit-parent</artifactId>
    <packaging>pom</packaging>
-   <version>1.0.0-SNAPSHOT</version>
+   <version>1.0.0.Beta1</version>
 
    <name>Weld JUnit Extensions</name>
    <description>Set of JUnit extensions to enhance the testing of CDI components.</description>
