@@ -1,72 +1,72 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>weld-junit-parent</artifactId>
-	<packaging>pom</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>weld-junit-parent</artifactId>
+   <packaging>pom</packaging>
+   <version>1.0.0-SNAPSHOT</version>
 
-	<name>Weld JUnit Extensions</name>
-	<description>Set of JUnit extensions to enhance the testing of CDI components.</description>
+   <name>Weld JUnit Extensions</name>
+   <description>Set of JUnit extensions to enhance the testing of CDI components.</description>
 
-	<parent>
-		<groupId>org.jboss.weld</groupId>
-		<artifactId>weld-parent</artifactId>
-		<version>36</version>
-	</parent>
+   <parent>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-parent</artifactId>
+      <version>36</version>
+   </parent>
 
-	<url>http://weld.cdi-spec.org</url>
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<distribution>repo</distribution>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-		</license>
-	</licenses>
+   <url>http://weld.cdi-spec.org</url>
+   <licenses>
+      <license>
+         <name>Apache License, Version 2.0</name>
+         <distribution>repo</distribution>
+         <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      </license>
+   </licenses>
 
-	<scm>
-		<connection>scm:git:git://github.com:weld/weld-junit.git</connection>
-		<developerConnection>scm:git:git@github.com:github.com:weld/weld-junit.git</developerConnection>
-		<url>https://github.com/weld/weld-junit</url>
-		<tag>HEAD</tag>
-	</scm>
+   <scm>
+      <connection>scm:git:git://github.com:weld/weld-junit.git</connection>
+      <developerConnection>scm:git:git@github.com:github.com:weld/weld-junit.git</developerConnection>
+      <url>https://github.com/weld/weld-junit</url>
+      <tag>HEAD</tag>
+   </scm>
 
-	<developers>
-		<developer>
-			<name>Weld committers</name>
-		</developer>
-	</developers>
+   <developers>
+      <developer>
+         <name>Weld committers</name>
+      </developer>
+   </developers>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<!-- Versions -->
-		<version.weld>2.4.1.Final</version.weld>
-		<version.junit4>4.12</version.junit4>
-	</properties>
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.compiler.source>1.7</maven.compiler.source>
+      <maven.compiler.target>1.7</maven.compiler.target>
+      <!-- Versions -->
+      <version.weld>2.4.1.Final</version.weld>
+      <version.junit4>4.12</version.junit4>
+   </properties>
 
-	<modules>
-		<module>junit4</module>
-	</modules>
+   <modules>
+      <module>junit4</module>
+   </modules>
 
-	<dependencyManagement>
+   <dependencyManagement>
 
-		<dependencies>
+      <dependencies>
 
-			<dependency>
-				<groupId>org.jboss.weld.se</groupId>
-				<artifactId>weld-se-core</artifactId>
-				<version>${version.weld}</version>
-			</dependency>
+         <dependency>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se-core</artifactId>
+            <version>${version.weld}</version>
+         </dependency>
 
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>${version.junit4}</version>
-			</dependency>
+         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit4}</version>
+         </dependency>
 
-		</dependencies>
+      </dependencies>
 
-	</dependencyManagement>
+   </dependencyManagement>
 
 </project>
