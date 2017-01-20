@@ -32,7 +32,7 @@
                <systemProperties>
                   <property>
                      <name>java.util.logging.config.file</name>
-                     <value>${build.testOutputDirectory}/logging.properties</value>
+                     <value>${project.build.testOutputDirectory}/logging.properties</value>
                   </property>
                </systemProperties>
             </configuration>
