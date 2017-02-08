@@ -36,7 +36,7 @@ public class ContextsActivatedTest {
             .activate(RequestScoped.class, SessionScoped.class).build();
 
     @Test
-    public void testFoo() {
+    public void testNormalScopes() {
         assertEquals(weld.select(Foo.class).get().getId(), weld.select(Foo.class).get().getId());
         assertEquals(weld.select(Oof.class).get().getId(), weld.select(Oof.class).get().getId());
     }
