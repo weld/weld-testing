@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4.inject;
+package org.jboss.weld.junit4.contexts;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
 
-import org.jboss.weld.junit4.Foo;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,25 +29,16 @@ import org.junit.Test;
  *
  * @author Martin Kouba
  */
-public class InjectTest {
+public class ContextsActivatedTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, MeatyStringObserver.class).inject(this).build();
-
-    @Inject
-    Foo foo;
-
-    @Inject
-    @Meaty
-    Event<String> event;
+    public WeldInitiator weld = WeldInitiator.from(Foo.class, Oof.class)
+            .activate(RequestScoped.class, SessionScoped.class).build();
 
     @Test
     public void testFoo() {
-        MeatyStringObserver.MESSAGES.clear();
-        assertEquals("baz", foo.getBar());
-        event.fire("hello");
-        assertEquals(1, MeatyStringObserver.MESSAGES.size());
-        assertEquals("hello", MeatyStringObserver.MESSAGES.get(0));
+        assertEquals(weld.select(Foo.class).get().getId(), weld.select(Foo.class).get().getId());
+        assertEquals(weld.select(Oof.class).get().getId(), weld.select(Oof.class).get().getId());
     }
 
 }

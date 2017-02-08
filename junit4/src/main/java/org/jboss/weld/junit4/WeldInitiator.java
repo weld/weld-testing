@@ -17,10 +17,14 @@
 package org.jboss.weld.junit4;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.NormalScope;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
@@ -29,6 +33,7 @@ import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.config.ConfigurationKey;
+import org.jboss.weld.environment.ContainerInstance;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.inject.WeldInstance;
@@ -37,31 +42,30 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Test rule which starts a Weld container per each test method execution.
+ * Test rule which starts a Weld container per each test method execution:
  *
- * <p>
- * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean instances.
- * </p>
- * 
  * <pre>
  * public class SimpleTest {
- * 
+ *
  *     &#64;Rule
  *     public WeldInitiator weld = WeldInitiator.of(Foo.class);
- * 
+ *
  *     &#64;Test
  *     public void testFoo() {
  *         // Weld container is started automatically
  *         // WeldInitiator can be used to perform programmatic lookup of beans
  *         assertEquals("baz", weld.select(Foo.class).get().getBaz());
  *     }
- * 
  * }
  * </pre>
  *
+ * <p>
+ * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean instances.
+ * </p>
+ *
  * @author Martin Kouba
  */
-public class WeldInitiator implements TestRule, WeldInstance<Object> {
+public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerInstance {
 
     /**
      * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added.
@@ -81,16 +85,16 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
      * @return a new test rule
      */
     public static WeldInitiator of(Weld weld) {
-        return new WeldInitiator(weld);
+        return new WeldInitiator(weld, null, null);
     }
 
     /**
      * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class package are added.
-     * 
+     *
      * @return a new test rule
      */
     public static WeldInitiator ofTestPackage() {
-        return new WeldInitiator(null);
+        return new WeldInitiator(null, null, null);
     }
 
     /**
@@ -103,18 +107,144 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
      * @return a new {@link Weld} instance suitable for testing
      */
     public static Weld createWeld() {
-        return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false);
+        return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(),
+                false);
+    }
+
+    /**
+     * Create a builder instance.
+     *
+     * @param weld
+     * @return a builder instance
+     * @see #of(Class...)
+     */
+    public static Builder from(Class<?>... beanClasses) {
+        return from(createWeld().beanClasses(beanClasses));
+    }
+
+    /**
+     * Create a builder instance.
+     *
+     * @param weld
+     * @return a builder instance
+     * @see #of(Weld)
+     */
+    public static Builder from(Weld weld) {
+        return new Builder(weld);
+    }
+
+    /**
+     * Create a builder instance.
+     *
+     * @return a builder instance
+     * @see #ofTestPackage()
+     */
+    public static Builder fromTestPackage() {
+        return new Builder(null);
+    }
+
+    /**
+     * This builder can be used to customize the final {@link WeldInitiator} instance, e.g. to activate a context for a given normal scope.
+     */
+    public static final class Builder {
+
+        private final Weld weld;
+
+        private final List<Object> instancesToInject;
+
+        private final Set<Class<? extends Annotation>> scopesToActivate;
+
+        public Builder(Weld weld) {
+            this.weld = weld;
+            this.instancesToInject = new ArrayList<>();
+            this.scopesToActivate = new HashSet<>();
+        }
+
+        /**
+         * Activate and deactivate contexts for the given normal scopes for each test method execution.
+         * <p>
+         * {@link ApplicationScoped} is ignored as it is always active.
+         * </p>
+         *
+         * @param normalScopes
+         * @return self
+         */
+        @SafeVarargs
+        public final Builder activate(Class<? extends Annotation>... normalScopes) {
+            for (Class<? extends Annotation> scope : normalScopes) {
+                if (ApplicationScoped.class.equals(scope)) {
+                    continue;
+                }
+                if (!scope.isAnnotationPresent(NormalScope.class)) {
+                    throw new IllegalArgumentException(
+                            "Only annotations annotated with @NormalScope are supported!");
+                }
+                this.scopesToActivate.add(scope);
+            }
+            return this;
+        }
+
+        /**
+         * Instructs the {@link WeldInitiator} to inject the given non-contextual instance once the container is started, i.e. during test execution.
+         * <p>
+         * This method could be used e.g. to inject a test class instance:
+         *
+         * <pre>
+         * public class InjectTest {
+         *
+         *     &#64;Rule
+         *     public WeldInitiator weld = WeldInitiator.fromTestPackage().inject(this).build();
+         *
+         *     &#64;Inject
+         *     Foo foo;
+         *
+         *     &#64;Test
+         *     public void testFoo() {
+         *         assertEquals("foo", foo.getId());
+         *     }
+         * }
+         * </pre>
+         *
+         * @param instance
+         * @return self
+         */
+        public Builder inject(Object instance) {
+            this.instancesToInject.add(instance);
+            return this;
+        }
+
+        /**
+         *
+         * @return a new {@link WeldInitiator} instance
+         */
+        public WeldInitiator build() {
+            return new WeldInitiator(weld, new ArrayList<>(instancesToInject),
+                    new HashSet<>(scopesToActivate));
+        }
+
     }
 
     private final Weld weld;
 
     private final List<Object> instancesToInject;
 
+    private final Set<Class<? extends Annotation>> scopesToActivate;
+
+    private final WeldJunit4Extension extension;
+
     private volatile WeldContainer container;
 
-    private WeldInitiator(Weld weld) {
-        this.instancesToInject = new CopyOnWriteArrayList<>();
+    private WeldInitiator(Weld weld, List<Object> instancesToInject,
+            Set<Class<? extends Annotation>> scopesToActivate) {
+        this.instancesToInject = instancesToInject;
+        this.scopesToActivate = scopesToActivate;
         this.weld = weld;
+        if (hasScopesToActivate()) {
+            this.extension = new WeldJunit4Extension(this.scopesToActivate);
+            this.weld.addExtension(this.extension);
+        } else {
+            this.extension = null;
+        }
     }
 
     @Override
@@ -128,11 +258,20 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
                 }
                 container = weld.initialize();
                 injectInstances();
+                if (extension != null) {
+                    extension.activateContexts();
+                }
                 try {
                     base.evaluate();
                 } finally {
-                    if (container != null && container.isRunning()) {
-                        container.shutdown();
+                    try {
+                        if (extension != null) {
+                            extension.deactivateContexts();
+                        }
+                    } finally {
+                        if (container != null && container.isRunning()) {
+                            container.shutdown();
+                        }
                     }
                 }
             }
@@ -207,7 +346,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
 
     /**
      * Allows to fire events.
-     * 
+     *
      * @return an event object
      */
     public Event<Object> event() {
@@ -215,15 +354,22 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
         return container.event();
     }
 
+    @Override
+    public BeanManager getBeanManager() {
+        return container.getBeanManager();
+    }
+
+    @Override
+    public String getId() {
+        return container.getId();
+    }
+
     /**
-     * Instructs the {@link WeldInitiator} to inject the given non-contextual instance once the container is started, i.e. during test execution.
-     * 
-     * @param instance
-     * @return self
+     * Note that any container-based operation will result in {@link IllegalStateException} after shutdown.
      */
-    public WeldInitiator inject(Object instance) {
-        this.instancesToInject.add(instance);
-        return this;
+    @Override
+    public void shutdown() {
+        container.shutdown();
     }
 
     private void checkContainer() {
@@ -233,7 +379,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
     }
 
     private void injectInstances() {
-        if (instancesToInject.isEmpty()) {
+        if (instancesToInject == null || instancesToInject.isEmpty()) {
             return;
         }
         for (Object instance : instancesToInject) {
@@ -244,6 +390,10 @@ public class WeldInitiator implements TestRule, WeldInstance<Object> {
                     .createInjectionTarget(beanManager.createAnnotatedType(instance.getClass()));
             injectionTarget.inject(instance, ctx);
         }
+    }
+
+    private boolean hasScopesToActivate() {
+        return scopesToActivate != null && !scopesToActivate.isEmpty();
     }
 
 }

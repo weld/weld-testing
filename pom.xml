@@ -40,7 +40,7 @@
       <maven.compiler.source>1.7</maven.compiler.source>
       <maven.compiler.target>1.7</maven.compiler.target>
       <!-- Versions -->
-      <version.weld>2.4.1.Final</version.weld>
+      <version.weld>2.4.2.SP1</version.weld>
       <version.junit4>4.12</version.junit4>
    </properties>
 

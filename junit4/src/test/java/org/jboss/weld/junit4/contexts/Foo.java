@@ -14,26 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4;
+package org.jboss.weld.junit4.contexts;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.UUID;
 
-/**
- *
- * @author Martin Kouba
- */
-public class ContainerNotRunningTest {
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
 
-    @Rule
-    public WeldInitiator weld = WeldInitiator.of(WeldInitiator.createWeld().beanClasses(Foo.class));
+@RequestScoped
+public class Foo {
 
-    @Test(expected = IllegalStateException.class)
-    public void testFoo() {
-        // Shutdown container manually
-        weld.shutdown();
-        // This should throw IllegalStateException
-        weld.select(Foo.class).get();
+    private String id;
+
+    @PostConstruct
+    public void init() {
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
     }
 
 }

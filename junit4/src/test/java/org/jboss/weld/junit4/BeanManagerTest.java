@@ -14,15 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4.inject;
+package org.jboss.weld.junit4;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-
-import org.jboss.weld.junit4.Foo;
-import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,25 +25,14 @@ import org.junit.Test;
  *
  * @author Martin Kouba
  */
-public class InjectTest {
+public class BeanManagerTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, MeatyStringObserver.class).inject(this).build();
-
-    @Inject
-    Foo foo;
-
-    @Inject
-    @Meaty
-    Event<String> event;
+    public WeldInitiator weld = WeldInitiator.of(Foo.class);
 
     @Test
-    public void testFoo() {
-        MeatyStringObserver.MESSAGES.clear();
-        assertEquals("baz", foo.getBar());
-        event.fire("hello");
-        assertEquals(1, MeatyStringObserver.MESSAGES.size());
-        assertEquals("hello", MeatyStringObserver.MESSAGES.get(0));
+    public void testFooBean() {
+        assertEquals(1, weld.getBeanManager().getBeans(Foo.class).size());
     }
 
 }
