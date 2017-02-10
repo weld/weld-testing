@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <artifactId>weld-junit-parent</artifactId>
    <packaging>pom</packaging>
@@ -40,7 +41,6 @@
       <maven.compiler.source>1.7</maven.compiler.source>
       <maven.compiler.target>1.7</maven.compiler.target>
       <!-- Versions -->
-      <version.weld>2.4.2.SP1</version.weld>
       <version.junit4>4.12</version.junit4>
    </properties>
 
@@ -67,5 +67,26 @@
       </dependencies>
 
    </dependencyManagement>
+
+   <profiles>
+
+      <profile>
+         <id>weld2</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <properties>
+            <version.weld>2.4.2.SP1</version.weld>
+         </properties>
+      </profile>
+
+      <profile>
+         <id>weld3</id>
+         <properties>
+            <version.weld>3.0.0.CR1</version.weld>
+         </properties>
+      </profile>
+
+   </profiles>
 
 </project>
