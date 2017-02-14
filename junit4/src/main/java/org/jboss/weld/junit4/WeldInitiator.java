@@ -356,6 +356,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
     @Override
     public BeanManager getBeanManager() {
+        checkContainer();
         return container.getBeanManager();
     }
 
@@ -370,6 +371,14 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
     @Override
     public void shutdown() {
         container.shutdown();
+    }
+
+    /**
+     *
+     *  @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code> otherwise
+     */
+    public boolean isRunning() {
+        return container.isRunning();
     }
 
     private void checkContainer() {
