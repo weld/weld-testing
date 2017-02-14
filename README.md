@@ -4,6 +4,7 @@
 [![Maven Central](http://img.shields.io/maven-central/v/org.jboss.weld/weld-junit4.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22weld-junit4%22)
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
+Set of JUnit extensions to enhance the testing of CDI components. Supports Weld 2.4 and 3.0.
 
 ## JUnit 4
 
