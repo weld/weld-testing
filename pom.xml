@@ -40,6 +40,7 @@
       <maven.compiler.target>1.7</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.12</version.junit4>
+      <version.weld>2.4.2.SP1</version.weld>
    </properties>
 
    <modules>
@@ -69,17 +70,10 @@
    <profiles>
 
       <profile>
-         <id>weld2</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
-         <properties>
-            <version.weld>2.4.2.SP1</version.weld>
-         </properties>
-      </profile>
-
-      <profile>
          <id>weld3</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
          <properties>
             <version.weld>3.0.0.CR2</version.weld>
          </properties>
