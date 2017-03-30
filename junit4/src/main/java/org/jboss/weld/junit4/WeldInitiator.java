@@ -18,6 +18,7 @@ package org.jboss.weld.junit4;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,8 @@ import javax.enterprise.context.NormalScope;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.util.TypeLiteral;
@@ -85,7 +88,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
      * @return a new test rule
      */
     public static WeldInitiator of(Weld weld) {
-        return new WeldInitiator(weld, null, null);
+        return new WeldInitiator(weld, null, null, null);
     }
 
     /**
@@ -94,7 +97,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
      * @return a new test rule
      */
     public static WeldInitiator ofTestPackage() {
-        return new WeldInitiator(null, null, null);
+        return new WeldInitiator(null, null, null, null);
     }
 
     /**
@@ -154,10 +157,13 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
         private final Set<Class<? extends Annotation>> scopesToActivate;
 
+        private final Set<Bean<?>> beans;
+
         public Builder(Weld weld) {
             this.weld = weld;
             this.instancesToInject = new ArrayList<>();
             this.scopesToActivate = new HashSet<>();
+            this.beans = new HashSet<>();
         }
 
         /**
@@ -214,12 +220,26 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
         }
 
         /**
+         * Instructs the {@link WeldInitiator} to add the specified beans during {@link AfterBeanDiscovery} notification.
+         *
+         * @param beans
+         * @return self
+         * @see AfterBeanDiscovery#addBean(Bean)
+         */
+        public Builder addBeans(Bean<?>... beans) {
+            Collections.addAll(this.beans, beans);
+            return this;
+        }
+
+        /**
          *
          * @return a new {@link WeldInitiator} instance
          */
         public WeldInitiator build() {
-            return new WeldInitiator(weld, new ArrayList<>(instancesToInject),
-                    new HashSet<>(scopesToActivate));
+            return new WeldInitiator(weld,
+                    instancesToInject.isEmpty() ? null : new ArrayList<>(instancesToInject),
+                    scopesToActivate.isEmpty() ? null : new HashSet<>(scopesToActivate),
+                    beans.isEmpty() ? null : new HashSet<>(beans));
         }
 
     }
@@ -230,17 +250,20 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
     private final Set<Class<? extends Annotation>> scopesToActivate;
 
+    private final Set<Bean<?>> beans;
+
     private final WeldJunit4Extension extension;
 
     private volatile WeldContainer container;
 
     private WeldInitiator(Weld weld, List<Object> instancesToInject,
-            Set<Class<? extends Annotation>> scopesToActivate) {
+            Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
         this.instancesToInject = instancesToInject;
         this.scopesToActivate = scopesToActivate;
+        this.beans = beans;
         this.weld = weld;
-        if (hasScopesToActivate()) {
-            this.extension = new WeldJunit4Extension(this.scopesToActivate);
+        if (hasScopesToActivate() || hasBeansToAdd()) {
+            this.extension = new WeldJunit4Extension(this.scopesToActivate, this.beans);
             this.weld.addExtension(this.extension);
         } else {
             this.extension = null;
@@ -375,7 +398,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
     /**
      *
-     *  @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code> otherwise
+     * @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code> otherwise
      */
     public boolean isRunning() {
         return container.isRunning();
@@ -403,6 +426,10 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
     private boolean hasScopesToActivate() {
         return scopesToActivate != null && !scopesToActivate.isEmpty();
+    }
+
+    private boolean hasBeansToAdd() {
+        return beans != null && !beans.isEmpty();
     }
 
 }
