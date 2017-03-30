@@ -23,8 +23,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.util.TypeLiteral;
@@ -45,11 +47,10 @@ public class AddBeanTest {
     private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Blue.class).addBeans(createMyServiceBean(), createListBean(), createSequenceBean()).build();
-
-    static Bean<?> createMyServiceBean() {
-        return MockBean.builder().types(MyService.class).creating(mock(MyService.class)).build();
-    }
+    public WeldInitiator weld = WeldInitiator.from(Blue.class)
+            .addBeans(MockBean.of(MyService.class, mock(MyService.class)), createListBean(),
+                    createSequenceBean(), createIdSupplierBean())
+            .build();
 
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
@@ -77,6 +78,18 @@ public class AddBeanTest {
                 .build();
     }
 
+    static Bean<?> createIdSupplierBean() {
+        return MockBean.<IdSupplier> builder()
+                .types(IdSupplier.class)
+                .scope(ApplicationScoped.class)
+                .create(new CreateFunction<IdSupplier>() {
+                    @Override
+                    public IdSupplier create(CreationalContext<IdSupplier> creationalContext) {
+                        return new IdSupplier(UUID.randomUUID().toString());
+                    }
+                }).build();
+    }
+
     @Test
     public void testBeansAdded() {
         // Blue injects @Meaty List<String>
@@ -93,11 +106,28 @@ public class AddBeanTest {
         MyService myService = weld.select(MyService.class).get();
         myService.doBusiness("Adalbert");
         Mockito.verify(myService, atLeastOnce()).doBusiness(anyString());
+
+        // Test applicaction scoped bean
+        assertEquals(weld.select(IdSupplier.class).get().getId(), weld.select(IdSupplier.class).get().getId());
     }
 
-    public interface MyService {
+    interface MyService {
 
         void doBusiness(String name);
+
+    }
+
+    static class IdSupplier {
+
+        private final String id;
+
+        public IdSupplier(String id) {
+            this.id = id;
+        }
+
+        String getId() {
+            return id;
+        }
 
     }
 

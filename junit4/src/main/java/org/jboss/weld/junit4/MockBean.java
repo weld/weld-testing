@@ -31,7 +31,11 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.util.AnnotationLiteral;
 
 /**
- * {@link Bean} implementation used for mocking.
+ * This custom {@link Bean} implementation is useful for mocking.
+ * <p>
+ * A new instance is usually created through a {@link Builder} (see also {@link #builder()}) and then passed to the
+ * {@link WeldInitiator.Builder#addBeans(Bean...)} method.
+ * </p>
  *
  * @author Martin Kouba
  *
@@ -51,10 +55,27 @@ public class MockBean<T> implements Bean<T> {
      * <li>is not an alternative</li>
      * </ul>
      *
+     * <p>
+     * Note that {@link Builder#creating(Object)} or {@link Builder#create(CreateFunction)} must be always set. Otherwise, an {@link IllegalStateException} is
+     * thrown during {@link Builder#build()} invocation.
+     * <p>
+     *
      * @return a new builder instance
      */
     public static <T> Builder<T> builder() {
         return new Builder<>();
+    }
+
+    /**
+     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the specified bean type is added to the set
+     * of bean types and {@link Bean#create(CreationalContext)} will always return the specified bean instance.
+     *
+     * @param beanType
+     * @param beanInstance
+     * @return a {@link MockBean} instance
+     */
+    public static <T> Bean<T> of(Type beanType, T beanInstance) {
+        return MockBean.<T> builder().types(beanType).creating(beanInstance).build();
     }
 
     private final Set<Class<? extends Annotation>> stereotypes;
@@ -144,7 +165,7 @@ public class MockBean<T> implements Bean<T> {
     }
 
     /**
-     * A builder instance should not be reused or shared.
+     * A builder instance should not be reused nor shared.
      *
      * @author Martin Kouba
      *
@@ -289,6 +310,7 @@ public class MockBean<T> implements Bean<T> {
         /**
          *
          * @return a new {@link MockBean} instance
+         * @throws IllegalStateException If a create callback is not set
          */
         public MockBean<T> build() {
             if (createCallback == null) {
