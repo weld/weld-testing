@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.Extension;
 
 /**
@@ -33,23 +34,33 @@ class WeldJunit4Extension implements Extension {
 
     private final Set<Class<? extends Annotation>> scopesToActivate;
 
+    private final Set<Bean<?>> beans;
+
     private final List<ContextImpl> contexts;
 
-    public WeldJunit4Extension(Set<Class<? extends Annotation>> scopesToActivate) {
+    WeldJunit4Extension(Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
         this.scopesToActivate = scopesToActivate;
+        this.beans = beans;
         this.contexts = new ArrayList<>();
     }
 
     void afterBeandiscovery(@Observes AfterBeanDiscovery event) {
-        for (Class<? extends Annotation> scope : scopesToActivate) {
-            ContextImpl ctx = new ContextImpl(scope);
-            contexts.add(ctx);
-            event.addContext(ctx);
+        if (scopesToActivate != null) {
+            for (Class<? extends Annotation> scope : scopesToActivate) {
+                ContextImpl ctx = new ContextImpl(scope);
+                contexts.add(ctx);
+                event.addContext(ctx);
+            }
+        }
+        if (beans != null) {
+            for (Bean<?> bean : beans) {
+                event.addBean(bean);
+            }
         }
     }
 
     void activateContexts() {
-        if(contexts.isEmpty()) {
+        if (contexts.isEmpty()) {
             return;
         }
         for (ContextImpl context : contexts) {
@@ -58,7 +69,7 @@ class WeldJunit4Extension implements Extension {
     }
 
     void deactivateContexts() {
-        if(contexts.isEmpty()) {
+        if (contexts.isEmpty()) {
             return;
         }
         for (ContextImpl context : contexts) {
