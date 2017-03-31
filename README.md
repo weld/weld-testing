@@ -152,6 +152,7 @@ class AddBeanTest {
     static Bean<?> createBarBean() {
         return MockBean.builder()
                 .types(Bar.class)
+                .scope(ApplicationScoped.class)
                 .creating(
                         // Mock object provided by Mockito
                        Mockito.when(Mockito.mock(Bar.class).ping()).thenReturn("pong").getMock())
