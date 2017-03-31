@@ -11,8 +11,8 @@ This project provides a set of JUnit extensions to enhance the testing of CDI co
 * [JUnit 4](#junit-4)
   * [WeldInitiator](#weldinitiator)
     * [Test class injection](#test-class-injection)
-    * [Activating a context for a normal scope](activating-a-context-for-a-normal-scope)
-    * [Adding mock beans](adding-mock-beans)
+    * [Activating a context for a normal scope](#activating-a-context-for-a-normal-scope)
+    * [Adding mock beans](#adding-mock-beans)
 
 ## JUnit 4
 
@@ -124,7 +124,7 @@ class ContextsActivatedTest {
 #### Adding mock beans
 
 `WeldInitiator.Builder.addBeans(Bean<?>...)` makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike (https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java)[BeanBuilder] or for most use cases a convenient `org.jboss.weld.junit4.MockBean` should be sufficient. 
+You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit4.MockBean` should be sufficient. 
 Use `org.jboss.weld.junit4.MockBean.builder()` to obtain a new builder instance.
 You can also make use of mocking libraries to create a bean instance.
 
