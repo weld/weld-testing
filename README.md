@@ -11,7 +11,7 @@ This project provides a set of JUnit extensions to enhance the testing of CDI co
 * [JUnit 4](#junit-4)
   * [WeldInitiator](#weldinitiator)
     * [Test class injection](#test-class-injection)
-    * [Activating a context for a normal scope](#activating-a-context-for-a-normal-scope)
+    * [Activating context for a normal scope](#activating-a-context-for-a-normal-scope)
     * [Adding mock beans](#adding-mock-beans)
 
 ## JUnit 4
@@ -101,9 +101,9 @@ class InjectTest {
 }
 ```
 
-#### Activating a context for a normal scope
+#### Activating context for a normal scope
 
-`WeldInitiator.Builder.activate(Object)` makes it possible to activate and deactivate contexts for the given normal scopes for each test method execution:
+`WeldInitiator.Builder.activate(Object)` makes it possible to activate and deactivate contexts for the specified normal scopes for each test method execution:
 
 ```java
 class ContextsActivatedTest {
@@ -115,7 +115,9 @@ class ContextsActivatedTest {
     @Test
     public void testFoo() {
         // Contexts for @RequestScoped and @SessionScoped are active!
+        // Foo is @RequestScoped
         weld.select(Foo.class).get().doSomethingImportant();
+        // Oof is @SessionScoped
         weld.select(Oof.class).get().doSomethingVeryImportant();
     }
 }
@@ -158,7 +160,7 @@ class AddBeanTest {
 
     @Test
     public void testFoo() {
-        Assert.assertEquals("pong", weld.select(Foo.class).get().ping());
+        assertEquals("pong", weld.select(Foo.class).get().ping());
     }
 }
 ```
