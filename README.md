@@ -12,6 +12,7 @@ This project provides a set of JUnit extensions to enhance the testing of CDI co
   * [WeldInitiator](#weldinitiator)
     * [Test class injection](#test-class-injection)
     * [Activating a context for a normal scope](activating-a-context-for-a-normal-scope)
+    * [Adding mock beans](adding-mock-beans)
 
 ## JUnit 4
 
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class SimpleTest {
+class SimpleTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.of(Foo.class);
@@ -60,7 +61,7 @@ It's also possible to use the convenient static method `WeldInitiator.ofTestPack
 
 ```java
 
-public class AnotherSimpleTest {
+class AnotherSimpleTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.ofTestPackage();
@@ -82,7 +83,7 @@ Sometimes, the programmatic lookup can imply unnecessary overhead, e.g. an annot
 `WeldInitiator.Builder.inject(Object)` instructs the rule to inject the given non-contextual instance once the container is started, i.e. during each test method execution:
 
 ```java
-public class InjectTest {
+class InjectTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.from(Foo.class).inject(this).build();
@@ -105,7 +106,7 @@ public class InjectTest {
 `WeldInitiator.Builder.activate(Object)` makes it possible to activate and deactivate contexts for the given normal scopes for each test method execution:
 
 ```java
-public class ContextsActivatedTest {
+class ContextsActivatedTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.from(Foo.class, Oof.class)
@@ -116,6 +117,48 @@ public class ContextsActivatedTest {
         // Contexts for @RequestScoped and @SessionScoped are active!
         weld.select(Foo.class).get().doSomethingImportant();
         weld.select(Oof.class).get().doSomethingVeryImportant();
+    }
+}
+```
+
+#### Adding mock beans
+
+`WeldInitiator.Builder.addBeans(Bean<?>...)` makes it possible to add beans during `AfterBeanDiscovery` phase easily.
+You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike (https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java)[BeanBuilder] or for most use cases a convenient `org.jboss.weld.junit4.MockBean` should be sufficient. 
+Use `org.jboss.weld.junit4.MockBean.builder()` to obtain a new builder instance.
+You can also make use of mocking libraries to create a bean instance.
+
+```java
+interface Bar {
+  String ping();
+}
+
+class Foo {
+  @Inject
+  Bar bar;
+  
+  String ping() {
+    return bar.ping();
+  }
+}
+
+class AddBeanTest {
+
+    @Rule
+    public WeldInitiator weld = WeldInitiator.from(Foo.class, Bar.class).addBeans(createBarBean()).build();
+
+    static Bean<?> createBarBean() {
+        return MockBean.builder()
+                .types(Bar.class)
+                .creating(
+                        // Mock object provided by Mockito
+                       Mockito.when(Mockito.mock(Bar.class).ping()).thenReturn("pong").getMock())
+                .build();
+    }
+
+    @Test
+    public void testFoo() {
+        Assert.assertEquals("pong", weld.select(Foo.class).get().ping());
     }
 }
 ```
