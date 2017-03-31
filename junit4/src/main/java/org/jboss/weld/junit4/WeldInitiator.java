@@ -225,6 +225,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
          * @param beans
          * @return self
          * @see AfterBeanDiscovery#addBean(Bean)
+         * @since 1.1
          */
         public Builder addBeans(Bean<?>... beans) {
             Collections.addAll(this.beans, beans);

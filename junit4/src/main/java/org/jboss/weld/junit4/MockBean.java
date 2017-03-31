@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.context.spi.CreationalContext;
@@ -28,6 +29,7 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.inject.spi.PassivationCapable;
 import javax.enterprise.util.AnnotationLiteral;
 
 /**
@@ -42,7 +44,7 @@ import javax.enterprise.util.AnnotationLiteral;
  * @param <T>
  * @see WeldInitiator.Builder#addBean(Bean)
  */
-public class MockBean<T> implements Bean<T> {
+public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     /**
      * By default, the bean:
@@ -78,6 +80,8 @@ public class MockBean<T> implements Bean<T> {
         return MockBean.<T> builder().types(beanType).creating(beanInstance).build();
     }
 
+    private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
+
     private final Set<Class<? extends Annotation>> stereotypes;
 
     private final boolean alternative;
@@ -94,6 +98,8 @@ public class MockBean<T> implements Bean<T> {
 
     private final DestroyFunction<T> destroyCallback;
 
+    private final String id;
+
     private MockBean(Set<Class<? extends Annotation>> stereotypes, boolean alternative, String name,
             Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope,
             CreateFunction<T> createCallback, DestroyFunction<T> destroyCallback) {
@@ -105,6 +111,8 @@ public class MockBean<T> implements Bean<T> {
         this.scope = scope;
         this.createCallback = createCallback;
         this.destroyCallback = destroyCallback;
+        this.id = new StringBuilder().append(MockBean.class.getName()).append("_")
+                .append(SEQUENCE.incrementAndGet()).toString();
     }
 
     @Override
@@ -162,6 +170,11 @@ public class MockBean<T> implements Bean<T> {
     @Override
     public boolean isAlternative() {
         return alternative;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     /**
