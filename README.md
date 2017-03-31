@@ -125,10 +125,10 @@ class ContextsActivatedTest {
 
 #### Adding mock beans
 
-Sometime you might need to add a mock for a bean that is not part of the test deployment, e.g. has dependencies which cannot be satisfied in the test environment.
-Very often you would like to make use of mocking libraries to create a bean instance with the desired behavior.
+Sometime you might need to add a mock for a bean that is not part of the test deployment, e.g. it has dependencies which cannot be satisfied in the test environment.
+Very often, you would like to make use of mocking libraries to create a bean instance with the desired behavior.
 In this case, there are two options.
-First option is to add a [producer method](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#producer_method) to the test class and add the test class to the deployment.
+The first option is to add a [producer method](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#producer_method) to the test class and add the test class to the deployment.
 The test class will be recognized as a bean and therefore the producer will also be discovered.
 
 ```java
