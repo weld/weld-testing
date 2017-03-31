@@ -125,10 +125,11 @@ class ContextsActivatedTest {
 
 #### Adding mock beans
 
-`WeldInitiator.Builder.addBeans(Bean<?>...)` makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit4.MockBean` should be sufficient. 
-Use `org.jboss.weld.junit4.MockBean.builder()` to obtain a new builder instance.
-You can also make use of mocking libraries to create a bean instance.
+Sometime you might need to add a mock for a bean that is not part of the test deployment, e.g. has dependencies which cannot be satisfied in the test environment.
+Very often you would like to make use of mocking libraries to create a bean instance with the desired behavior.
+In this case, there are two options.
+First option is to add a [producer method](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#producer_method) to the test class and add the test class to the deployment.
+The test class will be recognized as a bean and therefore the producer will also be discovered.
 
 ```java
 interface Bar {
@@ -138,7 +139,45 @@ interface Bar {
 class Foo {
   @Inject
   Bar bar;
-  
+
+  String ping() {
+    return bar.ping();
+  }
+}
+
+class TestClassProducerTest {
+
+    @Rule
+    public WeldInitiator weld = WeldInitiator.from(Foo.class, Bar.class, MockBeanTest.class).build();
+
+    @ApplicationScoped
+    @Produces
+    Bar produceBar() {
+      // Mock object provided by Mockito
+      return Mockito.when(Mockito.mock(Bar.class).ping()).thenReturn("pong").getMock());
+    }
+
+    @Test
+    public void testFoo() {
+        Assert.assertEquals("pong", weld.select(Foo.class).get().ping());
+    }
+}
+```
+
+This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
+The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
+You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit4.MockBean` should be sufficient.
+Use `org.jboss.weld.junit4.MockBean.builder()` to obtain a new builder instance.
+
+```java
+interface Bar {
+  String ping();
+}
+
+class Foo {
+  @Inject
+  Bar bar;
+
   String ping() {
     return bar.ping();
   }
@@ -154,7 +193,7 @@ class AddBeanTest {
                 .types(Bar.class)
                 .scope(ApplicationScoped.class)
                 .creating(
-                        // Mock object provided by Mockito
+                       // Mock object provided by Mockito
                        Mockito.when(Mockito.mock(Bar.class).ping()).thenReturn("pong").getMock())
                 .build();
     }
