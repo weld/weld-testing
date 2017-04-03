@@ -203,7 +203,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
         private DestroyFunction<T> destroyCallback;
 
-        Builder() {
+        private Builder() {
             this.stereotypes = new HashSet<>();
             this.alternative = false;
             this.qualifiers = new HashSet<>();
