@@ -48,7 +48,7 @@ public class AddBeanTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.from(Blue.class)
-            .addBeans(MockBean.of(MyService.class, mock(MyService.class)), createListBean(),
+            .addBeans(MockBean.of(mock(MyService.class), MyService.class), createListBean(),
                     createSequenceBean(), createIdSupplierBean())
             .build();
 

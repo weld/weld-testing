@@ -43,6 +43,7 @@ import javax.enterprise.util.AnnotationLiteral;
  *
  * @param <T>
  * @see WeldInitiator.Builder#addBean(Bean)
+ * @since 1.1
  */
 public class MockBean<T> implements Bean<T>, PassivationCapable {
 
@@ -69,15 +70,15 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     }
 
     /**
-     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the specified bean type is added to the set
+     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the specified bean types are added to the set
      * of bean types and {@link Bean#create(CreationalContext)} will always return the specified bean instance.
      *
-     * @param beanType
      * @param beanInstance
+     * @param beanTypes
      * @return a {@link MockBean} instance
      */
-    public static <T> Bean<T> of(Type beanType, T beanInstance) {
-        return MockBean.<T> builder().types(beanType).creating(beanInstance).build();
+    public static <T> Bean<T> of(T beanInstance, Type... beanTypes) {
+        return MockBean.<T> builder().types(beanTypes).creating(beanInstance).build();
     }
 
     private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
