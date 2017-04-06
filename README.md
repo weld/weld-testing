@@ -148,7 +148,7 @@ class Foo {
 class TestClassProducerTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, Bar.class, MockBeanTest.class).build();
+    public WeldInitiator weld = WeldInitiator.from(Foo.class, MockBeanTest.class).build();
 
     @ApplicationScoped
     @Produces
@@ -186,7 +186,7 @@ class Foo {
 class AddBeanTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, Bar.class).addBeans(createBarBean()).build();
+    public WeldInitiator weld = WeldInitiator.from(Foo.class).addBeans(createBarBean()).build();
 
     static Bean<?> createBarBean() {
         return MockBean.builder()
