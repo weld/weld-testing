@@ -11,7 +11,7 @@ This project provides a set of JUnit extensions to enhance the testing of CDI co
 * [JUnit 4](#junit-4)
   * [WeldInitiator](#weldinitiator)
     * [Test class injection](#test-class-injection)
-    * [Activating context for a normal scope](#activating-a-context-for-a-normal-scope)
+    * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
     * [Adding mock beans](#adding-mock-beans)
 
 ## JUnit 4
