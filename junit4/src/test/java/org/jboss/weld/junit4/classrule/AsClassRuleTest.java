@@ -17,11 +17,10 @@
 package org.jboss.weld.junit4.classrule;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -45,17 +44,15 @@ public class AsClassRuleTest {
 
     @Test
     public void test1() {
-        List<String> ids = WeldContainer.getRunningContainerIds();
-        assertEquals(1, ids.size());
-        CONTAINER_ID.set(ids.get(0));
+        assertTrue(weld.isRunning());
+        CONTAINER_ID.set(weld.getId());
         CHARLIE_ID.set(weld.select(Charlie.class).get().getId());
     }
 
     @Test
     public void test2() {
-        List<String> ids = WeldContainer.getRunningContainerIds();
-        assertEquals(1, ids.size());
-        assertEquals(CONTAINER_ID.get(), ids.get(0));
+        assertTrue(weld.isRunning());
+        assertEquals(CONTAINER_ID.get(), weld.getId());
         assertEquals(CHARLIE_ID.get(), weld.select(Charlie.class).get().getId());
     }
 
