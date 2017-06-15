@@ -41,7 +41,7 @@
       <maven.compiler.target>1.7</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.12</version.junit4>
-      <version.weld>2.4.3.Final</version.weld>
+      <version.weld>2.4.4.Final</version.weld>
       <version.weld3>3.0.0.Final</version.weld3>
       <version.mockito>2.7.19</version.mockito>
    </properties>
