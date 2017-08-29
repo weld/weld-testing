@@ -89,7 +89,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
      * @return a new test rule
      */
     public static WeldInitiator of(Weld weld) {
-        return new WeldInitiator(weld, null, null, null);
+        return from(weld).build();
     }
 
     /**
@@ -98,7 +98,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
      * @return a new test rule
      */
     public static WeldInitiator ofTestPackage() {
-        return new WeldInitiator(null, null, null, null);
+        return fromTestPackage().build();
     }
 
     /**
