@@ -17,6 +17,7 @@
 package org.jboss.weld.junit4.inject;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -25,6 +26,10 @@ import org.jboss.weld.junit4.Foo;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 /**
  *
@@ -33,7 +38,20 @@ import org.junit.Test;
 public class InjectTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, MeatyStringObserver.class).inject(this).build();
+    public RuleChain chain = RuleChain.outerRule(new TestRule() {
+        @Override
+        public Statement apply(final Statement base, Description description) {
+            return new Statement() {
+
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+                    assertTrue(IamDependent.DESTROYED.get());
+                }
+            };
+        }
+    }).around(WeldInitiator.from(Foo.class, MeatyStringObserver.class, IamDependent.class)
+            .inject(this).build());
 
     @Inject
     Foo foo;
@@ -42,6 +60,9 @@ public class InjectTest {
     @Meaty
     Event<String> event;
 
+    @Inject
+    IamDependent iamDependent;
+
     @Test
     public void testFoo() {
         MeatyStringObserver.MESSAGES.clear();
@@ -49,6 +70,7 @@ public class InjectTest {
         event.fire("hello");
         assertEquals(1, MeatyStringObserver.MESSAGES.size());
         assertEquals("hello", MeatyStringObserver.MESSAGES.get(0));
+        iamDependent.bang();
     }
 
 }

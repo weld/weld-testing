@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
@@ -192,8 +193,10 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
         /**
          * Instructs the {@link WeldInitiator} to inject the given non-contextual instance once the container is started, i.e. during test execution.
+         *
          * <p>
          * This method could be used e.g. to inject a test class instance:
+         * </p>
          *
          * <pre>
          * public class InjectTest {
@@ -210,6 +213,11 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
          *     }
          * }
          * </pre>
+         *
+         * <p>
+         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the licecycle of the non-contextual instance is not managed by the
+         * container and all injected references will be invalid after the test execution.
+         * </p>
          *
          * @param instance
          * @return self
@@ -238,16 +246,48 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
          */
         public WeldInitiator build() {
             return new WeldInitiator(weld,
-                    instancesToInject.isEmpty() ? null : new ArrayList<>(instancesToInject),
-                    scopesToActivate.isEmpty() ? null : new HashSet<>(scopesToActivate),
-                    beans.isEmpty() ? null : new HashSet<>(beans));
+                    instancesToInject.isEmpty() ? Collections.emptyList()
+                            : new ArrayList<>(instancesToInject),
+                    scopesToActivate.isEmpty()
+                            ? Collections.<Class<? extends Annotation>> emptySet()
+                            : new HashSet<>(scopesToActivate),
+                    beans.isEmpty() ? Collections.<Bean<?>> emptySet() : new HashSet<>(beans));
+        }
+
+    }
+
+    private class ToInject {
+
+        private final Object instance;
+
+        private volatile CreationalContext<?> creationalContext;
+
+        ToInject(Object instance) {
+            this.instance = instance;
+        }
+
+        void inject() {
+            BeanManager beanManager = container.getBeanManager();
+            CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
+            @SuppressWarnings("unchecked")
+            InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
+                    .getInjectionTargetFactory(beanManager.createAnnotatedType(instance.getClass()))
+                    .createInjectionTarget(null);
+            injectionTarget.inject(instance, ctx);
+            creationalContext = ctx;
+        }
+
+        void release() {
+            if (creationalContext != null) {
+                creationalContext.release();
+            }
         }
 
     }
 
     private final Weld weld;
 
-    private final List<Object> instancesToInject;
+    private final List<ToInject> instancesToInject;
 
     private final Set<Class<? extends Annotation>> scopesToActivate;
 
@@ -259,7 +299,14 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
 
     private WeldInitiator(Weld weld, List<Object> instancesToInject,
             Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-        this.instancesToInject = instancesToInject;
+        if (instancesToInject.isEmpty()) {
+            this.instancesToInject = Collections.emptyList();
+        } else {
+            this.instancesToInject = new ArrayList<>();
+            for (Object instance : instancesToInject) {
+                this.instancesToInject.add(new ToInject(instance));
+            }
+        }
         this.scopesToActivate = scopesToActivate;
         this.beans = beans;
         this.weld = weld;
@@ -292,6 +339,7 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
                         if (extension != null) {
                             extension.deactivateContexts();
                         }
+                        releaseInstances();
                     } finally {
                         if (container != null && container.isRunning()) {
                             container.shutdown();
@@ -412,16 +460,18 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
     }
 
     private void injectInstances() {
-        if (instancesToInject == null || instancesToInject.isEmpty()) {
-            return;
+        if (instancesToInject != null) {
+            for (ToInject toInject : instancesToInject) {
+                toInject.inject();
+            }
         }
-        for (Object instance : instancesToInject) {
-            BeanManager beanManager = container.getBeanManager();
-            CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
-            @SuppressWarnings("unchecked")
-            InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
-                    .createInjectionTarget(beanManager.createAnnotatedType(instance.getClass()));
-            injectionTarget.inject(instance, ctx);
+    }
+
+    private void releaseInstances() {
+        if (instancesToInject != null) {
+            for (ToInject toInject : instancesToInject) {
+                toInject.release();
+            }
         }
     }
 
