@@ -8,17 +8,23 @@ The primary goal of this project is to provide simple and fast tools for CDI *un
 The tools are implemented as JUnit extensions.
 Supports Weld **2.4** (CDI 1.2) and **3.0** (CDI 2.0).
 
-## Motivation
+## The What
 
-In fact, you can write a unit test for a CDI bean even without running a container.
-But there are few drawbacks.
-First of all, it's more difficult to write a testable bean (e.g. simulating field injection and interceptors might be quite challenging).
-Mocking frameworks such as [Mockito](http://site.mockito.org/) make it easier.
-Still, the development gets more complex.
-We believe it's easier to start a CDI container in *minimal configuration*.
-In this case, all container-provided services are available (dependency injection, interception, etc.).
-There is no need to change the way you develop your CDI components.
-Also it's easy to combine this approach with mocking frameworks (see also [Adding mock beans](#adding-mock-beans)).
+Weld JUnit extension allows you to write unit tests for your beans regardless of the target environment (Java SE, Java EE, etc.).
+It starts a real CDI container in minimal configuration meaning you can leverage all bean capabilities - injection, interception, events, etc. - without the need for mocking.
+This extension boots up CDI container before each test method and shuts it down afterwards.
+You have the power to customize what beans, extension, interceptors (and so on) are going to be in the container.
+Furthermore, you can `@Inject` directly in your test class - and the list goes on...
+
+
+## The Why
+
+As a matter of fact, one could have a unit test for CDI bean without running a container, but that would present quite a few drawbacks.
+Simulating field injection to start with, then interceptors and/or decorators - all in all, quite a challenge.
+There are frameworks to make this easier such as [Mockito](http://site.mockito.org/); but use too many mocks and things get tangled real quick
+So we came with JUnit extension which allows you to use actual CDI container instead of complex simulations.
+There is no need to change the way you develop your CDI components if you have a real container to test it with.
+Besides, it's easy to combine this approach with mocking frameworks (see also [Adding mock beans](#adding-mock-beans)).
 
 ## Table of contents
 
