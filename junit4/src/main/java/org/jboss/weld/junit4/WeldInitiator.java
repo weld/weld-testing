@@ -102,81 +102,6 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
     }
 
     /**
-     * The container is configured to perform the "normal" discovery, e.g. to find all beans/descriptors/etc in the class path.
-     *
-     * @return a new test rule
-     */
-    public static WeldInitiator ofDiscovery() {
-        return fromDiscovery().build();
-    }
-
-    /**
-     * The container is configured to perform the "normal" discovery, e.g. to find all beans/descriptors/etc in the class path.
-     *
-     * @param flatDeployment If set to {@code true} bean archive isolation is disabled and a "flat" deployment structure is used
-     * @return a new test rule
-     * @see Weld#ARCHIVE_ISOLATION_SYSTEM_PROPERTY
-     */
-    public static WeldInitiator ofDiscovery(boolean flatDeployment) {
-        return fromDiscovery(flatDeployment).build();
-    }
-
-    /**
-     * Create a new builder instance.
-     *
-     * @param weld
-     * @return a builder instance
-     * @see #of(Class...)
-     */
-    public static Builder from(Class<?>... beanClasses) {
-        return from(createWeld().beanClasses(beanClasses));
-    }
-
-    /**
-     * Create a new builder instance.
-     *
-     * @param weld
-     * @return a builder instance
-     * @see #of(Weld)
-     */
-    public static Builder from(Weld weld) {
-        return new Builder(weld);
-    }
-
-    /**
-     * Create a new builder instance.
-     *
-     * @return a builder instance
-     * @see #ofTestPackage()
-     */
-    public static Builder fromTestPackage() {
-        return new Builder(null);
-    }
-
-
-    /**
-     * Create a new builder instance.
-     *
-     * @return a builder instance
-     * @see #ofDiscovery()
-     */
-    public static Builder fromDiscovery() {
-        return fromDiscovery(false);
-    }
-
-    /**
-     * Create a new builder instance.
-     *
-     * @param flatDeployment If set to {@code true} bean archive isolation is disabled and a "flat" deployment structure is used
-     * @return a builder instance
-     * @see Weld#ARCHIVE_ISOLATION_SYSTEM_PROPERTY
-     */
-    public static Builder fromDiscovery(boolean flatDeployment) {
-        return new Builder(createWeld().enableDiscovery()
-                .property(Weld.ARCHIVE_ISOLATION_SYSTEM_PROPERTY, !flatDeployment));
-    }
-
-    /**
      * The returned {@link Weld} instance has:
      * <ul>
      * <li>automatic discovery disabled</li>
@@ -188,6 +113,38 @@ public class WeldInitiator implements TestRule, WeldInstance<Object>, ContainerI
     public static Weld createWeld() {
         return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(),
                 false);
+    }
+
+    /**
+     * Create a builder instance.
+     *
+     * @param weld
+     * @return a builder instance
+     * @see #of(Class...)
+     */
+    public static Builder from(Class<?>... beanClasses) {
+        return from(createWeld().beanClasses(beanClasses));
+    }
+
+    /**
+     * Create a builder instance.
+     *
+     * @param weld
+     * @return a builder instance
+     * @see #of(Weld)
+     */
+    public static Builder from(Weld weld) {
+        return new Builder(weld);
+    }
+
+    /**
+     * Create a builder instance.
+     *
+     * @return a builder instance
+     * @see #ofTestPackage()
+     */
+    public static Builder fromTestPackage() {
+        return new Builder(null);
     }
 
     /**
