@@ -4,7 +4,21 @@
 [![Maven Central](http://img.shields.io/maven-central/v/org.jboss.weld/weld-junit4.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22weld-junit4%22)
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-This project provides a set of JUnit extensions to enhance the testing of CDI components. Supports Weld **2.4** and **3.0**.
+The primary goal of this project is to provide simple and fast tools for CDI *unit/component* testing.
+The tools are implemented as JUnit extensions.
+Supports Weld **2.4** (CDI 1.2) and **3.0** (CDI 2.0).
+
+## Motivation
+
+In fact, you can write a unit test for a CDI bean even without running a container.
+But there are few drawbacks.
+First of all, it's more difficult to write a testable bean (e.g. simulating field injection and interceptors might be quite challenging).
+Mocking frameworks such as [Mockito](http://site.mockito.org/) make it easier.
+Still, the development gets more complex.
+We believe it's easier to start a CDI container in *minimal configuration*.
+In this case, all container-provided services are available (dependency injection, interception, etc.).
+There is no need to change the way you develop your CDI components.
+Also it's easy to combine this approach with mocking frameworks (see also [Adding mock beans](#adding-mock-beans)).
 
 ## Table of contents
 
@@ -26,7 +40,7 @@ This project provides a set of JUnit extensions to enhance the testing of CDI co
 
 ### WeldInitiator
 
-`org.jboss.weld.junit.WeldInitiator` is a `TestRule` (JUnit 4.9+) which allows to start a Weld container per test method execution.
+`org.jboss.weld.junit.WeldInitiator` is a `TestRule` (JUnit 4.9+) which allows to *start/stop* a Weld container per test method execution.
 The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance - see also `WeldInitiator.of(Weld)` static method.
 
 A convenient static method `WeldInitiator.of(Class<?>...)` is also provided - in this case, the container is optimized for testing purposes (with automatic discovery and concurrent deployment disabled) and only the given bean classes are considered.
