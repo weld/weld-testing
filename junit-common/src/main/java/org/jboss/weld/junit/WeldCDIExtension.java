@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4;
+package org.jboss.weld.junit;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -29,8 +29,9 @@ import javax.enterprise.inject.spi.Extension;
 /**
  *
  * @author Martin Kouba
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-class WeldJunit4Extension implements Extension {
+class WeldCDIExtension implements Extension {
 
     private final Set<Class<? extends Annotation>> scopesToActivate;
 
@@ -38,7 +39,7 @@ class WeldJunit4Extension implements Extension {
 
     private final List<ContextImpl> contexts;
 
-    WeldJunit4Extension(Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+    public WeldCDIExtension(Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
         this.scopesToActivate = scopesToActivate;
         this.beans = beans;
         this.contexts = new ArrayList<>();
@@ -59,7 +60,7 @@ class WeldJunit4Extension implements Extension {
         }
     }
 
-    void activateContexts() {
+    public void activateContexts() {
         if (contexts.isEmpty()) {
             return;
         }
@@ -68,7 +69,7 @@ class WeldJunit4Extension implements Extension {
         }
     }
 
-    void deactivateContexts() {
+    public void deactivateContexts() {
         if (contexts.isEmpty()) {
             return;
         }
@@ -76,5 +77,4 @@ class WeldJunit4Extension implements Extension {
             context.deactivate();
         }
     }
-
 }

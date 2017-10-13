@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4;
+package org.jboss.weld.junit;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -130,7 +130,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     @Override
     public Class<?> getBeanClass() {
-        return WeldJunit4Extension.class;
+        return WeldCDIExtension.class;
     }
 
     @Override

@@ -31,8 +31,8 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.util.TypeLiteral;
 
-import org.jboss.weld.junit4.MockBean;
-import org.jboss.weld.junit4.MockBean.CreateFunction;
+import org.jboss.weld.junit.MockBean;
+import org.jboss.weld.junit.MockBean.CreateFunction;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
