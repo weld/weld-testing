@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4;
+package org.jboss.weld.junit5;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -24,44 +24,18 @@ import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
 
-import org.jboss.weld.environment.ContainerInstance;
 import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.inject.WeldInstance;
+import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.AbstractWeldInitiator;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 
 /**
- * Test rule which starts a Weld container per each test method execution:
+ * TODO document this
  *
- * <pre>
- * public class SimpleTest {
- *
- *     &#64;Rule
- * public WeldInitiator weld = WeldInitiator.of(Foo.class);
- *
- * &#64;Test
- * public void testFoo() {
- * // Weld container is started automatically
- * // WeldInitiator can be used to perform programmatic lookup of beans
- * assertEquals("baz", weld.select(Foo.class).get().getBaz());
- * }
- * }
- * </pre>
- *
- * <p>
- * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean
- * instances.
- * </p>
- *
- * @author Martin Kouba
  * @author Matej Novotny
  */
-public class WeldInitiator extends AbstractWeldInitiator implements TestRule, WeldInstance<Object>, ContainerInstance {
+public class WeldInitiator extends AbstractWeldInitiator {
 
     /**
      * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added.
@@ -175,27 +149,24 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule, We
 
     }
 
-    private WeldInitiator(Weld weld, List<Object> instancesToInject,
+    // has to be package protected so we can init this from WeldJunit5Extension is user doesn's specify it
+    WeldInitiator(Weld weld, List<Object> instancesToInject,
         Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
         super(weld, instancesToInject, scopesToActivate, beans);
     }
 
-    @Override
-    public Statement apply(final Statement base, final Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                Weld weld = WeldInitiator.this.weld;
-                if (weld == null) {
-                    weld = createWeld().addPackage(false, description.getTestClass());
-                }
-                initWeldContainer(weld);
-                try {
-                    base.evaluate();
-                } finally {
-                    shutdownWeldContainer();
-                }
-            }
-        };
+    void shutdownWeld() {
+        super.shutdownWeldContainer();
+    }
+
+    WeldContainer initWeld(Object testInstance) {
+        Weld weld = WeldInitiator.this.weld;
+        if (weld == null) {
+            weld = createWeld().addPackage(false, testInstance.getClass());
+        }
+        // this ensures the test instance is always an InjectionTarget
+        instancesToInject.add(createToInject(testInstance));
+
+        return initWeldContainer(weld);
     }
 }

@@ -41,13 +41,17 @@
       <maven.compiler.target>1.7</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.12</version.junit4>
-      <version.weld>2.4.5.Final</version.weld>
-      <version.weld3>3.0.1.Final</version.weld3>
+      <junit.platform.version>1.0.1</junit.platform.version>
+      <junit.jupiter.version>5.0.1</junit.jupiter.version>
+      <version.weld>2.4.4.Final</version.weld>
+      <version.weld3>3.0.0.Final</version.weld3>
       <version.mockito>2.7.19</version.mockito>
    </properties>
 
    <modules>
       <module>junit4</module>
+      <module>junit5</module>
+      <module>junit-common</module>
    </modules>
 
    <dependencyManagement>
@@ -65,12 +69,30 @@
             <artifactId>junit</artifactId>
             <version>${version.junit4}</version>
          </dependency>
+         
+         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+        </dependency>
 
          <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${version.mockito}</version>
             <scope>test</scope>
+         </dependency>
+         
+         <dependency>
+             <groupId>org.jboss.weld</groupId>
+             <artifactId>weld-junit-common</artifactId>
+             <version>${project.version}</version>
          </dependency>
 
       </dependencies>

@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit4.bean;
+package org.jboss.weld.junit5.bean;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,34 +26,40 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.junit.MockBean;
-import org.jboss.weld.junit4.WeldInitiator;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit5.WeldSetup;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  *
- * @author Martin Kouba
+ * @author Matej Novotny
  */
+@ExtendWith(WeldJunit5Extension.class)
 public class AddPassivatingBeanTest {
 
-    @Rule
+    @WeldSetup
     public WeldInitiator weld = WeldInitiator.from(List.class).addBeans(createListBean()).activate(SessionScoped.class).build();
 
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
         return MockBean.builder()
-                .types(new TypeLiteral<List<String>>() {}.getType())
-                .scope(SessionScoped.class)
-                .creating(
-                        // Mock object provided by Mockito
-                        when(mock(List.class).get(0)).thenReturn("42").getMock())
-                .build();
+            .types(new TypeLiteral<List<String>>() {
+            }.getType())
+            .scope(SessionScoped.class)
+            .creating(
+                // Mock object provided by Mockito
+                when(mock(List.class).get(0)).thenReturn("42").getMock())
+            .build();
     }
 
     @SuppressWarnings("serial")
     @Test
     public void testPassivatingBeanAdded() {
-        assertEquals("42", weld.select(new TypeLiteral<List<String>>() {}).get().get(0));
+        Assertions.assertEquals("42", weld.select(new TypeLiteral<List<String>>() {
+        }).get().get(0));
     }
 
 }
