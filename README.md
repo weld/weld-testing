@@ -30,9 +30,11 @@ Besides, it's easy to combine this approach with mocking frameworks (see also [A
 
 * [JUnit 4](#junit-4)
   * [WeldInitiator](#weldinitiator)
-    * [Test class injection](#test-class-injection)
-    * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
-    * [Adding mock beans](#adding-mock-beans)
+    * [Flat Deployment](#flat-deployment)
+    * [Convenient Starting Points](#convenient-starting-points)
+      * [Test class injection](#test-class-injection)
+      * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
+      * [Adding mock beans](#adding-mock-beans)
 
 ## JUnit 4
 
