@@ -47,10 +47,21 @@ Besides, it's easy to combine this approach with mocking frameworks (see also [A
 ### WeldInitiator
 
 `org.jboss.weld.junit.WeldInitiator` is a `TestRule` (JUnit 4.9+) which allows to *start/stop* a Weld container per test method execution.
-The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance - see also `WeldInitiator.of(Weld)` static method.
-
-A convenient static method `WeldInitiator.of(Class<?>...)` is also provided - in this case, the container is optimized for testing purposes (with automatic discovery and concurrent deployment disabled) and only the given bean classes are considered.
+The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance.
+By default, the container is optimized for testing purposes, i.e. with automatic discovery and concurrent deployment disabled (see also `WeldInitiator.createWeld()`).
+However, it is possible to provide a customized `Weld` instance  - see also `WeldInitiator.of(Weld)` and `WeldInitiator.from(Weld)` methods.
 `WeldInitiator` also implements `javax.enterprise.inject.Instance` and therefore might be used to perform programmatic lookup of bean instances.
+
+#### Flat Deployment
+
+Unlike when using [Arquillian Weld embedded container](https://github.com/arquillian/arquillian-container-weld), bean archive isolation is enabled by default.
+This behaviour can be changed by setting a system property `org.jboss.weld.se.archive.isolation` to `false` or through the `Weld.property()` method.
+In that case, Weld will use a _"flat"_ deployment structure - all bean classes share the same bean archive and all beans.xml descriptors are automatically merged into one.
+Thus alternatives, interceptors and decorators selected/enabled for a bean archive will be enabled for the whole application.
+
+#### Convenient Starting Points
+
+A convenient static method `WeldInitiator.of(Class<?>...)` is also provided - in this case, the container is optimized for testing purposes and only the given bean classes are considered.
 
 ```java
 import static org.junit.Assert.assertEquals;
@@ -77,7 +88,7 @@ class SimpleTest {
 }
 ```
 
-It's also possible to use the convenient static method `WeldInitiator.ofTestPackage()` - the container is optimized for testing purposes and all the classes from the test class package are added.
+It's also possible to use `WeldInitiator.ofTestPackage()` - the container is optimized for testing purposes and all the classes from the test class package are added automatically.
 
 ```java
 
@@ -95,9 +106,9 @@ class AnotherSimpleTest {
 }
 ```
 
-`WeldInitiator.Builder` can be used to customize the final `WeldInitiator` instance, e.g. to activate a context for a given normal scope or to inject the test class.
+Furthermore, `WeldInitiator.Builder` can be used to customize the final `WeldInitiator` instance, e.g. to *activate a context for a given normal scope* or to *inject the test class*.
 
-#### Test class injection
+##### Test class injection
 
 Sometimes, the programmatic lookup can imply unnecessary overhead, e.g. an annotation literal must be used for parameterized types and qualifiers with members.
 `WeldInitiator.Builder.inject(Object)` instructs the rule to inject the given non-contextual instance once the container is started, i.e. during each test method execution:
@@ -117,11 +128,10 @@ class InjectTest {
     public void testFoo() {
         assertEquals(42, foo.getValue());
     }
-
 }
 ```
 
-#### Activating context for a normal scope
+##### Activating context for a normal scope
 
 `WeldInitiator.Builder.activate(Object)` makes it possible to activate and deactivate contexts for the specified normal scopes for each test method execution:
 
@@ -143,7 +153,7 @@ class ContextsActivatedTest {
 }
 ```
 
-#### Adding mock beans
+##### Adding mock beans
 
 Sometimes you might need to add a mock for a bean that cannot be part of the test deployment, e.g. the original bean implementation has dependencies which cannot be satisfied in the test environment.
 Very often, it's an ideal use case for mocking libraries, ie. to create a bean instance with the desired behavior.
