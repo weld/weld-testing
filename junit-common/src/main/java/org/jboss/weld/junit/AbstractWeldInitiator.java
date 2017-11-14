@@ -25,9 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionTarget;
@@ -255,7 +257,7 @@ public abstract class AbstractWeldInitiator implements WeldInstance<Object>, Con
 
     }
 
-    protected static abstract class AbstractBuilder {
+    protected static abstract class AbstractBuilder<I extends AbstractWeldInitiator, T extends AbstractBuilder<I, T>> {
 
         protected final Weld weld;
 
@@ -281,7 +283,8 @@ public abstract class AbstractWeldInitiator implements WeldInstance<Object>, Con
          * @param normalScopes
          * @return self
          */
-        public AbstractBuilder activate(Class<? extends Annotation>... normalScopes) {
+        @SafeVarargs
+        public final T activate(Class<? extends Annotation>... normalScopes) {
             for (Class<? extends Annotation> scope : normalScopes) {
                 if (ApplicationScoped.class.equals(scope)) {
                     continue;
@@ -292,11 +295,11 @@ public abstract class AbstractWeldInitiator implements WeldInstance<Object>, Con
                 }
                 this.scopesToActivate.add(scope);
             }
-            return this;
+            return self();
         }
 
         /**
-         * Instructs the {@link WeldInitiator} to inject the given non-contextual instance once the container is started, i.e.
+         * Instructs the initiator to inject the given non-contextual instance once the container is started, i.e.
          * during test execution.
          *
          * <p>
@@ -328,29 +331,38 @@ public abstract class AbstractWeldInitiator implements WeldInstance<Object>, Con
          * @param instance
          * @return self
          */
-        public AbstractBuilder inject(Object instance) {
+        public T inject(Object instance) {
             this.instancesToInject.add(instance);
-            return this;
+            return self();
         }
 
         /**
-         * Instructs the {@link WeldInitiator} to add the specified beans during {@link AfterBeanDiscovery} notification.
+         * Instructs the initiator to add the specified beans during {@link AfterBeanDiscovery} notification.
          *
          * @param beans
          * @return self
          * @see AfterBeanDiscovery#addBean(Bean)
          * @since 1.1
          */
-        public AbstractBuilder addBeans(Bean<?>... beans) {
+        public T addBeans(Bean<?>... beans) {
             Collections.addAll(this.beans, beans);
-            return this;
+            return self();
         }
+
+        protected abstract T self();
+
+        protected abstract I build(Weld weld, List<Object> instancesToInject,
+                Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans);
 
         /**
          *
-         * @return a new {@link WeldInitiator} instance
+         * @return a new initiator instance
          */
-        public abstract AbstractWeldInitiator build();
+        public I build() {
+            return build(weld, instancesToInject.isEmpty() ? Collections.emptyList() : new ArrayList<>(instancesToInject),
+                    scopesToActivate.isEmpty() ? Collections.<Class<? extends Annotation>> emptySet() : new HashSet<>(scopesToActivate),
+                    beans.isEmpty() ? Collections.<Bean<?>> emptySet() : new HashSet<>(beans));
+        }
 
     }
 

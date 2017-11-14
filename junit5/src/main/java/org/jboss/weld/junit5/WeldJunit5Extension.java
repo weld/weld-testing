@@ -36,8 +36,27 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 /**
- * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to
- * inject CDI beans as parameters to @Test methods and resolves all @Inject fields in test class.
+ * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to inject CDI beans as parameters
+ * to @Test methods and resolves all @Inject fields in test class.
+ *
+ * By default (if no {@link WeldInitiator} field annotated with {@link WeldSetup} is present), Weld is configured with the result of
+ * {@link WeldInitiator#createWeld()} method and all the classes from the test class package are added:
+ *
+ * <pre>
+ * &#64;ExtendWith(WeldJunit5Extension.class)
+ * public class SimpleTest {
+ *
+ *     // Injected automatically
+ *     &#64;Inject
+ *     Foo foo;
+ *
+ *     &#64;Test
+ *     public void testFoo() {
+ *         // Weld container is started automatically
+ *         assertEquals("baz", foo.getBaz());
+ *     }
+ * }
+ * </pre>
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
@@ -106,7 +125,8 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
         // see if container is up, if not, we do not support it
         if (getContainerFromStore(extensionContext) != null) {
             List<Annotation> qualifiers = resolveQualifiers(parameterContext);
-            return getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).get();
+            return getContainerFromStore(extensionContext)
+                    .select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).get();
         }
         return null;
     }
@@ -116,7 +136,8 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
         // see if container is up, if not, we do not support it
         if (getContainerFromStore(extensionContext) != null) {
             List<Annotation> qualifiers = resolveQualifiers(parameterContext);
-            if (getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).isResolvable()) {
+            if (getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]))
+                    .isResolvable()) {
                 return true;
             }
         }
@@ -168,7 +189,7 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
     private WeldContainer getContainerFromStore(ExtensionContext context) {
         return getStore(context).get(CONTAINER, WeldContainer.class);
     }
-    
+
     private void clearStore(ExtensionContext context) {
         getStore(context).remove(INITIATOR, WeldInitiator.class);
         getStore(context).remove(CONTAINER, WeldContainer.class);

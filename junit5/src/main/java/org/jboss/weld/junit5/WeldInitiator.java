@@ -17,13 +17,9 @@
 package org.jboss.weld.junit5;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.Bean;
 
 import org.jboss.weld.environment.se.Weld;
@@ -31,7 +27,23 @@ import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.AbstractWeldInitiator;
 
 /**
- * TODO document this
+ * JUnit 5 initiator - can be used to customize the Weld SE container started by {@link WeldJunit5Extension}.
+ *
+ * <pre>
+ * &#64;ExtendWith(WeldJunit5Extension.class)
+ * public class SimpleTest {
+ *
+ *    &#64;WeldSetup
+ *    public WeldInitiator weld = WeldInitiator.of(Foo.class);
+ *
+ *    &#64;Test
+ *    public void testFoo() {
+ *       // Weld container is started automatically
+ *       // WeldInitiator can be used to perform programmatic lookup of beans
+ *       assertEquals("baz", weld.select(Foo.class).get().getBaz());
+ *    }
+ * }
+ * </pre>
  *
  * @author Matej Novotny
  */
@@ -59,8 +71,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
     }
 
     /**
-     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class
-     * package are added.
+     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class package are added.
      *
      * @return a new test rule
      */
@@ -101,57 +112,41 @@ public class WeldInitiator extends AbstractWeldInitiator {
     }
 
     /**
-     * This builder can be used to customize the final {@link WeldInitiator} instance, e.g. to activate a context for a given
-     * normal scope.
+     * The returned {@link Weld} instance has:
+     * <ul>
+     * <li>automatic discovery disabled</li>
+     * <li>concurrent deployment disabled</li>
+     * </ul>
+     *
+     * @return a new {@link Weld} instance suitable for testing
+     * @see AbstractWeldInitiator#createWeld()
      */
-    public static final class Builder extends AbstractBuilder {
+    public static Weld createWeld() {
+        return AbstractWeldInitiator.createWeld();
+    }
 
-        public Builder(Weld weld) {
+    /**
+     * This builder can be used to customize the final {@link WeldInitiator} instance, e.g. to activate a context for a given normal scope.
+     */
+    public static final class Builder extends AbstractBuilder<WeldInitiator, Builder> {
+
+        private Builder(Weld weld) {
             super(weld);
         }
 
-        /**
-         * Activate and deactivate contexts for the given normal scopes for each test method execution.
-         * <p>
-         * {@link ApplicationScoped} is ignored as it is always active.
-         * </p>
-         *
-         * @param normalScopes
-         * @return self
-         */
-        @SafeVarargs
-        public final Builder activate(Class<? extends Annotation>... normalScopes) {
-            return (Builder) super.activate(normalScopes);
-        }
-
-        public Builder inject(Object instance) {
-            return (Builder) super.inject(instance);
-        }
-
-        public Builder addBeans(Bean<?>... beans) {
-            return (Builder) super.addBeans(beans);
-        }
-
-        /**
-         *
-         * @return a new {@link WeldInitiator} instance
-         */
         @Override
-        public WeldInitiator build() {
-            return new WeldInitiator(weld,
-                instancesToInject.isEmpty() ? Collections.emptyList()
-                    : new ArrayList<>(instancesToInject),
-                scopesToActivate.isEmpty()
-                    ? Collections.<Class<? extends Annotation>>emptySet()
-                    : new HashSet<>(scopesToActivate),
-                beans.isEmpty() ? Collections.<Bean<?>>emptySet() : new HashSet<>(beans));
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans);
         }
 
     }
 
-    // has to be package protected so we can init this from WeldJunit5Extension is user doesn's specify it
-    WeldInitiator(Weld weld, List<Object> instancesToInject,
-        Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
         super(weld, instancesToInject, scopesToActivate, beans);
     }
 
