@@ -2,13 +2,8 @@ language: java
 jdk:
   - oraclejdk8
   - openjdk8
-  - openjdk7
 env:
   - WELD_PROFILE=weld2
   - WELD_PROFILE=weld3
-matrix:
-  exclude:
-    - jdk: openjdk7
-      env: WELD_PROFILE=weld3
 script: "mvn verify -P${WELD_PROFILE}"
 sudo: false
