@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Meta-annotation that allows test classes to be extended with <code>&#64;EnableWeld</code>
- * instead of <code>&#64;ExtendWith(WeldJunit5Extension.class)</code>.
+ * Meta-annotation that allows test classes to be extended with <code>&#64;EnableWeld</code> instead of <code>&#64;ExtendWith(WeldJunit5Extension.class)</code>.
  * 
- * <pre><br>
+ * <pre>
+ * <br>
  * &#64;EnableWeld
  * public class SimpleTest {
  *
@@ -37,5 +37,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Inherited
 @ExtendWith(WeldJunit5Extension.class)
 public @interface EnableWeld {
+
+    Class<?>[] testBeans() default {};
+
+    boolean testPackage() default false;
 
 }
