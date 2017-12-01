@@ -19,6 +19,7 @@ package org.jboss.weld.junit5.ofpackage;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.jboss.weld.junit5.WeldSetup;
+import org.jboss.weld.junit5.basic.Foo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,7 @@ public class OfPackageTest {
     public void testOfTestPackage() {
         Assertions.assertEquals("alpha", weld.select(Alpha.class).get().getValue());
         Assertions.assertTrue(weld.select(Bravo.class).isResolvable());
+        Assertions.assertFalse(weld.select(Foo.class).isResolvable());
     }
 
 }
