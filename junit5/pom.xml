@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.jboss.weld</groupId>
         <artifactId>weld-junit-parent</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>weld-junit5</artifactId>
@@ -39,22 +39,32 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <dependencies>
-                        <!-- Surefire doesn't know JUnit 5 provider yet, we need to add it here -->
-                        <dependency>
-                            <groupId>org.junit.platform</groupId>
-                            <artifactId>junit-platform-surefire-provider</artifactId>
-                            <version>${version.junit.platform}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+   <build>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-surefire-plugin</artifactId>
+               <dependencies>
+                  <!-- Surefire doesn't know JUnit 5 provider yet, we need
+                     to add it here -->
+                  <dependency>
+                     <groupId>org.junit.platform</groupId>
+                     <artifactId>junit-platform-surefire-provider</artifactId>
+                     <version>${version.junit.platform}</version>
+                  </dependency>
+               </dependencies>
+               <configuration>
+                  <systemProperties>
+                     <property>
+                        <name>java.util.logging.config.file</name>
+                        <value>${project.build.testOutputDirectory}/logging.properties</value>
+                     </property>
+                  </systemProperties>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+   </build>
+
 </project>
