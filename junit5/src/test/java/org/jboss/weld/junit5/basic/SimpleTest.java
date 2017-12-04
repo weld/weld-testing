@@ -16,8 +16,8 @@
  */
 package org.jboss.weld.junit5.basic;
 
-import static org.jboss.weld.junit5.WeldAssertions.assertUnresolvable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
@@ -39,7 +39,7 @@ public class SimpleTest {
     @Test
     public void testFoo() {
         assertEquals("baz", weld.select(Foo.class).get().getBar());
-        assertUnresolvable(weld.select(Alpha.class));
+        assertFalse(weld.select(Alpha.class).isResolvable());
     }
 
 }
