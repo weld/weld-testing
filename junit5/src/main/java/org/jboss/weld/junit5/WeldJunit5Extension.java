@@ -84,8 +84,8 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
 
-        // obtain WeldInitiator if defined, we have to use reflections here
-        // first check if we don't alredy have WeldInitiator (in per-method lifecycle this happends where there are multiple tests)s
+        // obtain WeldInitiator if defined, we have to use reflections here first check if we don't already have WeldInitiator (in per-method lifecycle this
+        // happens where there are multiple tests)s
         if (getInitiatorFromStore(context) == null) {
             for (Field field : testInstance.getClass().getDeclaredFields()) {
                 if (field.isAnnotationPresent(WeldSetup.class)) {
@@ -109,6 +109,32 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
                     }
                 }
             }
+        }
+
+        // Try to build the WeldInitiator from the @EnableWeld annotation
+        if (getInitiatorFromStore(context) == null) {
+            // Get the @EnableWeld annotation - try method first then fall back to class
+            context.getTestMethod().ifPresent(m -> {
+
+                EnableWeld enableWeldAnnotation = m.getAnnotation(EnableWeld.class);
+                if (enableWeldAnnotation == null) {
+                    enableWeldAnnotation = m.getDeclaringClass().getAnnotation(EnableWeld.class);
+                }
+
+                if (enableWeldAnnotation != null) {
+                    // If both testPackage and testBeans were configured, that's an error
+                    if (enableWeldAnnotation.testPackage() && enableWeldAnnotation.testBeans().length > 0) {
+                        throw new IllegalStateException("@EnableWeld should include at most one of <code>testPackage</code> or <code>testBeans</code>.");
+                    }
+
+                    // Store a WeldInitiator if either testPackage or testBeans was provided but fall through if an empty annotation is present
+                    if (enableWeldAnnotation.testPackage()) {
+                        getStore(context).put(INITIATOR, WeldInitiator.ofTestPackage());
+                    } else if (enableWeldAnnotation.testBeans().length > 0) {
+                        getStore(context).put(INITIATOR, WeldInitiator.of(enableWeldAnnotation.testBeans()));
+                    }
+                }
+            });
         }
 
         // WeldInitiator may still be null if user didn't specify it at all, we need to create it
