@@ -14,44 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.extensionInjection;
+package org.jboss.weld.junit5.explicitInjection;
 
-import javax.inject.Inject;
+import javax.enterprise.inject.Default;
 
+import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.ExplicitParamInjection;
 import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Basic test for JUnit 5 injection into parameter/field handled by Weld
+ *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @ExtendWith(WeldJunit5Extension.class)
-public class JUnit5ExtensionTest {
+public class ExplicitParameterInjectionViaMethodAnnotationTest {
 
-    @Inject
-    SomeBean bean;
-
-    @Test
-    public void testFieldInjection() {
-
-        // assert field injection works
-        Assertions.assertNotNull(bean);
-        bean.ping();
-    }
+    @WeldSetup(explicitParameterInjection = true)
+    public WeldInitiator initiator;
 
     @Test
-    public void testparamInjection(FooBean foo) {
-        // assert param injection works
-        Assertions.assertNotNull(foo);
-        foo.ping();
-    }
-
-    @Test
-    public void testparamInjectionWithQualifier(@MyQualifier BarBean bar) {
-        // assert param injection with qualifier works
+    @ExtendWith(CustomExtension.class)
+    @ExplicitParamInjection
+    public void testParametersNeedExtraAnnotation(@Default Foo foo, Bar bar, @MyQualifier BeanWithQualifier bean) {
+        // Bar should be resolved by another extension
         Assertions.assertNotNull(bar);
-        bar.ping();
+        Assertions.assertEquals(CustomExtension.class.getSimpleName(), bar.ping());
+        // Foo should be resolved as usual
+        Assertions.assertNotNull(foo);
+        Assertions.assertEquals(Foo.class.getSimpleName(), foo.ping());
+        // BeanWithQualifier should be resolved
+        Assertions.assertNotNull(bean);
+        Assertions.assertEquals(BeanWithQualifier.class.getSimpleName(), bean.ping());
     }
 }

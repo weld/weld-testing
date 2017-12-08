@@ -19,19 +19,19 @@ package org.jboss.weld.junit5;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.jboss.weld.junit5.WeldJunit5Extension;
+import javax.enterprise.inject.Default;
 
 /**
- * An annotation used to denote a WeldInitiator field. This is then picked up by {@link WeldJunit5Extension} and used for
- * configuration.
- *
- * Allows to set a parameter {@code expicitParameterInjection} which will make Weld resolve only parameters annotated withal
- * {@link WeldInject}.
+ * An annotation used to enforce explicit parameter annotation. When applied, Weld will only attempt to resolve method
+ * parameters which have qualifiers. In case no qualifier is required for your bean, add the {@link Default} qualifier, see CDI
+ * specification for in depth explanation on qualifiers.
+ * 
+ * This annotation can be applied either on test class, in which case it affects parameter injection in all methods, or on
+ * a method.
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WeldSetup {
+public @interface ExplicitParamInjection {
 
-    boolean explicitParameterInjection() default false;
 }

@@ -14,24 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5;
+package org.jboss.weld.junit5.explicitInjection;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jboss.weld.junit5.WeldJunit5Extension;
+import javax.inject.Qualifier;
 
 /**
- * An annotation used to denote a WeldInitiator field. This is then picked up by {@link WeldJunit5Extension} and used for
- * configuration.
- *
- * Allows to set a parameter {@code expicitParameterInjection} which will make Weld resolve only parameters annotated withal
- * {@link WeldInject}.
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
+@Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WeldSetup {
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
+public @interface MyQualifier {
 
-    boolean explicitParameterInjection() default false;
 }

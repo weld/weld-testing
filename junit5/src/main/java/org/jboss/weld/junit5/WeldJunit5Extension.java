@@ -18,10 +18,12 @@ package org.jboss.weld.junit5;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Qualifier;
 
 import org.jboss.weld.environment.se.WeldContainer;
@@ -36,11 +38,11 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 /**
- * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to inject CDI beans as parameters
- * to @Test methods and resolves all @Inject fields in test class.
+ * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to
+ * inject CDI beans as parameters to @Test methods and resolves all @Inject fields in test class.
  *
- * By default (if no {@link WeldInitiator} field annotated with {@link WeldSetup} is present), Weld is configured with the result of
- * {@link WeldInitiator#createWeld()} method and all the classes from the test class package are added:
+ * By default (if no {@link WeldInitiator} field annotated with {@link WeldSetup} is present), Weld is configured with the
+ * result of {@link WeldInitiator#createWeld()} method and all the classes from the test class package are added:
  *
  * <pre>
  * &#64;ExtendWith(WeldJunit5Extension.class)
@@ -62,8 +64,13 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor;
  */
 public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostProcessor, AfterTestExecutionCallback, ParameterResolver {
 
+    // variables used to identify object in Store
     private static final String INITIATOR = "weldInitiator";
     private static final String CONTAINER = "weldContainer";
+    private static final String EXPLICIT_PARAM_INJECTION = "explicitParamInjection";
+
+    // global system property
+    public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit5.explicitParamInjection";
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
@@ -84,6 +91,9 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
 
+        // store info about explicit param injection, either from global settings or from annotation on the test class
+        storeExplicitParamResolutionInformation(context);
+
         // obtain WeldInitiator if defined, we have to use reflections here
         // first check if we don't alredy have WeldInitiator (in per-method lifecycle this happends where there are multiple tests)s
         if (getInitiatorFromStore(context) == null) {
@@ -101,8 +111,12 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
                         field.setAccessible(true);
                         fieldInstance = field.get(testInstance);
                     }
-                    if (fieldInstance instanceof WeldInitiator) {
-                        getStore(context).put(INITIATOR, (WeldInitiator) fieldInstance);
+                    // if it's null, we can still store it, it will be created with default settings later on
+                    if (fieldInstance == null || fieldInstance instanceof WeldInitiator) {
+                        // store WeldInitiator
+                        getStore(context).put(INITIATOR, fieldInstance);
+                        // store information about explicitParameterInjection, this overrides global settings!
+                        getStore(context).put(EXPLICIT_PARAM_INJECTION, field.getAnnotation(WeldSetup.class).explicitParameterInjection());
                     } else {
                         // Field with other type than WeldInitiator was annotated with @WeldSetup
                         throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type WeldInitiator.");
@@ -122,41 +136,53 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        // see if container is up, if not, we do not support it
+        // we did our checks in supportsParameter() method, now we can do simple resolution
         if (getContainerFromStore(extensionContext) != null) {
-            List<Annotation> qualifiers = resolveQualifiers(parameterContext);
+            List<Annotation> qualifiers = resolveQualifiers(parameterContext, getContainerFromStore(extensionContext).getBeanManager());
             return getContainerFromStore(extensionContext)
-                    .select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).get();
+                .select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).get();
         }
         return null;
     }
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        // see if container is up, if not, we do not support it
-        if (getContainerFromStore(extensionContext) != null) {
-            List<Annotation> qualifiers = resolveQualifiers(parameterContext);
-            if (getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]))
-                    .isResolvable()) {
-                return true;
-            }
+        // if weld container isn't up yet or if its not Method, we don't resolve it
+        if (getContainerFromStore(extensionContext) == null || (!(parameterContext.getDeclaringExecutable() instanceof Method))) {
+            return false;
         }
-        return false;
+        List<Annotation> qualifiers = resolveQualifiers(parameterContext, getContainerFromStore(extensionContext).getBeanManager());
+        // if we require explicit parameter injection (via global settings or annotation) and there are no qualifiers we don't resolve it
+        if ((getExplicitInjectionInfoFromStore(extensionContext) || (methodRequiresExplicitParamInjection(parameterContext))) && qualifiers.isEmpty()) {
+            return false;
+        } else {
+            return getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]))
+                .isResolvable();
+        }
     }
 
-    private List<Annotation> resolveQualifiers(ParameterContext pc) {
+    private List<Annotation> resolveQualifiers(ParameterContext pc, BeanManager bm) {
         List<Annotation> qualifiers = new ArrayList<>();
         if (pc.getParameter().getAnnotations().length == 0) {
             return Collections.emptyList();
         } else {
             for (Annotation annotation : pc.getParameter().getAnnotations()) {
-                // check if that annotation is in fact Qualifier
-                if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+                // use BeanManager.isQualifier to be able to detect custom qualifiers which don't need to have @Qualifier
+                if (bm.isQualifier(annotation.annotationType())) {
                     qualifiers.add(annotation);
                 }
             }
         }
         return qualifiers;
+    }
+
+    private boolean methodRequiresExplicitParamInjection(ParameterContext pc) {
+        for (Annotation annotation : pc.getDeclaringExecutable().getAnnotations()) {
+            if (annotation.annotationType().equals(ExplicitParamInjection.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private TestInstance.Lifecycle determineTestLifecycle(ExtensionContext ec) {
@@ -167,6 +193,23 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
         } else {
             return TestInstance.Lifecycle.PER_METHOD;
         }
+    }
+
+    private void storeExplicitParamResolutionInformation(ExtensionContext ec) {
+        // check system property which may have set the global explicit param injection
+        Boolean globalSettings = Boolean.valueOf(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION));
+        if (globalSettings) {
+            getStore(ec).put(EXPLICIT_PARAM_INJECTION, globalSettings);
+            return;
+        }
+        // check class-level annotation
+        for (Annotation annotation : ec.getRequiredTestClass().getAnnotations()) {
+            if (annotation.annotationType().equals(ExplicitParamInjection.class)) {
+                getStore(ec).put(EXPLICIT_PARAM_INJECTION, true);
+                break;
+            }
+        }
+
     }
 
     /**
@@ -184,6 +227,14 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
     }
 
     /**
+     * Return boolean indicating whether explicit parameter injection is enabled
+     */
+    private Boolean getExplicitInjectionInfoFromStore(ExtensionContext context) {
+        Boolean result = getStore(context).get(EXPLICIT_PARAM_INJECTION, Boolean.class);
+        return (result == null) ? false : result;
+    }
+
+    /**
      * Can return null if WeldContainer isn't stored yet
      */
     private WeldContainer getContainerFromStore(ExtensionContext context) {
@@ -193,5 +244,6 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
     private void clearStore(ExtensionContext context) {
         getStore(context).remove(INITIATOR, WeldInitiator.class);
         getStore(context).remove(CONTAINER, WeldContainer.class);
+        getStore(context).remove(EXPLICIT_PARAM_INJECTION, Boolean.class);
     }
 }

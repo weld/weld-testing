@@ -18,6 +18,8 @@ Requires JUnit 5 and Java 8.
     * [Test class injection](#test-class-injection)
     * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
     * [Adding mock beans](#adding-mock-beans)
+* [Additional Configuration](#additional-configuration)
+  * [Explicit Parameter Injection](#explicit-parameter-injection)
 
 ## Maven Artifact
 
@@ -32,7 +34,8 @@ Requires JUnit 5 and Java 8.
 ## Basic Example
 
 The simplest way to use this extension is to annotate your test class with `@ExtendWith(WeldJunit5Extension.class)`.
-In such case, Weld container will still be started before each test is run and stopped afterwards.
+If you are in for shorter annotations, you can also use `@EnableWeld`.
+In such case, Weld container will be started before each test is run and stopped afterwards.
 This default behaviour includes:
 
 * Bootstrapping Weld SE container with
@@ -42,6 +45,8 @@ This default behaviour includes:
 * Injecting into test instance, e.g. into all `@Inject` fields
 * Injecting into method parameters of your test methods
   * In case the type of the parameter matches a known and resolvable bean
+  * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in CDI container
+  * If you wish to change this behaviour, please refer to [additional configuration section](#explicit-parameter-injection)
 * Shutting down the container after test is done
 
 And this is how you achieve it:
@@ -277,3 +282,42 @@ class AddBeanTest {
     }
 }
 ```
+
+## Additional Configuration
+
+This section describes any additional configuration options this extension offers.
+
+### Explicit Parameter Injection
+
+As mentioned above, Weld is greedy when it comes to parameter injection.
+It will claim the ability to resolve any parameter which is known as a bean type inside the running CDI container.
+This is mainly for usability, as it would be annoying to constantly type additional annotations to mark which parameter should be injected and which should be left alone.
+
+However, we are aware that this might cause trouble if more extensions are competing for parameter resolution.
+In such case, you can turn on explicit parameter resolution and Weld will only resolve parameters which have at least one `javax.inject.Qualifier` annotation on them.
+There are two ways to enable it; firstly, you can do it globally, through system property - `org.jboss.weld.junit5.explicitParamInjection=true`
+This property is also available as a constant in our extension class, e.g. you can use `org.jboss.weld.junit5.WeldJunit5Extension.GLOBAL_EXPLICIT_PARAM_INJECTION`.
+Secondly, you can use `@ExplicitParamInjection` on your method, or test class.
+In case of test class this annotation will enforce the presence on qualifiers on all methods.
+
+Let's have a look at it:
+
+```java
+@EnableWeld
+@ExplicitParamInjection // all methods will now require explicit parameters
+class ExplicitParamInjectionTest {
+
+    @Test
+    public void testThatParamsAreNotResolvedByWeld(Foo foo) {
+        // Weld will not attempt to resolve Foo, hence this test will fail unless there is another extension resolving it
+    }
+
+    @Test
+    public void testThatParamsAreResolvedByWeld(@Default Foo foo, @MyQualifier Bar bar) {
+        // Weld will resolve both of the parameters
+    }
+}
+```
+
+As you might know, if you want to inject a bean where you would normally not use any qualifier, you can do that using `@Default` qualifier (as shown in the code above).
+This is in accordance with CDI specification, feel free to [read more about it](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#builtin_qualifiers).
