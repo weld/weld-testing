@@ -14,24 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import org.jboss.weld.junit5.WeldJunit5Extension;
+package org.jboss.weld.junit5.explicitInjection;
 
 /**
- * An annotation used to denote a WeldInitiator field. This is then picked up by {@link WeldJunit5Extension} and used for
- * configuration.
- *
- * Allows to set a parameter {@code expicitParameterInjection} which will make Weld resolve only parameters annotated withal
- * {@link WeldInject}.
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface WeldSetup {
+public class Foo {
 
-    boolean explicitParameterInjection() default false;
+    public String ping() {
+        return Foo.class.getSimpleName();
+    }
 }
