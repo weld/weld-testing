@@ -29,6 +29,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -45,7 +46,7 @@ import org.jboss.weld.inject.WeldInstance;
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-public abstract class AbstractWeldInitiator implements WeldInstance<Object>, ContainerInstance {
+public abstract class AbstractWeldInitiator implements Instance<Object>, ContainerInstance {
 
     /**
      * The returned {@link Weld} instance has:
@@ -137,24 +138,6 @@ public abstract class AbstractWeldInitiator implements WeldInstance<Object>, Con
     }
 
     @Override
-    public Handler<Object> getHandler() {
-        checkContainer();
-        return container.getHandler();
-    }
-
-    @Override
-    public boolean isResolvable() {
-        checkContainer();
-        return container.isResolvable();
-    }
-
-    @Override
-    public Iterable<Handler<Object>> handlers() {
-        checkContainer();
-        return container.handlers();
-    }
-
-    @Override
     public void destroy(Object instance) {
         checkContainer();
         container.destroy(instance);
@@ -196,6 +179,16 @@ public abstract class AbstractWeldInitiator implements WeldInstance<Object>, Con
      */
     public boolean isRunning() {
         return container.isRunning();
+    }
+
+    /**
+     * This method should be used when a Weld-specific API is needed.
+     *
+     * @return the underlying container instance
+     */
+    public WeldContainer container() {
+        checkContainer();
+        return container;
     }
 
     private void checkContainer() {
