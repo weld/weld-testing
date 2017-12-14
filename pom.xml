@@ -43,7 +43,7 @@
       <version.junit4>4.12</version.junit4>
       <version.junit.platform>1.0.1</version.junit.platform>
       <version.junit.jupiter>5.0.1</version.junit.jupiter>
-      <version.weld>2.4.5.Final</version.weld>
+      <version.weld>2.4.6.Final</version.weld>
       <version.weld3>3.0.2.Final</version.weld3>
       <version.mockito>2.7.19</version.mockito>
    </properties>
