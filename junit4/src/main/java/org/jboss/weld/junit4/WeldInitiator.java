@@ -18,10 +18,13 @@ package org.jboss.weld.junit4;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit.AbstractWeldInitiator;
@@ -35,21 +38,20 @@ import org.junit.runners.model.Statement;
  * <pre>
  * public class SimpleTest {
  *
- *    &#64;Rule
- *    public WeldInitiator weld = WeldInitiator.of(Foo.class);
+ *     &#64;Rule
+ *     public WeldInitiator weld = WeldInitiator.of(Foo.class);
  *
- *    &#64;Test
- *    public void testFoo() {
- *       // Weld container is started automatically
- *       // WeldInitiator can be used to perform programmatic lookup of beans
- *       assertEquals("baz", weld.select(Foo.class).get().getBaz());
- *    }
+ *     &#64;Test
+ *     public void testFoo() {
+ *         // Weld container is started automatically
+ *         // WeldInitiator can be used to perform programmatic lookup of beans
+ *         assertEquals("baz", weld.select(Foo.class).get().getBaz());
+ *     }
  * }
  * </pre>
  *
  * <p>
- * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean
- * instances.
+ * {@link WeldInitiator} implements {@link Instance} and therefore might be used to perform programmatic lookup of bean instances.
  * </p>
  *
  * @author Martin Kouba
@@ -79,8 +81,7 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
     }
 
     /**
-     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class
-     * package are added.
+     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class package are added.
      *
      * @return a new test rule
      */
@@ -136,14 +137,16 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
 
         @Override
         protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans);
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
+                    persistenceContextFactory);
         }
 
     }
 
-    private WeldInitiator(Weld weld, List<Object> instancesToInject,
-        Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-        super(weld, instancesToInject, scopesToActivate, beans);
+    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
+        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
     }
 
     @Override
@@ -153,6 +156,7 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
             public void evaluate() throws Throwable {
                 Weld weld = WeldInitiator.this.weld;
                 if (weld == null) {
+                    // Null in case of fromTestPackage() is used
                     weld = createWeld().addPackage(false, description.getTestClass());
                 }
                 initWeldContainer(weld);

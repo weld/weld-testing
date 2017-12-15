@@ -46,6 +46,8 @@
       <version.weld>2.4.6.Final</version.weld>
       <version.weld3>3.0.2.Final</version.weld3>
       <version.mockito>2.7.19</version.mockito>
+      <version.jboss-ejb-api>1.0.0.Final</version.jboss-ejb-api>
+      <version.hibernate-jpa-api>1.0.0.Final</version.hibernate-jpa-api>
    </properties>
 
    <modules>
@@ -74,13 +76,13 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${version.junit.jupiter}</version>
-        </dependency>
+         </dependency>
 
-        <dependency>
+         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${version.junit.jupiter}</version>
-        </dependency>
+         </dependency>
 
          <dependency>
             <groupId>org.mockito</groupId>
@@ -90,9 +92,23 @@
          </dependency>
 
          <dependency>
-             <groupId>org.jboss.weld</groupId>
-             <artifactId>weld-junit-common</artifactId>
-             <version>${project.version}</version>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-junit-common</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+            <version>${version.jboss-ejb-api}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>${version.hibernate-jpa-api}</version>
+            <optional>true</optional>
          </dependency>
 
       </dependencies>

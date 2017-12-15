@@ -17,8 +17,8 @@
       </dependency>
 
       <dependency>
-          <groupId>org.jboss.weld</groupId>
-          <artifactId>weld-junit-common</artifactId>
+         <groupId>org.jboss.weld</groupId>
+         <artifactId>weld-junit-common</artifactId>
       </dependency>
 
       <dependency>
@@ -30,6 +30,17 @@
       <dependency>
          <groupId>org.mockito</groupId>
          <artifactId>mockito-core</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.spec.javax.ejb</groupId>
+         <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.hibernate.javax.persistence</groupId>
+         <artifactId>hibernate-jpa-2.1-api</artifactId>
+         <scope>test</scope>
       </dependency>
 
    </dependencies>
@@ -49,5 +60,24 @@
          </plugin>
       </plugins>
    </build>
+
+   <profiles>
+
+      <profile>
+         <id>weld3</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>org.jboss.weld.module</groupId>
+               <artifactId>weld-ejb</artifactId>
+               <version>${version.weld}</version>
+               <scope>test</scope>
+            </dependency>
+         </dependencies>
+      </profile>
+
+   </profiles>
 
 </project>

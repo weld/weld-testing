@@ -1,43 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-junit-parent</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-junit-parent</artifactId>
+      <version>1.2.0-SNAPSHOT</version>
+   </parent>
 
-    <artifactId>weld-junit5</artifactId>
+   <artifactId>weld-junit5</artifactId>
 
-    <dependencies>
+   <dependencies>
 
-        <dependency>
-            <groupId>org.jboss.weld.se</groupId>
-            <artifactId>weld-se-core</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>org.jboss.weld.se</groupId>
+         <artifactId>weld-se-core</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>org.jboss.weld</groupId>
-            <artifactId>weld-junit-common</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>org.jboss.weld</groupId>
+         <artifactId>weld-junit-common</artifactId>
+      </dependency>
 
-        <!--JUnit 5 dependencies-->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-        </dependency>
+      <!--JUnit 5 dependencies -->
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+      </dependency>
 
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
-    </dependencies>
+      <!-- Test dependencies -->
+      <dependency>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-core</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.spec.javax.ejb</groupId>
+         <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.hibernate.javax.persistence</groupId>
+         <artifactId>hibernate-jpa-2.1-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+
+   </dependencies>
 
    <build>
       <pluginManagement>
@@ -66,5 +79,24 @@
          </plugins>
       </pluginManagement>
    </build>
+
+   <profiles>
+
+      <profile>
+         <id>weld3</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>org.jboss.weld.module</groupId>
+               <artifactId>weld-ejb</artifactId>
+               <version>${version.weld}</version>
+               <scope>test</scope>
+            </dependency>
+         </dependencies>
+      </profile>
+
+   </profiles>
 
 </project>
