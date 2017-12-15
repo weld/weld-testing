@@ -18,9 +18,12 @@ package org.jboss.weld.junit5;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -33,15 +36,15 @@ import org.jboss.weld.junit.AbstractWeldInitiator;
  * &#64;ExtendWith(WeldJunit5Extension.class)
  * public class SimpleTest {
  *
- *    &#64;WeldSetup
- *    public WeldInitiator weld = WeldInitiator.of(Foo.class);
+ *     &#64;WeldSetup
+ *     public WeldInitiator weld = WeldInitiator.of(Foo.class);
  *
- *    &#64;Test
- *    public void testFoo() {
- *       // Weld container is started automatically
- *       // WeldInitiator can be used to perform programmatic lookup of beans
- *       assertEquals("baz", weld.select(Foo.class).get().getBaz());
- *    }
+ *     &#64;Test
+ *     public void testFoo() {
+ *         // Weld container is started automatically
+ *         // WeldInitiator can be used to perform programmatic lookup of beans
+ *         assertEquals("baz", weld.select(Foo.class).get().getBaz());
+ *     }
  * }
  * </pre>
  *
@@ -141,13 +144,16 @@ public class WeldInitiator extends AbstractWeldInitiator {
 
         @Override
         protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans);
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
+                    persistenceContextFactory);
         }
 
     }
 
-    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-        super(weld, instancesToInject, scopesToActivate, beans);
+    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
+        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
     }
 
     void shutdownWeld() {

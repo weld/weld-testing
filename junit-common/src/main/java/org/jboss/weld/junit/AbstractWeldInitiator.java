@@ -21,11 +21,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
+import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
@@ -35,6 +39,7 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.util.TypeLiteral;
 
@@ -60,8 +65,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
      * @return a new {@link Weld} instance suitable for testing
      */
     public static Weld createWeld() {
-        return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(),
-            false);
+        return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false);
     }
 
     protected final Weld weld;
@@ -74,10 +78,18 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
     protected final WeldCDIExtension extension;
 
+    private final Map<String, Object> resources;
+
+    private final Function<InjectionPoint, Object> ejbFactory;
+
+    private final Function<InjectionPoint, Object> persistenceUnitFactory;
+
+    private final Function<InjectionPoint, Object> persistenceContextFactory;
+
     protected volatile WeldContainer container;
 
-    protected AbstractWeldInitiator(Weld weld, List<Object> instancesToInject,
-        Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+    protected AbstractWeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory, Function<InjectionPoint, Object> persistenceContextFactory) {
         this.instancesToInject = new ArrayList<>();
         for (Object instance : instancesToInject) {
             this.instancesToInject.add(createToInject(instance));
@@ -91,6 +103,10 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         } else {
             this.extension = null;
         }
+        this.resources = resources;
+        this.ejbFactory = ejbFactory;
+        this.persistenceContextFactory = persistenceContextFactory;
+        this.persistenceUnitFactory = persistenceUnitFactory;
     }
 
     protected ToInject createToInject(Object instanceToInject) {
@@ -183,8 +199,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
     /**
      *
-     * @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code> otherwise
      */
     public boolean isRunning() {
         return container.isRunning();
@@ -245,8 +260,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
             CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
             @SuppressWarnings("unchecked")
             InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
-                .getInjectionTargetFactory(beanManager.createAnnotatedType(instance.getClass()))
-                .createInjectionTarget(null);
+                    .getInjectionTargetFactory(beanManager.createAnnotatedType(instance.getClass())).createInjectionTarget(null);
             injectionTarget.inject(instance, ctx);
             creationalContext = ctx;
         }
@@ -269,11 +283,20 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
         protected final Set<Bean<?>> beans;
 
+        protected final Map<String, Object> resources;
+
+        protected Function<InjectionPoint, Object> ejbFactory;
+
+        protected Function<InjectionPoint, Object> persistenceUnitFactory;
+
+        protected Function<InjectionPoint, Object> persistenceContextFactory;
+
         public AbstractBuilder(Weld weld) {
             this.weld = weld;
             this.instancesToInject = new ArrayList<>();
             this.scopesToActivate = new HashSet<>();
             this.beans = new HashSet<>();
+            this.resources = new HashMap<>();
         }
 
         /**
@@ -292,8 +315,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
                     continue;
                 }
                 if (!scope.isAnnotationPresent(NormalScope.class)) {
-                    throw new IllegalArgumentException(
-                        "Only annotations annotated with @NormalScope are supported!");
+                    throw new IllegalArgumentException("Only annotations annotated with @NormalScope are supported!");
                 }
                 this.scopesToActivate.add(scope);
             }
@@ -301,8 +323,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         }
 
         /**
-         * Instructs the initiator to inject the given non-contextual instance once the container is started, i.e.
-         * during test execution.
+         * Instructs the initiator to inject the given non-contextual instance once the container is started, i.e. during test execution.
          *
          * <p>
          * This method could be used e.g. to inject a test class instance:
@@ -325,9 +346,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
          * </pre>
          *
          * <p>
-         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the licecycle of the
-         * non-contextual instance is not managed by the container and all injected references will be invalid after the test
-         * execution.
+         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the licecycle of the non-contextual instance is not
+         * managed by the container and all injected references will be invalid after the test execution.
          * </p>
          *
          * @param instance
@@ -351,10 +371,71 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
             return self();
         }
 
+        /**
+         * Binds a name to an object. This allows to mock {@link Resource} injection points easily, e.g.:
+         *
+         * <pre>
+         * &#64;Dependent
+         * class Foo {
+         *
+         *     &#64;Resource(lookup = "bar")
+         *     String bar;
+         * }
+         * </pre>
+         *
+         * @param name
+         * @param resource
+         * @return self
+         * @since 1.2
+         */
+        public T bindResource(String name, Object resource) {
+            resources.put(name, resource);
+            return self();
+        }
+
+        /**
+         * Makes it possible to mock {@code @EJB} injection points.
+         *
+         * <p>
+         * Note that for Weld 3 {@code org.jboss.weld.module:weld-ejb} dependency is also required.
+         * </p>
+         *
+         * @param ejbFactory
+         * @return self
+         * @since 1.2
+         */
+        public T setEjbFactory(Function<InjectionPoint, Object> ejbFactory) {
+            this.ejbFactory = ejbFactory;
+            return self();
+        }
+
+        /**
+         * Makes it possible to mock {@code PersistenceUnit} injection points.
+         *
+         * @param persistenceUnitFactory
+         * @return self
+         * @since 1.2
+         */
+        public T setPersistenceUnitFactory(Function<InjectionPoint, Object> persistenceUnitFactory) {
+            this.persistenceUnitFactory = persistenceUnitFactory;
+            return self();
+        }
+
+        /**
+         * Makes it possible to mock {@code PersistenceContext} injection points.
+         *
+         * @param persistenceContextFactory
+         * @return self
+         * @since 1.2
+         */
+        public T setPersistenceContextFactory(Function<InjectionPoint, Object> persistenceContextFactory) {
+            this.persistenceContextFactory = persistenceContextFactory;
+            return self();
+        }
+
         protected abstract T self();
 
-        protected abstract I build(Weld weld, List<Object> instancesToInject,
-                Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans);
+        protected abstract I build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans);
 
         /**
          *
@@ -369,6 +450,17 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
     }
 
     protected WeldContainer initWeldContainer(Weld weld) {
+        // Register mock injection services if needed
+        if (!resources.isEmpty()) {
+            weld.addServices(new MockResourceInjectionServices(resources));
+        }
+        if (ejbFactory != null) {
+            weld.addServices(new MockEjbInjectionServices(ejbFactory));
+        }
+        if (persistenceContextFactory != null || persistenceUnitFactory != null) {
+            weld.addServices(new MockJpaInjectionServices(persistenceUnitFactory, persistenceContextFactory));
+        }
+        // Init the container
         container = weld.initialize();
         injectInstances();
         if (extension != null) {

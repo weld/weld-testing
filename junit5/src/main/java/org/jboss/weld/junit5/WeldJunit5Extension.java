@@ -16,6 +16,9 @@
  */
 package org.jboss.weld.junit5;
 
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -73,23 +76,20 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-        if (determineTestLifecycle(context).equals(TestInstance.Lifecycle.PER_CLASS)) {
+        if (determineTestLifecycle(context).equals(PER_CLASS)) {
             getInitiatorFromStore(context).shutdownWeld();
         }
-        // clear all that we put into Store
-        clearStore(context);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext context) throws Exception {
-        if (determineTestLifecycle(context).equals(TestInstance.Lifecycle.PER_METHOD)) {
+        if (determineTestLifecycle(context).equals(PER_METHOD)) {
             getInitiatorFromStore(context).shutdownWeld();
         }
     }
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-
         // store info about explicit param injection, either from global settings or from annotation on the test class
         storeExplicitParamResolutionInformation(context);
 
@@ -235,9 +235,4 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
         return getStore(context).get(CONTAINER, WeldContainer.class);
     }
 
-    private void clearStore(ExtensionContext context) {
-        getStore(context).remove(INITIATOR, WeldInitiator.class);
-        getStore(context).remove(CONTAINER, WeldContainer.class);
-        getStore(context).remove(EXPLICIT_PARAM_INJECTION, Boolean.class);
-    }
 }
