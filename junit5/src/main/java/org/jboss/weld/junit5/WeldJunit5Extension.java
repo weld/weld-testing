@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Qualifier;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.AbstractWeldInitiator;
@@ -115,8 +114,6 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
                     if (fieldInstance == null || fieldInstance instanceof WeldInitiator) {
                         // store WeldInitiator
                         getStore(context).put(INITIATOR, fieldInstance);
-                        // store information about explicitParameterInjection, this overrides global settings!
-                        getStore(context).put(EXPLICIT_PARAM_INJECTION, field.getAnnotation(WeldSetup.class).explicitParameterInjection());
                     } else {
                         // Field with other type than WeldInitiator was annotated with @WeldSetup
                         throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type WeldInitiator.");

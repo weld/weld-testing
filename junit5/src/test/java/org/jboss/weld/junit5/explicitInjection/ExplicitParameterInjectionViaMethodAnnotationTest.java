@@ -18,10 +18,8 @@ package org.jboss.weld.junit5.explicitInjection;
 
 import javax.enterprise.inject.Default;
 
-import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.ExplicitParamInjection;
 import org.jboss.weld.junit5.WeldJunit5Extension;
-import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(WeldJunit5Extension.class)
 public class ExplicitParameterInjectionViaMethodAnnotationTest {
-
-    @WeldSetup(explicitParameterInjection = true)
-    public WeldInitiator initiator;
 
     @Test
     @ExtendWith(CustomExtension.class)
