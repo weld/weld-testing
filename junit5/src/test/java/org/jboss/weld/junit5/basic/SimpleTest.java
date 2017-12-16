@@ -37,9 +37,17 @@ public class SimpleTest {
     public WeldInitiator weld = WeldInitiator.of(Foo.class);
 
     @Test
-    public void testFoo() {
+    public void testFooA() {
         assertEquals("baz", weld.select(Foo.class).get().getBar());
         assertFalse(weld.select(Alpha.class).isResolvable());
     }
+
+    // https://github.com/weld/weld-junit/issues/19
+    @Test
+    public void testFooB() {
+        assertEquals("baz", weld.select(Foo.class).get().getBar());
+        assertFalse(weld.select(Alpha.class).isResolvable());
+    }
+
 
 }
