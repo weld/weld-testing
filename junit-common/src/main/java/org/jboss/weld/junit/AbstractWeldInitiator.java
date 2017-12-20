@@ -89,7 +89,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
     protected volatile WeldContainer container;
 
     protected AbstractWeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
-            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory, Function<InjectionPoint, Object> persistenceContextFactory) {
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
         this.instancesToInject = new ArrayList<>();
         for (Object instance : instancesToInject) {
             this.instancesToInject.add(createToInject(instance));
@@ -99,6 +100,14 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         this.weld = weld;
         if (hasScopesToActivate() || hasBeansToAdd()) {
             this.extension = new WeldCDIExtension(this.scopesToActivate, this.beans);
+            for (Bean<?> bean : this.beans) {
+                if (bean instanceof MockBean) {
+                    MockBean<?> mockBean = (MockBean<?>) bean;
+                    if (mockBean.isAlternative() && mockBean.isSelectForSyntheticBeanArchive()) {
+                        this.weld.addAlternative(mockBean.getBeanClass());
+                    }
+                }
+            }
             this.weld.addExtension(this.extension);
         } else {
             this.extension = null;
