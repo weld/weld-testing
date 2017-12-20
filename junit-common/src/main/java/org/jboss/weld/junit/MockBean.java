@@ -32,6 +32,8 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.PassivationCapable;
 import javax.enterprise.util.AnnotationLiteral;
 
+import org.jboss.weld.environment.se.Weld;
+
 /**
  * This custom {@link Bean} implementation is useful for mocking.
  * <p>
@@ -70,8 +72,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     }
 
     /**
-     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the specified bean types are added to the set
-     * of bean types and {@link Bean#create(CreationalContext)} will always return the specified bean instance.
+     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the specified bean types are added to the
+     * set of bean types and {@link Bean#create(CreationalContext)} will always return the specified bean instance.
      *
      * @param beanInstance
      * @param beanTypes
@@ -87,6 +89,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     private final boolean alternative;
 
+    private final boolean selectForSyntheticBeanArchive;
+
     private final String name;
 
     private final Set<Annotation> qualifiers;
@@ -101,19 +105,22 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     private final String id;
 
-    private MockBean(Set<Class<? extends Annotation>> stereotypes, boolean alternative, String name,
-            Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope,
-            CreateFunction<T> createCallback, DestroyFunction<T> destroyCallback) {
+    private final Class<?> beanClass;
+
+    private MockBean(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative, boolean selectForSyntheticBeanArchive, String name,
+            Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope, CreateFunction<T> createCallback,
+            DestroyFunction<T> destroyCallback) {
+        this.beanClass = beanClass;
         this.stereotypes = stereotypes;
         this.alternative = alternative;
+        this.selectForSyntheticBeanArchive = selectForSyntheticBeanArchive;
         this.name = name;
         this.qualifiers = qualifiers;
         this.types = types;
         this.scope = scope;
         this.createCallback = createCallback;
         this.destroyCallback = destroyCallback;
-        this.id = new StringBuilder().append(MockBean.class.getName()).append("_")
-                .append(SEQUENCE.incrementAndGet()).toString();
+        this.id = new StringBuilder().append(MockBean.class.getName()).append("_").append(SEQUENCE.incrementAndGet()).toString();
     }
 
     @Override
@@ -130,7 +137,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     @Override
     public Class<?> getBeanClass() {
-        return WeldCDIExtension.class;
+        return beanClass;
     }
 
     @Override
@@ -173,6 +180,16 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         return alternative;
     }
 
+    /**
+     * Initiator should use {@link #getBeanClass()} to select the alternative. Also the alternative should only be selected if {@link #isAlternative()} also
+     * returns <code>true</code>.
+     *
+     * @return <code>true</code> if the initiator should select the bean for the synthetic bean archive
+     */
+    boolean isSelectForSyntheticBeanArchive() {
+        return selectForSyntheticBeanArchive;
+    }
+
     @Override
     public String getId() {
         return id;
@@ -187,9 +204,13 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
      */
     public static class Builder<T> {
 
+        private Class<?> beanClass;
+
         private Set<Class<? extends Annotation>> stereotypes;
 
         private boolean alternative;
+
+        private boolean selectForSyntheticBeanArchive;
 
         private String name;
 
@@ -211,6 +232,18 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             this.scope = Dependent.class;
             this.types = new HashSet<>();
             this.types.add(Object.class);
+            this.beanClass = WeldCDIExtension.class;
+        }
+
+        /**
+         *
+         * @param beanClass
+         * @return self
+         * @see Bean#getBeanClass()
+         */
+        public Builder<T> beanClass(Class<?> beanClass) {
+            this.beanClass = beanClass;
+            return this;
         }
 
         /**
@@ -267,6 +300,40 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          */
         public Builder<T> alternative(boolean value) {
             this.alternative = value;
+            return this;
+        }
+
+        /**
+         * The bean is an alternative and should be automatically selected for the synthetic bean archive.
+         *
+         * <p>
+         * Users are encouraged to specify {@link #beanClass(Class)} when using this method. The bean class is used to determine which alternative beans are
+         * selected for a bean archive. By default, all mock beans share the same bean class - {@code org.jboss.weld.junit.WeldCDIExtension}.
+         * </p>
+         *
+         * @param value
+         * @return self
+         * @see Bean#isAlternative()
+         * @see Weld#addAlternative(Class)
+         * @see #selectedAlternative(Class)
+         */
+        public Builder<T> selectedAlternative() {
+            alternative(true);
+            this.selectForSyntheticBeanArchive = true;
+            return this;
+        }
+
+        /**
+         * The bean has the given bean class, is an alternative and should be automatically selected for the synthetic bean archive.
+         *
+         * @param beanClass
+         * @return self
+         * @see #selectedAlternative()
+         * @see #beanClass(Class)
+         */
+        public Builder<T> selectedAlternative(Class<?> beanClass) {
+            selectedAlternative();
+            beanClass(beanClass);
             return this;
         }
 
@@ -333,8 +400,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             if (qualifiers.size() == 1) {
                 qualifiers.add(DefaultLiteral.INSTANCE);
             }
-            return new MockBean<>(stereotypes, alternative, name, qualifiers, types, scope,
-                    createCallback, destroyCallback);
+            return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope, createCallback,
+                    destroyCallback);
         }
 
     }
