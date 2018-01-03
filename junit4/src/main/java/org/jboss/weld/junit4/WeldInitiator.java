@@ -122,6 +122,20 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
     }
 
     /**
+     * The returned {@link Weld} instance has:
+     * <ul>
+     * <li>automatic discovery disabled</li>
+     * <li>concurrent deployment disabled</li>
+     * </ul>
+     *
+     * @return a new {@link Weld} instance suitable for testing
+     * @see AbstractWeldInitiator#createWeld()
+     */
+    public static Weld createWeld() {
+        return AbstractWeldInitiator.createWeld();
+    }
+
+    /**
      * This builder can be used to customize the final {@link WeldInitiator} instance, e.g. to activate a context for a given normal scope.
      */
     public static final class Builder extends AbstractBuilder<WeldInitiator, Builder> {
