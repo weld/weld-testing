@@ -41,7 +41,12 @@ import org.jboss.weld.util.bean.SerializableForwardingBean;
  * This custom {@link Interceptor} implementation is useful for mocking.
  * <p>
  * A new instance is usually created through a {@link Builder} (see also {@link #withBindings(Annotation...)} method) and then passed to the
- * {@link WeldInitiator.Builder#addBeans(Bean...)} method. Note that all mock interceptors are automatically enabled for the synthetic bean archive.
+ * {@link WeldInitiator.Builder#addBeans(Bean...)} method.
+ * </p>
+ * <p>
+ * Note that by default all mock interceptors are automatically enabled for the synthetic bean archive. If needed a custom bean class can be set through the
+ * {@link Builder#beanClass(Class)} method - the bean class can be used to enable the interceptor for a bean archive. It's not possible to enable a mock
+ * interceptor globally (per application).
  * </p>
  *
  * @author Martin Kouba
@@ -59,6 +64,8 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
         return new Builder().bindings(interceptorBindings);
     }
 
+    private final Class<?> beanClass;
+
     private final InterceptionType type;
 
     private final InterceptionCallback callback;
@@ -67,11 +74,13 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
 
     /**
      *
+     * @param beanClass
      * @param type
      * @param callback
      * @param interceptorBindings
      */
-    private MockInterceptor(InterceptionType type, InterceptionCallback callback, Set<Annotation> interceptorBindings) {
+    private MockInterceptor(Class<?> beanClass, InterceptionType type, InterceptionCallback callback, Set<Annotation> interceptorBindings) {
+        this.beanClass = beanClass;
         this.type = type;
         this.callback = callback;
         this.interceptorBindings = interceptorBindings;
@@ -104,7 +113,7 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
 
     @Override
     public Class<?> getBeanClass() {
-        return MockInterceptor.class;
+        return beanClass;
     }
 
     @Override
@@ -199,6 +208,8 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
 
         private InterceptionCallback callback;
 
+        private Class<?> beanClass;
+
         /**
          *
          * @param bindings
@@ -217,6 +228,17 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
          */
         public Builder type(InterceptionType type) {
             this.type = type;
+            return this;
+        }
+
+        /**
+         * TODO
+         *
+         * @param beanClass
+         * @return self
+         */
+        public Builder beanClass(Class<?> beanClass) {
+            this.beanClass = beanClass;
             return this;
         }
 
@@ -256,7 +278,7 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
             if (bindings.isEmpty()) {
                 throw new IllegalStateException("No interceptor bindings specified");
             }
-            return new MockInterceptor(type, callback, bindings);
+            return new MockInterceptor(beanClass != null ? beanClass : MockInterceptor.class, type, callback, bindings);
         }
 
     }
