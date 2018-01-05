@@ -156,6 +156,10 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
         return false;
     }
 
+    boolean hasDefaultBeanClass() {
+        return MockInterceptor.class.equals(beanClass);
+    }
+
     private Bean<?> getInterceptedBean(CreationalContext<MockInterceptorInstance> ctx) {
         if (!ctx.getClass().getName().startsWith("org.jboss.weld")) {
             return null;
@@ -232,7 +236,8 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
         }
 
         /**
-         * TODO
+         * Allows to specify a bean class of an interceptor. This is only required if you later on need to enforce interceptor ordering via
+         * <code>Weld.enableInterceptors()</code>. Note that such ordering corresponds to enabling interceptors via beans.xml (e.g. per bean archive).
          *
          * @param beanClass
          * @return self

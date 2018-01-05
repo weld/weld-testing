@@ -243,7 +243,7 @@ class TestClassProducerTest {
 
 This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit4.MockBean` should be sufficient.
+You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
 
 ```java
@@ -279,6 +279,47 @@ class AddBeanTest {
     @Test
     public void testFoo() {
         assertEquals("pong", weld.select(Foo.class).get().ping());
+    }
+}
+```
+
+#### Adding mock interceptors
+
+Sometimes it might be useful to add a mock interceptor, e.g. if an interceptor implementation requires some environment-specific features.
+For this use case the `org.jboss.weld.junit.MockInterceptor` is a perfect match:
+
+```
+@FooBinding
+class Foo {
+   boolean ping() {
+      return true;
+   }
+}
+
+@Target({ TYPE, METHOD })
+@Retention(RUNTIME)
+@InterceptorBinding
+@interface FooBinding {
+
+   @SuppressWarnings("serial")
+   static final class Literal extends AnnotationLiteral<FooBinding> implements FooBinding {
+      public static final Literal INSTANCE = new Literal();
+    };
+   }
+}
+
+class MockInterceptorTest {
+
+    @Rule
+    public WeldInitiator weld = WeldInitiator.from(Foo.class).addBeans(
+            MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).aroundInvoke((ctx, b) -> {
+                return false;
+                })).build();
+
+
+    @Test
+    public void testInterception() {
+       Assert.assertFalse(weld.select(Foo.class).get().ping());
     }
 }
 ```
