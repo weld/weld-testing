@@ -107,8 +107,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
                     if (mockBean.isAlternative() && mockBean.isSelectForSyntheticBeanArchive()) {
                         this.weld.addAlternative(mockBean.getBeanClass());
                     }
-                } else if (bean instanceof MockInterceptor) {
-                   hasMockInterceptor = true;
+                } else if (bean instanceof MockInterceptor && ((MockInterceptor) bean).hasDefaultBeanClass()) {
+                    hasMockInterceptor = true;
                 }
             }
             // Automatically enable all mock interceptors for the synthetic bean archive
@@ -380,6 +380,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
          * @param beans
          * @return self
          * @see AfterBeanDiscovery#addBean(Bean)
+         * @see MockBean
+         * @see MockInterceptor
          * @since 1.1
          */
         public T addBeans(Bean<?>... beans) {
