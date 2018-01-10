@@ -56,7 +56,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
      * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added.
      *
      * @param beanClasses
-     * @return a new test rule
+     * @return a new WeldInitiator instance
      * @see Weld#beanClasses(Class...)
      */
     public static WeldInitiator of(Class<?>... beanClasses) {
@@ -67,7 +67,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
      * The container is configured through a provided {@link Weld} instance.
      *
      * @param weld
-     * @return a new test rule
+     * @return a new WeldInitiator instance
      */
     public static WeldInitiator of(Weld weld) {
         return from(weld).build();
@@ -76,10 +76,21 @@ public class WeldInitiator extends AbstractWeldInitiator {
     /**
      * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class package are added.
      *
-     * @return a new test rule
+     * @return a new WeldInitiator instance
      */
     public static WeldInitiator ofTestPackage() {
         return fromTestPackage().build();
+    }
+
+    /**
+     * The container is instructed to do automatic bean discovery, the resulting bean archive is NOT synthetic.
+     * Note that this requires beans.xml to be present.
+     * It is equals to {@code WeldInitiator.of(new Weld())} invocation.
+     *
+     * @return a new WeldInitiator instance
+     */
+    public static WeldInitiator performDefaultDiscovery() {
+        return of(new Weld());
     }
 
     /**

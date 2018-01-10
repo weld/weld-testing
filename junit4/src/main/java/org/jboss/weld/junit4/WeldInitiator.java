@@ -90,6 +90,17 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
     }
 
     /**
+     * The container is instructed to do automatic bean discovery, the resulting bean archive is NOT synthetic.
+     * Note that this requires beans.xml to be present.
+     * It is equals to {@code WeldInitiator.of(new Weld())} invocation.
+     *
+     * @return a new test rule
+     */
+    public static WeldInitiator performDefaultDiscovery() {
+        return of(new Weld());
+    }
+
+    /**
      * Create a builder instance.
      *
      * @param weld
