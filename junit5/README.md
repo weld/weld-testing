@@ -18,6 +18,8 @@ Requires JUnit 5 and Java 8.
     * [Test class injection](#test-class-injection)
     * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
     * [Adding mock beans](#adding-mock-beans)
+    * [Adding mock interceptors](#adding-mock-interceptors)
+    * [Mock injection services](#mock-injection-services)
 * [Additional Configuration](#additional-configuration)
   * [Explicit Parameter Injection](#explicit-parameter-injection)
 
@@ -308,9 +310,10 @@ class Foo {
    }
 }
 
+@EnableWeld
 class MockInterceptorTest {
 
-    @Rule
+    @WeldSetup
     public WeldInitiator weld = WeldInitiator.from(Foo.class).addBeans(
             MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).aroundInvoke((ctx, b) -> {
                 return false;
@@ -320,6 +323,37 @@ class MockInterceptorTest {
     @Test
     public void testInterception() {
        Assert.assertFalse(weld.select(Foo.class).get().ping());
+    }
+}
+```
+
+#### Mock injection services
+
+If a bean under the test declares a non-CDI injection point (such as `@Resource`) a mock injection service must be installed.
+`WeldInitiator` builder comes with several convenient methods which allow to easily mock the Weld SPI:
+
+* `bindResource()` - to handle `@Resource`
+* `setEjbFactory()` - to handle `@EJB`
+* `setPersistenceUnitFactory()` - to handle `@PersistenceUnit`
+* `setPersistenceContextFactory()` - to handle `@PersistenceContext`
+
+```java
+class Baz {
+
+    @Resource(lookup = "somejndiname")
+    String coolResource;
+
+}
+
+@EnableWeld
+class MyTest {
+
+    @WeldSetup
+    public WeldInitiator weld = WeldInitiator.from(Baz.class).bindResource("somejndiname", "coolString").build();
+
+    @Test
+    public void test(Baz baz) {
+       Assertions.assertEquals("coolString", baz.coolResource);
     }
 }
 ```

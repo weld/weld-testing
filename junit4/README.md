@@ -12,6 +12,8 @@ It requires JUnit 4.9+ and Java 8.
     * [Test class injection](#test-class-injection)
     * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
     * [Adding mock beans](#adding-mock-beans)
+    * [Adding mock interceptors](#adding-mock-interceptors)
+    * [Mock injection services](#mock-injection-services)
 
 ## Maven Artifact
 
@@ -219,7 +221,7 @@ class AddBeanTest {
 Sometimes it might be useful to add a mock interceptor, e.g. if an interceptor implementation requires some environment-specific features.
 For this use case the `org.jboss.weld.junit.MockInterceptor` is a perfect match:
 
-```
+```java
 @FooBinding
 class Foo {
    boolean ping() {
@@ -251,6 +253,36 @@ class MockInterceptorTest {
     @Test
     public void testInterception() {
        Assert.assertFalse(weld.select(Foo.class).get().ping());
+    }
+}
+```
+
+#### Mock injection services
+
+If a bean under the test declares a non-CDI injection point (such as `@Resource`) a mock injection service must be installed.
+`WeldInitiator` builder comes with several convenient methods which allow to easily mock the Weld SPI:
+
+* `bindResource()` - to handle `@Resource`
+* `setEjbFactory()` - to handle `@EJB`
+* `setPersistenceUnitFactory()` - to handle `@PersistenceUnit`
+* `setPersistenceContextFactory()` - to handle `@PersistenceContext`
+
+```java
+class Baz {
+
+    @Resource(lookup = "somejndiname")
+    String coolResource;
+
+}
+
+class MyTest {
+
+    @Rule
+    public WeldInitiator weld = WeldInitiator.from(Baz.class).bindResource("somejndiname", "coolString").build();
+
+    @Test
+    public void test(Baz baz) {
+       Assertions.assertEquals("coolString", baz.coolResource);
     }
 }
 ```
