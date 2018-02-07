@@ -16,21 +16,25 @@
  */
 package org.jboss.weld.junit5.bean;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.junit.MockBean;
-import org.jboss.weld.junit.MockBean.CreateFunction;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.jboss.weld.junit5.WeldSetup;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -47,9 +51,10 @@ public class AddBeanTest {
 
     @WeldSetup
     public WeldInitiator weld = WeldInitiator.from(Blue.class)
-        .addBeans(MockBean.of(Mockito.mock(MyService.class), MyService.class), createListBean(),
-            createSequenceBean(), createIdSupplierBean())
-        .build();
+            .addBeans(MockBean.of(mock(MyService.class), MyService.class))
+            .addBeans(MockBean.read(BlueToDiscover.class).scope(Dependent.class).build())
+            .addBeans(createListBean(), createSequenceBean(), createIdSupplierBean())
+            .build();
 
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
@@ -68,37 +73,24 @@ public class AddBeanTest {
             .types(Integer.class)
             .qualifiers(Meaty.Literal.INSTANCE)
             .create((ctx) -> SEQUENCE.incrementAndGet()).build();
-//                        // We could use lambda in Java8
-//                        new CreateFunction<Integer>() {
-//                            @Override
-//                            public Integer create(CreationalContext<Integer> creationalContext) {
-//                                return SEQUENCE.incrementAndGet();
-//                            }
-//                        })
-//                .build();
     }
 
     static Bean<?> createIdSupplierBean() {
         return MockBean.<IdSupplier>builder()
             .types(IdSupplier.class)
             .scope(ApplicationScoped.class)
-            .create(new CreateFunction<IdSupplier>() {
-                @Override
-                public IdSupplier create(CreationalContext<IdSupplier> creationalContext) {
-                    return new IdSupplier(UUID.randomUUID().toString());
-                }
-            }).build();
+            .create(ctx -> new IdSupplier(UUID.randomUUID().toString())).build();
     }
 
     @Test
     public void testBeansAdded() {
         // Blue injects @Meaty List<String>
-        Assertions.assertEquals("42", weld.select(Blue.class).get().getStringList().get(0));
+        assertEquals("42", weld.select(Blue.class).get().getStringList().get(0));
 
         // Each Bean.create() increments the sequence
         SEQUENCE.set(0);
         for (int i = 1; i < 11; i++) {
-            Assertions.assertEquals(Integer.valueOf(i),
+            assertEquals(Integer.valueOf(i),
                 weld.select(Integer.class, Meaty.Literal.INSTANCE).get());
         }
 
@@ -108,7 +100,16 @@ public class AddBeanTest {
         Mockito.verify(myService, Mockito.atLeastOnce()).doBusiness(ArgumentMatchers.anyString());
 
         // Test applicaction scoped bean
-        Assertions.assertEquals(weld.select(IdSupplier.class).get().getId(), weld.select(IdSupplier.class).get().getId());
+        assertEquals(weld.select(IdSupplier.class).get().getId(), weld.select(IdSupplier.class).get().getId());
+
+        // The scope is changed to @Dependent
+        BlueToDiscover blue1 = weld.select(BlueToDiscover.class).get();
+        BlueToDiscover blue2 = weld.select(BlueToDiscover.class).get();
+        assertNotNull(blue1.getId());
+        assertNotNull(blue2.getId());
+        assertNotEquals(blue1.getId(), blue2.getId());
+        Set<Bean<?>> beans = weld.getBeanManager().getBeans("blue");
+        assertEquals(1, beans.size());
     }
 
     interface MyService {

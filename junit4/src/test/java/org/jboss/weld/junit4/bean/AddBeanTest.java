@@ -17,22 +17,24 @@
 package org.jboss.weld.junit4.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.junit.MockBean;
-import org.jboss.weld.junit.MockBean.CreateFunction;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,8 +50,9 @@ public class AddBeanTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.from(Blue.class)
-            .addBeans(MockBean.of(mock(MyService.class), MyService.class), createListBean(),
-                    createSequenceBean(), createIdSupplierBean())
+            .addBeans(MockBean.of(mock(MyService.class), MyService.class))
+            .addBeans(MockBean.read(BlueToDiscover.class).scope(Dependent.class).build())
+            .addBeans(createListBean(), createSequenceBean(), createIdSupplierBean())
             .build();
 
     @SuppressWarnings("serial")
@@ -67,14 +70,7 @@ public class AddBeanTest {
         return MockBean.<Integer> builder()
                 .types(Integer.class)
                 .qualifiers(Meaty.Literal.INSTANCE)
-                .create(
-                        // We could use lambda in Java8
-                        new CreateFunction<Integer>() {
-                            @Override
-                            public Integer create(CreationalContext<Integer> creationalContext) {
-                                return SEQUENCE.incrementAndGet();
-                            }
-                        })
+                .create(ctx -> SEQUENCE.incrementAndGet())
                 .build();
     }
 
@@ -82,12 +78,7 @@ public class AddBeanTest {
         return MockBean.<IdSupplier> builder()
                 .types(IdSupplier.class)
                 .scope(ApplicationScoped.class)
-                .create(new CreateFunction<IdSupplier>() {
-                    @Override
-                    public IdSupplier create(CreationalContext<IdSupplier> creationalContext) {
-                        return new IdSupplier(UUID.randomUUID().toString());
-                    }
-                }).build();
+                .create(ctx -> new IdSupplier(UUID.randomUUID().toString())).build();
     }
 
     @Test
@@ -109,6 +100,15 @@ public class AddBeanTest {
 
         // Test applicaction scoped bean
         assertEquals(weld.select(IdSupplier.class).get().getId(), weld.select(IdSupplier.class).get().getId());
+
+        // The scope is changed to @Dependent
+        BlueToDiscover blue1 = weld.select(BlueToDiscover.class).get();
+        BlueToDiscover blue2 = weld.select(BlueToDiscover.class).get();
+        assertNotNull(blue1.getId());
+        assertNotNull(blue2.getId());
+        assertNotEquals(blue1.getId(), blue2.getId());
+        Set<Bean<?>> beans = weld.getBeanManager().getBeans("blue");
+        assertEquals(1, beans.size());
     }
 
     interface MyService {
