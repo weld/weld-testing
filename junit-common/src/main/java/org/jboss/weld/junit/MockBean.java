@@ -17,22 +17,35 @@
 package org.jboss.weld.junit;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.context.NormalScope;
 import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.PassivationCapable;
+import javax.enterprise.inject.spi.Unmanaged;
+import javax.enterprise.inject.spi.Unmanaged.UnmanagedInstance;
 import javax.enterprise.util.AnnotationLiteral;
+import javax.inject.Named;
+import javax.inject.Qualifier;
+import javax.inject.Scope;
 
 import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.environment.se.WeldContainer;
+import org.jboss.weld.util.reflection.HierarchyDiscovery;
 
 /**
  * This custom {@link Bean} implementation is useful for mocking.
@@ -81,6 +94,22 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
      */
     public static <T> Bean<T> of(T beanInstance, Type... beanTypes) {
         return MockBean.<T> builder().types(beanTypes).creating(beanInstance).build();
+    }
+
+    /**
+     * A convenient method to create a {@link Builder} initialized from the specified bean class.
+     * <p>
+     * Note that the container may not be started yet and so it is not possible to use CDI SPI. Instead, we try to simulate the default bean discovery.
+     * </p>
+     * <p>
+     * By default, {@link Unmanaged} is used to create/destroy the bean instance. However, it is possible to override this behavior.
+     * </p>
+     *
+     * @param beanClass
+     * @return a new builder instance initialized from the specified bean class
+     */
+    public static <T> Builder<T> read(Class<T> beanClass) {
+        return readInternal(beanClass).useUnmanaged(beanClass);
     }
 
     private static final AtomicInteger SEQUENCE = new AtomicInteger(0);
@@ -195,6 +224,90 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         return id;
     }
 
+    private static <T> Builder<T> readInternal(Class<T> beanClass) {
+        // Note that we cannot use BeanManager here as the container may not be started yet
+        Builder<T> builder = new Builder<T>().beanClass(beanClass);
+
+        // Find all stereotypes
+        Set<Annotation> stereotypes = getStereotypes(beanClass);
+        // Name
+        Named named = beanClass.getAnnotation(Named.class);
+        if (named != null) {
+            if ("".equals(named.value())) {
+                builder.name(getDefaultName(beanClass));
+            } else {
+                builder.name(named.value());
+            }
+        } else {
+            for (Annotation stereotype : stereotypes) {
+                if (stereotype.annotationType().isAnnotationPresent(Named.class)) {
+                    builder.name(getDefaultName(beanClass));
+                    break;
+                }
+            }
+        }
+        // Scope
+        Set<Annotation> scopes = getScopes(beanClass);
+        if (scopes.isEmpty()) {
+            for (Annotation stereotype : stereotypes) {
+                scopes.addAll(getScopes(stereotype.annotationType()));
+            }
+        }
+        if (!scopes.isEmpty()) {
+            if (scopes.size() > 1) {
+                throw new IllegalStateException("At most one scope may be specifie [beanClass: " + beanClass + ", scopes: " + scopes + "]");
+            }
+            builder.scope(scopes.iterator().next().annotationType());
+        }
+        // Types
+        builder.types(new HierarchyDiscovery(beanClass).getTypeClosure());
+        // Qualifiers
+        for (Annotation annotation : beanClass.getAnnotations()) {
+            if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+                builder.addQualifier(annotation);
+            }
+        }
+        // Alternative
+        if (beanClass.isAnnotationPresent(Alternative.class)) {
+            builder.alternative(true);
+        } else {
+            for (Annotation stereotype : stereotypes) {
+                if (stereotype.annotationType().isAnnotationPresent(Alternative.class)) {
+                    builder.alternative(true);
+                    break;
+                }
+            }
+        }
+        return builder;
+    }
+
+    private static Set<Annotation> getStereotypes(AnnotatedElement element) {
+        Set<Annotation> stereotypes = new HashSet<>();
+        for (Annotation annotation : element.getAnnotations()) {
+            if (annotation.annotationType().isAnnotationPresent(Stereotype.class)) {
+                stereotypes.add(annotation);
+                stereotypes.addAll(getStereotypes(annotation.annotationType()));
+            }
+        }
+        return stereotypes;
+    }
+
+    private static Set<Annotation> getScopes(AnnotatedElement element) {
+        Set<Annotation> scopes = new HashSet<>();
+        for (Annotation annotation : element.getAnnotations()) {
+            if (annotation.annotationType().isAnnotationPresent(Scope.class) || annotation.annotationType().isAnnotationPresent(NormalScope.class)) {
+                scopes.add(annotation);
+            }
+        }
+        return scopes;
+    }
+
+    private static String getDefaultName(Class<?> beanClass) {
+        StringBuilder defaultName = new StringBuilder(beanClass.getSimpleName());
+        defaultName.setCharAt(0, Character.toLowerCase(beanClass.getSimpleName().charAt(0)));
+        return defaultName.toString();
+    }
+
     /**
      * A builder instance should not be reused nor shared.
      *
@@ -275,8 +388,29 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * @see Bean#getTypes()
          */
         public Builder<T> types(Type... types) {
-            this.types = new HashSet<>();
+            this.types.clear();
             Collections.addAll(this.types, types);
+            return this;
+        }
+
+        /**
+         *
+         * @param types
+         * @return self
+         */
+        public Builder<T> types(Set<Type> types) {
+            this.types.clear();
+            this.types.addAll(types);
+            return this;
+        }
+
+        /**
+         *
+         * @param type
+         * @return self
+         */
+        public Builder<T> addType(Type type) {
+            this.types.add(type);
             return this;
         }
 
@@ -287,8 +421,18 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * @see Bean#getQualifiers()
          */
         public Builder<T> qualifiers(Annotation... qualifiers) {
-            this.qualifiers = new HashSet<>();
+            this.qualifiers.clear();
             Collections.addAll(this.qualifiers, qualifiers);
+            return this;
+        }
+
+        /**
+         *
+         * @param qualifier
+         * @return self
+         */
+        public Builder<T> addQualifier(Annotation qualifier) {
+            this.qualifiers.add(qualifier);
             return this;
         }
 
@@ -345,8 +489,18 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          */
         @SuppressWarnings("unchecked")
         public Builder<T> stereotypes(Class<? extends Annotation>... stereotypes) {
-            this.stereotypes = new HashSet<>();
+            this.stereotypes.clear();
             Collections.addAll(this.stereotypes, stereotypes);
+            return this;
+        }
+
+        /**
+         *
+         * @param qualifier
+         * @return self
+         */
+        public Builder<T> addStereotype(Class<? extends Annotation> stereotype) {
+            this.stereotypes.add(stereotype);
             return this;
         }
 
@@ -357,12 +511,40 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * @return self
          */
         public Builder<T> creating(final T instance) {
-            this.createCallback = new CreateFunction<T>() {
-                @Override
-                public T create(CreationalContext<T> creationalContext) {
-                    return instance;
+            this.createCallback = ctx -> instance;
+            return this;
+        }
+
+        /**
+         * Use {@link Unmanaged} to create/destroy the bean instance.
+         *
+         * <p>
+         * NOTE: {@link CreationalContext#toString()} is used as a key in a map and therefore must be unique for the lifetime of a bean instance. Weld
+         * implementation fulfills this requirement.
+         * </p>
+         *
+         * @return self
+         * @see UnmanagedInstance
+         */
+        @SuppressWarnings("unchecked")
+        public Builder<T> useUnmanaged(Class<T> beanClass) {
+            Map<String, UnmanagedInstance<?>> ctxToUnmanaged = new ConcurrentHashMap<>();
+            create(ctx -> {
+                Unmanaged<?> unmanaged = new Unmanaged<>(WeldContainer.current().getBeanManager(), beanClass);
+                UnmanagedInstance<?> unmanagedInstance = unmanaged.newInstance();
+                ctxToUnmanaged.put(ctx.toString(), unmanagedInstance);
+                return (T) unmanagedInstance.produce().inject().postConstruct().get();
+            });
+            destroy((o, ctx) -> {
+                UnmanagedInstance<?> unmanagedInstance = ctxToUnmanaged.remove(ctx.toString());
+                if (unmanagedInstance != null) {
+                    if (!unmanagedInstance.get().equals(o)) {
+                        throw new IllegalStateException(
+                                "Unmanaged instance [" + unmanagedInstance.get() + "] is not equal to the bean instance to be destroyed: " + o);
+                    }
+                    unmanagedInstance.preDestroy().dispose();
                 }
-            };
+            });
             return this;
         }
 
@@ -398,7 +580,19 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
                 throw new IllegalStateException("Create callback must not be null");
             }
             if (qualifiers.size() == 1) {
-                qualifiers.add(DefaultLiteral.INSTANCE);
+                Annotation qualifier = qualifiers.iterator().next();
+                if (qualifier.annotationType().equals(Named.class) || qualifier.equals(AnyLiteral.INSTANCE)) {
+                    // Single qualifier - @Named or @Any
+                    qualifiers.add(DefaultLiteral.INSTANCE);
+                }
+            } else if (qualifiers.size() == 2 && qualifiers.contains(AnyLiteral.INSTANCE)) {
+                for (Annotation qualifier : qualifiers) {
+                    if (qualifier.annotationType().equals(Named.class)) {
+                        // Two qualifiers - @Named and @Any
+                        qualifiers.add(DefaultLiteral.INSTANCE);
+                        break;
+                    }
+                }
             }
             return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope, createCallback,
                     destroyCallback);
