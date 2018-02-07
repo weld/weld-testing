@@ -57,7 +57,7 @@ import org.junit.jupiter.api.Test;
 public class InjectResourcesTest {
 
     @WeldSetup
-    WeldInitiator weld = WeldInitiator.fromTestPackage()
+    public WeldInitiator weld = WeldInitiator.fromTestPackage()
                                                 .bindResource("bar", "hello1")
                                                 .bindResource("java:comp/env/baz", "hello2")
                                                 .setEjbFactory(ip -> new DummySessionBean("ping"))

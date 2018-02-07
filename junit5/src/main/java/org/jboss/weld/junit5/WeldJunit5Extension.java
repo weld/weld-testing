@@ -95,7 +95,7 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
 
         WeldInitiator initiator = null;
         // First try to find @WeldSetup field
-        for (Field field : testInstance.getClass().getDeclaredFields()) {
+        for (Field field : testInstance.getClass().getFields()) {
             if (field.isAnnotationPresent(WeldSetup.class)) {
                 if (initiator != null) {
                     // multiple fields found, throw exception
