@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.jboss.weld.environment.se.Weld;
@@ -53,14 +54,15 @@ import org.jboss.weld.junit.AbstractWeldInitiator;
 public class WeldInitiator extends AbstractWeldInitiator {
 
     /**
-     * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added.
+     * The container is configured with the result of {@link #createWeld()} method and the given bean classes are added. If any
+     * of added classes is an extension, it is automatically recognized and enabled.
      *
      * @param beanClasses
      * @return a new WeldInitiator instance
      * @see Weld#beanClasses(Class...)
      */
     public static WeldInitiator of(Class<?>... beanClasses) {
-        return of(createWeld().beanClasses(beanClasses));
+        return from(beanClasses).build();
     }
 
     /**
@@ -74,7 +76,8 @@ public class WeldInitiator extends AbstractWeldInitiator {
     }
 
     /**
-     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class package are added.
+     * The container is configured with the result of {@link #createWeld()} method and all the classes from the test class
+     * package are added.
      *
      * @return a new WeldInitiator instance
      */
@@ -83,9 +86,8 @@ public class WeldInitiator extends AbstractWeldInitiator {
     }
 
     /**
-     * The container is instructed to do automatic bean discovery, the resulting bean archive is NOT synthetic.
-     * Note that this requires beans.xml to be present.
-     * It is equals to {@code WeldInitiator.of(new Weld())} invocation.
+     * The container is instructed to do automatic bean discovery, the resulting bean archive is NOT synthetic. Note that this
+     * requires beans.xml to be present. It is equals to {@code WeldInitiator.of(new Weld())} invocation.
      *
      * @return a new WeldInitiator instance
      */
@@ -101,7 +103,15 @@ public class WeldInitiator extends AbstractWeldInitiator {
      * @see #of(Class...)
      */
     public static Builder from(Class<?>... beanClasses) {
-        return from(createWeld().beanClasses(beanClasses));
+        Weld weld = createWeld();
+        for (Class<?> clazz : beanClasses) {
+            if (Extension.class.isAssignableFrom(clazz)) {
+                weld.addExtensions((Class<? extends Extension>) clazz);
+            } else {
+                weld.addBeanClass(clazz);
+            }
+        }
+        return from(weld);
     }
 
     /**
@@ -140,7 +150,8 @@ public class WeldInitiator extends AbstractWeldInitiator {
     }
 
     /**
-     * This builder can be used to customize the final {@link WeldInitiator} instance, e.g. to activate a context for a given normal scope.
+     * This builder can be used to customize the final {@link WeldInitiator} instance, e.g. to activate a context for a given
+     * normal scope.
      */
     public static final class Builder extends AbstractBuilder<WeldInitiator, Builder> {
 
@@ -156,14 +167,14 @@ public class WeldInitiator extends AbstractWeldInitiator {
         @Override
         protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
             return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
-                    persistenceContextFactory);
+                persistenceContextFactory);
         }
 
     }
 
     private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
-            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
-            Function<InjectionPoint, Object> persistenceContextFactory) {
+        Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
+        Function<InjectionPoint, Object> persistenceContextFactory) {
         super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
     }
 
