@@ -1,4 +1,4 @@
-package org.jboss.weld.junit5.initiator;
+package org.jboss.weld.junit5.initiator.discovery;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit5.WeldInitiator;
@@ -13,5 +13,5 @@ public abstract class SuperclassWithWeldInitiator
 	@WeldSetup
 	public WeldInitiator weld = WeldInitiator
 			.of(new Weld()
-					.addPackage(false, Foo.class));
+					.addBeanClass(Foo.class));
 }

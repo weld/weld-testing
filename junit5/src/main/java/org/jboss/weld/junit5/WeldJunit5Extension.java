@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.inject.spi.BeanManager;
 
@@ -93,32 +94,42 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
         // store info about explicit param injection, either from global settings or from annotation on the test class
         storeExplicitParamResolutionInformation(context);
 
+        // all found fields which are WeldInitiator and have @WeldSetup annotation
+        List<Field> foundInitiatorFields = new ArrayList<>();
         WeldInitiator initiator = null;
-        // First try to find @WeldSetup field
-        for (Field field : testInstance.getClass().getFields()) {
-            if (field.isAnnotationPresent(WeldSetup.class)) {
-                if (initiator != null) {
-                    // multiple fields found, throw exception
-                    throw new IllegalStateException("Multiple @WeldSetup annotated fields found, please use only one such field.");
-                }
-                Object fieldInstance;
-                try {
-                    fieldInstance = field.get(testInstance);
-                } catch (IllegalAccessException e) {
-                    // In case we cannot get to the field, we need to set accessibility as well
-                    field.setAccessible(true);
-                    fieldInstance = field.get(testInstance);
-                }
-                // if it's null, we can still store it, it will be created with default settings later on
-                if (fieldInstance != null && fieldInstance instanceof WeldInitiator) {
-                    initiator = (WeldInitiator) fieldInstance;
-                } else {
-                    // Field with other type than WeldInitiator was annotated with @WeldSetup
-                    throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type WeldInitiator.");
+        // We will go through class hierarchy in search of @WeldSetup field (even private)
+        for (Class<?> clazz = testInstance.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+            // Find @WeldSetup field using getDeclaredFields() - this allows even for private fields
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.isAnnotationPresent(WeldSetup.class)) {
+                    Object fieldInstance;
+                    try {
+                        fieldInstance = field.get(testInstance);
+                    } catch (IllegalAccessException e) {
+                        // In case we cannot get to the field, we need to set accessibility as well
+                        field.setAccessible(true);
+                        fieldInstance = field.get(testInstance);
+                    }
+                    if (fieldInstance != null && fieldInstance instanceof WeldInitiator) {
+                        initiator = (WeldInitiator) fieldInstance;
+                        foundInitiatorFields.add(field);
+                    } else {
+                        // Field with other type than WeldInitiator was annotated with @WeldSetup
+                        throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type"
+                            + " WeldInitiator but was found on a field of type " + field.getType() + " which is declared "
+                            + "in class " + field.getDeclaringClass());
+                    }
                 }
             }
         }
-        // WeldInitiator may still be null if user didn't specify it at all, we need to create it
+        // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception 
+        if (foundInitiatorFields.size() > 1) {
+            throw new IllegalStateException(foundInitiatorFields.stream().map(f -> "Field type - " + f.getType() + " which is "
+                + "in " + f.getDeclaringClass()).collect(Collectors.joining("\n", "Multiple @WeldSetup annotated fields found, "
+                        + "only one is allowed! Fields found:\n", "")));
+        }
+
+        // at this point we can be sure that either no or exactly one WeldInitiator was found
         if (initiator == null) {
             initiator = WeldInitiator.from(AbstractWeldInitiator.createWeld().addPackage(false, testInstance.getClass())).build();
         }
