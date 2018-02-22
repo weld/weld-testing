@@ -1,4 +1,4 @@
-package org.jboss.weld.junit5.initiator;
+package org.jboss.weld.junit5.initiator.discovery;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
