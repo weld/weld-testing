@@ -1,20 +1,19 @@
-package org.jboss.weld.junit5.basic;
-
+package org.jboss.weld.junit5.autoconfig;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
-import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit5.EnableWeld;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 
-@ExtendWith(WeldJunit5Extension.class)
-public class ProducesBeforeTest {
+@EnableWeld
+class ProducesBeforeTest {
 
   private Integer requiredValue;
 
@@ -31,7 +30,8 @@ public class ProducesBeforeTest {
   }
 
   @Test
-  void testIt(@Named("computed") Integer computed) {
+  @DisplayName("Ensure that @BeforeEach runs before any @Produces methods/fields are interrogated")
+  void test(@Named("computed") Integer computed) {
     assertNotNull(computed);
   }
 
