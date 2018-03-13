@@ -27,7 +27,7 @@ public class TestExtension implements Extension {
     if (annotatedType.getJavaClass().equals(testClass)) {
       pat.configureAnnotatedType()
           .remove(ann -> bm.isScope(ann.annotationType()))
-          .add(new SingletonLiteral());
+          .add(SingletonLiteral.INSTANCE);
     }
   }
 
