@@ -4,8 +4,10 @@ import java.util.Set;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.literal.SingletonLiteral;
-import javax.enterprise.inject.spi.*;
+import javax.enterprise.inject.spi.Extension;
+import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.inject.spi.InjectionTarget;
+import javax.enterprise.inject.spi.ProcessInjectionTarget;
 
 
 
@@ -20,15 +22,6 @@ public class TestExtension implements Extension {
   }
 
   TestExtension() {
-  }
-
-  <T> void processAnnotatedType(@Observes ProcessAnnotatedType<T> pat, BeanManager bm) {
-    final AnnotatedType<T> annotatedType = pat.getAnnotatedType();
-    if (annotatedType.getJavaClass().equals(testClass)) {
-      pat.configureAnnotatedType()
-          .remove(ann -> bm.isScope(ann.annotationType()))
-          .add(SingletonLiteral.INSTANCE);
-    }
   }
 
   <T> void rewriteTestClassInjections(@Observes ProcessInjectionTarget<T> pit) {
