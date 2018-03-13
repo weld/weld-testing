@@ -5,5 +5,5 @@ jdk:
 env:
   - WELD_PROFILE=weld2
   - WELD_PROFILE=weld3
-script: "mvn verify -P${WELD_PROFILE}"
+script: "mvn verify"
 sudo: false
