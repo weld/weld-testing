@@ -174,8 +174,7 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
 
         @Override
         protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
-                persistenceContextFactory);
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(), getPersistenceUnitFactory(), getPersistenceContextFactory());
         }
 
     }

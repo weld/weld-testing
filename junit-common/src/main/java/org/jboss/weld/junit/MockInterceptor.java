@@ -18,6 +18,7 @@ package org.jboss.weld.junit;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
@@ -182,7 +183,7 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
                     interceptedBean = (Bean<?>) interceptedContextual;
                 }
             }
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
         return interceptedBean;

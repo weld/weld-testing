@@ -626,7 +626,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     @SuppressWarnings("all")
     static class AnyLiteral extends AnnotationLiteral<Any> implements Any {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -1366513826361712883L;
 
         public static final Any INSTANCE = new AnyLiteral();
 
@@ -637,6 +637,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     @SuppressWarnings("all")
     static class DefaultLiteral extends AnnotationLiteral<Default> implements Default {
+
+        private static final long serialVersionUID = -1395539980812895226L;
 
         public static final Default INSTANCE = new DefaultLiteral();
 
