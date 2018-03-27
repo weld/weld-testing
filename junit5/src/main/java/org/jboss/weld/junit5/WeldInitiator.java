@@ -102,6 +102,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
      * @return a builder instance
      * @see #of(Class...)
      */
+    @SuppressWarnings("unchecked")
     public static Builder from(Class<?>... beanClasses) {
         Weld weld = createWeld();
         for (Class<?> clazz : beanClasses) {

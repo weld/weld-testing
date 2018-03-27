@@ -27,27 +27,33 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import javax.enterprise.inject.spi.BeanManager;
 
+import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
-import org.jboss.weld.junit.AbstractWeldInitiator;
+import org.jboss.weld.util.collections.ImmutableList;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 /**
- * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to
- * inject CDI beans as parameters to @Test methods and resolves all @Inject fields in test class.
+ * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to inject CDI beans as parameters
+ * to @Test methods and resolves all @Inject fields in test class.
  *
- * By default (if no {@link WeldInitiator} field annotated with {@link WeldSetup} is present), Weld is configured with the
- * result of {@link WeldInitiator#createWeld()} method and all the classes from the test class package are added:
+ * <p>
+ * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of {@link WeldJunitEnricher} interface
+ * are used to enrich the default test environment.
+ * </p>
  *
  * <pre>
  * &#64;ExtendWith(WeldJunit5Extension.class)
@@ -66,13 +72,18 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor;
  * </pre>
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
+ * @see EnableWeld
+ * @see WeldJunitEnricher
  */
-public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostProcessor, AfterTestExecutionCallback, ParameterResolver {
+public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback, TestInstancePostProcessor, AfterTestExecutionCallback, ParameterResolver {
 
     // variables used to identify object in Store
     private static final String INITIATOR = "weldInitiator";
     private static final String CONTAINER = "weldContainer";
     private static final String EXPLICIT_PARAM_INJECTION = "explicitParamInjection";
+    private static final String WELD_ENRICHERS = "weldEnrichers";
+
+    private static final Namespace NAMESPACE = Namespace.create(WeldJunit5Extension.class);
 
     // global system property
     public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit5.explicitParamInjection";
@@ -82,6 +93,13 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
         if (determineTestLifecycle(context).equals(PER_CLASS)) {
             getInitiatorFromStore(context).shutdownWeld();
         }
+    }
+
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        ImmutableList.Builder<WeldJunitEnricher> enrichers = ImmutableList.builder();
+        ServiceLoader.load(WeldJunitEnricher.class).forEach(enrichers::add);
+        context.getRoot().getStore(NAMESPACE).put(WELD_ENRICHERS, enrichers.build());
     }
 
     @Override
@@ -127,7 +145,7 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
                 }
             }
         }
-        // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception 
+        // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception
         if (foundInitiatorFields.size() > 1) {
             throw new IllegalStateException(foundInitiatorFields.stream().map(f -> "Field type - " + f.getType() + " which is "
                 + "in " + f.getDeclaringClass()).collect(Collectors.joining("\n", "Multiple @WeldSetup annotated fields found, "
@@ -136,7 +154,20 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
 
         // at this point we can be sure that either no or exactly one WeldInitiator was found
         if (initiator == null) {
-            initiator = WeldInitiator.from(AbstractWeldInitiator.createWeld().addPackage(false, testInstance.getClass())).build();
+            Weld weld = WeldInitiator.createWeld();
+            WeldInitiator.Builder builder = WeldInitiator.from(weld);
+            @SuppressWarnings("unchecked")
+            List<WeldJunitEnricher> enrichers = (List<WeldJunitEnricher>) context.getRoot().getStore(NAMESPACE).get(WELD_ENRICHERS);
+            if (enrichers.isEmpty()) {
+                throw new IllegalStateException("Cannot build default Weld builder - @WeldSetup WeldInitiator field not declared and no WeldCustomizer found");
+            }
+            for (WeldJunitEnricher enricher : enrichers) {
+                String property = System.getProperty(enricher.getClass().getName());
+                if (property == null || Boolean.parseBoolean(property)) {
+                    enricher.enrich(weld, builder, testInstance);
+                }
+            }
+            initiator = WeldInitiator.of(weld);
         }
         getStore(context).put(INITIATOR, initiator);
 
@@ -226,7 +257,7 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
      * We use custom namespace based on this extension class and test class
      */
     private ExtensionContext.Store getStore(ExtensionContext context) {
-        return context.getStore(ExtensionContext.Namespace.create(getClass(), context.getRequiredTestClass()));
+        return context.getStore(Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass()));
     }
 
     /**
