@@ -3,7 +3,7 @@ jdk:
   - oraclejdk8
   - openjdk8
 env:
-  - WELD_PROFILE=weld2
-  - WELD_PROFILE=weld3
-script: "mvn verify -P${WELD_PROFILE}"
+  - WELD_PROFILES=spotbugs
+  - WELD_PROFILES=weld3,spotbugs
+script: "mvn verify -P${WELD_PROFILES} -Dspotbugs.failOnError=true"
 sudo: false

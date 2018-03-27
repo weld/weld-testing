@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +109,10 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
                         fieldInstance = field.get(testInstance);
                     } catch (IllegalAccessException e) {
                         // In case we cannot get to the field, we need to set accessibility as well
-                        field.setAccessible(true);
+                        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                            field.setAccessible(true);
+                            return null;
+                        });
                         fieldInstance = field.get(testInstance);
                     }
                     if (fieldInstance != null && fieldInstance instanceof WeldInitiator) {
@@ -236,7 +241,7 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
      */
     private Boolean getExplicitInjectionInfoFromStore(ExtensionContext context) {
         Boolean result = getStore(context).get(EXPLICIT_PARAM_INJECTION, Boolean.class);
-        return (result == null) ? false : result;
+        return (result == null) ? Boolean.FALSE : result;
     }
 
     /**

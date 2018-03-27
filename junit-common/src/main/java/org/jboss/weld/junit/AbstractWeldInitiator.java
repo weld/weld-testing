@@ -301,11 +301,11 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
         protected final Map<String, Object> resources;
 
-        protected Function<InjectionPoint, Object> ejbFactory;
+        private Function<InjectionPoint, Object> ejbFactory;
 
-        protected Function<InjectionPoint, Object> persistenceUnitFactory;
+        private Function<InjectionPoint, Object> persistenceUnitFactory;
 
-        protected Function<InjectionPoint, Object> persistenceContextFactory;
+        private Function<InjectionPoint, Object> persistenceContextFactory;
 
         public AbstractBuilder(Weld weld) {
             this.weld = weld;
@@ -336,6 +336,18 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
                 this.scopesToActivate.add(scope);
             }
             return self();
+        }
+
+        protected Function<InjectionPoint, Object> getEjbFactory() {
+            return ejbFactory;
+        }
+
+        protected Function<InjectionPoint, Object> getPersistenceContextFactory() {
+            return persistenceContextFactory;
+        }
+
+        protected Function<InjectionPoint, Object> getPersistenceUnitFactory() {
+            return persistenceUnitFactory;
         }
 
         /**
