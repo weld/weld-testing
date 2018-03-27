@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2017, Red Hat, Inc., and individual contributors
+ * Copyright 2018, Red Hat, Inc., and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -14,31 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.basic;
+package org.jboss.weld.junit5.autoconfig.extension;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Extension;
 
 
 
-@ApplicationScoped
-public class Foo {
+/**
+ *
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
+ */
+public class AddedExtension implements Extension {
 
-    private String bar;
+    private static boolean enabled = false;
 
-    public Foo() {}
-
-    public Foo(String bar) {
-        this.bar = bar;
+    public void observePAT(@Observes AfterBeanDiscovery abd) {
+      enabled = true;
     }
-
-    @PostConstruct
-    public void init() {
-        bar = "baz";
-    }
-
-    public String getBar() {
-        return bar;
+    
+    public static boolean isEnabled() {
+        return enabled;
     }
 
 }

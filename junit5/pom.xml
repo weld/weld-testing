@@ -85,6 +85,10 @@
          <id>weld3</id>
          <activation>
             <activeByDefault>false</activeByDefault>
+            <property>
+               <name>env.WELD_PROFILE</name>
+               <value>weld3</value>
+            </property>
          </activation>
          <dependencies>
             <dependency>

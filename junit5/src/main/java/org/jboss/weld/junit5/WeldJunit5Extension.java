@@ -16,9 +16,6 @@
  */
 package org.jboss.weld.junit5;
 
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -29,16 +26,16 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.inject.spi.BeanManager;
 
+import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.AbstractWeldInitiator;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.junit.jupiter.api.extension.*;
+import org.junit.platform.commons.support.AnnotationSupport;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
+
+
 
 /**
  * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to
@@ -131,7 +128,24 @@ public class WeldJunit5Extension implements AfterAllCallback, TestInstancePostPr
 
         // at this point we can be sure that either no or exactly one WeldInitiator was found
         if (initiator == null) {
-            initiator = WeldInitiator.from(AbstractWeldInitiator.createWeld().addPackage(false, testInstance.getClass())).build();
+
+            Class<?> testClass = testInstance.getClass();
+
+            Weld weld = AbstractWeldInitiator.createWeld();
+
+            weld.addAlternativeStereotype(EnableAlternative.class);
+
+            ClassScanning.scanForRequiredBeanClass(testClass, weld, getExplicitInjectionInfoFromStore(context));
+
+            weld.addBeanClass(testClass);
+            weld.addExtension(new TestExtension(testClass, testInstance));
+
+            WeldInitiator.Builder initiatorBuilder = WeldInitiator.from(weld);
+
+            AnnotationSupport.findRepeatableAnnotations(testClass, ActivateScopes.class)
+                .forEach(ann -> initiatorBuilder.activate(ann.value()));
+
+            initiator = initiatorBuilder.build();
         }
         getStore(context).put(INITIATOR, initiator);
 
