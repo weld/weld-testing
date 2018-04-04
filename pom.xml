@@ -41,8 +41,8 @@
       <maven.compiler.target>1.8</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.12</version.junit4>
-      <version.junit.platform>1.0.3</version.junit.platform>
-      <version.junit.jupiter>5.0.1</version.junit.jupiter>
+      <version.junit.platform>1.1.0</version.junit.platform>
+      <version.junit.jupiter>5.1.0</version.junit.jupiter>
       <version.weld>2.4.6.Final</version.weld>
       <version.weld3>3.0.3.Final</version.weld3>
       <version.mockito>2.7.19</version.mockito>
