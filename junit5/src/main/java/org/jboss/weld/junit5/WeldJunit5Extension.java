@@ -47,12 +47,12 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 /**
- * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to inject CDI beans as parameters
- * to @Test methods and resolves all @Inject fields in test class.
+ * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to
+ * inject CDI beans as parameters to @Test methods and resolves all @Inject fields in test class.
  *
  * <p>
- * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of {@link WeldJunitEnricher} interface
- * are used to enrich the default test environment.
+ * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of
+ * {@link WeldJunitEnricher} interface are used to enrich the default test environment.
  * </p>
  *
  * <pre>
@@ -97,9 +97,12 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        ImmutableList.Builder<WeldJunitEnricher> enrichers = ImmutableList.builder();
-        ServiceLoader.load(WeldJunitEnricher.class).forEach(enrichers::add);
-        context.getRoot().getStore(NAMESPACE).put(WELD_ENRICHERS, enrichers.build());
+        // we are storing them into root context, hence only needs to be done once per test suite
+        if (context.getRoot().getStore(NAMESPACE).get(WELD_ENRICHERS, List.class) == null) {
+            ImmutableList.Builder<WeldJunitEnricher> enrichers = ImmutableList.builder();
+            ServiceLoader.load(WeldJunitEnricher.class).forEach(enrichers::add);
+            context.getRoot().getStore(NAMESPACE).put(WELD_ENRICHERS, enrichers.build());
+        }
     }
 
     @Override
