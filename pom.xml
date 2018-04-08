@@ -127,41 +127,51 @@
    </dependencyManagement>
 
    <profiles>
-
-      <profile>
-         <id>weld3</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <properties>
-            <version.weld>${version.weld3}</version.weld>
-         </properties>
-      </profile>
-         <profile>
-            <id>spotbugs</id>
-            <build>
+       <profile>
+           <id>weld3</id>
+           <activation>
+               <activeByDefault>false</activeByDefault>
+               <property>
+                   <name>env.WELD_JUNIT_PROFILE</name>
+                   <value>weld3</value>
+               </property>
+           </activation>
+           <properties>
+               <version.weld>${version.weld3}</version.weld>
+           </properties>
+       </profile>
+       <profile>
+           <id>spotbugs</id>
+           <activation>
+               <activeByDefault>false</activeByDefault>
+               <property>
+                   <name>env.WELD_JUNIT_DEBUG</name>
+                   <value>spotbugs</value>
+               </property>
+           </activation>
+           <build>
                <plugins>
-                  <plugin>
-                     <groupId>com.github.spotbugs</groupId>
-                     <artifactId>spotbugs-maven-plugin</artifactId>
-                     <version>${version.spotbugs.plugin}</version>
-                     <configuration>
-                        <effort>Max</effort>
-                        <xmlOutput>true</xmlOutput>
-                        <threshold>${spotbugs.threshold}</threshold>
-                        <failOnError>${spotbugs.failOnError}</failOnError>
-                     </configuration>
-                     <executions>
-                        <execution>
-                           <goals>
-                              <goal>check</goal>
-                           </goals>
-                        </execution>
-                     </executions>
-                  </plugin>
+                   <plugin>
+                       <groupId>com.github.spotbugs</groupId>
+                       <artifactId>spotbugs-maven-plugin</artifactId>
+                       <version>${version.spotbugs.plugin}</version>
+                       <configuration>
+                           <effort>Max</effort>
+                           <xmlOutput>true</xmlOutput>
+                           <threshold>${spotbugs.threshold}</threshold>
+                           <failOnError>${spotbugs.failOnError}</failOnError>
+                       </configuration>
+                       <executions>
+                           <execution>
+                               <goals>
+                                   <goal>check</goal>
+                               </goals>
+                           </execution>
+                       </executions>
+                   </plugin>
                </plugins>
-            </build>
-         </profile>
+           </build>
+       </profile>
    </profiles>
 
 </project>
