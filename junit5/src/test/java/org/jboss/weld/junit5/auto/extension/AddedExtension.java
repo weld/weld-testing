@@ -14,20 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5;
+package org.jboss.weld.junit5.auto.extension;
 
-import org.jboss.weld.environment.se.Weld;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Extension;
+
+
 
 /**
- * Adds all classes from the test class package.
  *
- * @author Martin Kouba
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-public class DefaultWeldJunitEnricher implements WeldJunitEnricher {
+public class AddedExtension implements Extension {
 
-    @Override
-    public void enrich(Weld weld, WeldInitiator.Builder weldInitiatorBuilder, Object testInstance) {
-        weld.addPackage(false, testInstance.getClass());
+    private static boolean enabled = false;
+
+    public void observePAT(@Observes AfterBeanDiscovery abd) {
+      enabled = true;
+    }
+    
+    public static boolean isEnabled() {
+        return enabled;
     }
 
 }

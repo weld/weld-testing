@@ -16,9 +16,6 @@
  */
 package org.jboss.weld.junit5;
 
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -36,15 +33,10 @@ import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.util.collections.ImmutableList;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 
 /**
  * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method and tear it down afterwards. Also allows to
@@ -167,10 +159,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
             for (WeldJunitEnricher enricher : enrichers) {
                 String property = System.getProperty(enricher.getClass().getName());
                 if (property == null || Boolean.parseBoolean(property)) {
-                    enricher.enrich(weld, builder, testInstance);
+                    enricher.enrich(context, weld, builder, testInstance);
                 }
             }
-            initiator = WeldInitiator.of(weld);
+            initiator = builder.build();
         }
         getStore(context).put(INITIATOR, initiator);
 
@@ -259,7 +251,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     /**
      * We use custom namespace based on this extension class and test class
      */
-    private ExtensionContext.Store getStore(ExtensionContext context) {
+    public static ExtensionContext.Store getStore(ExtensionContext context) {
         return context.getStore(Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass()));
     }
 
@@ -273,7 +265,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     /**
      * Return boolean indicating whether explicit parameter injection is enabled
      */
-    private Boolean getExplicitInjectionInfoFromStore(ExtensionContext context) {
+    public static Boolean getExplicitInjectionInfoFromStore(ExtensionContext context) {
         Boolean result = getStore(context).get(EXPLICIT_PARAM_INJECTION, Boolean.class);
         return (result == null) ? Boolean.FALSE : result;
     }
