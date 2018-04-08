@@ -285,20 +285,22 @@ public class ClassScanning {
     try {
       URL url = source.getProtectionDomain().getCodeSource().getLocation();
       List<Class<?>> classes = new ArrayList<>();
-      ZipInputStream zip = new ZipInputStream(url.openStream());
+      try(ZipInputStream zip = new ZipInputStream(url.openStream())) {
 
-      for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-        if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-          // This ZipEntry represents a class. Now, what class does it represent?
-          String className = entry.getName().replace('/', '.'); // including ".class"
-          className = className.substring(0, className.length() - ".class".length());
+        for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+          if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+            // This ZipEntry represents a class. Now, what class does it represent?
+            String className = entry.getName().replace('/', '.'); // including ".class"
+            className = className.substring(0, className.length() - ".class".length());
 
-          try {
-            classes.add(Class.forName(className));
-          }
-          catch (Throwable ignored) {
+            try {
+              classes.add(Class.forName(className));
+            }
+            catch (Throwable ignored) {
+            }
           }
         }
+
       }
 
       return classes;
