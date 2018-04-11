@@ -21,19 +21,14 @@ import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 
 
-
-/**
- *
- * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
- */
 public class AddedExtension implements Extension {
 
     private static boolean enabled = false;
 
     public void observePAT(@Observes AfterBeanDiscovery abd) {
-      enabled = true;
+        enabled = true;
     }
-    
+
     public static boolean isEnabled() {
         return enabled;
     }

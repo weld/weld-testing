@@ -16,6 +16,19 @@
  */
 package org.jboss.weld.junit5;
 
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.util.collections.ImmutableList;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+
+import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -27,14 +40,14 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
-import javax.enterprise.inject.spi.BeanManager;
-
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
-import org.jboss.weld.util.collections.ImmutableList;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.*;
-import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getContainerFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getEnrichersFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getInitiatorFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setContainerToStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setEnrichersToStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setExplicitInjectionInfoToStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setInitiatorToStore;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 
@@ -69,14 +82,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
  */
 public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback, TestInstancePostProcessor, AfterTestExecutionCallback, ParameterResolver {
 
-    // variables used to identify object in Store
-    private static final String INITIATOR = "weldInitiator";
-    private static final String CONTAINER = "weldContainer";
-    private static final String EXPLICIT_PARAM_INJECTION = "explicitParamInjection";
-    private static final String WELD_ENRICHERS = "weldEnrichers";
-
-    private static final Namespace NAMESPACE = Namespace.create(WeldJunit5Extension.class);
-
     // global system property
     public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit5.explicitParamInjection";
 
@@ -90,10 +95,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         // we are storing them into root context, hence only needs to be done once per test suite
-        if (context.getRoot().getStore(NAMESPACE).get(WELD_ENRICHERS, List.class) == null) {
+        if (getEnrichersFromStore(context) == null) {
             ImmutableList.Builder<WeldJunitEnricher> enrichers = ImmutableList.builder();
             ServiceLoader.load(WeldJunitEnricher.class).forEach(enrichers::add);
-            context.getRoot().getStore(NAMESPACE).put(WELD_ENRICHERS, enrichers.build());
+            setEnrichersToStore(context, enrichers.build());
         }
     }
 
@@ -151,23 +156,22 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (initiator == null) {
             Weld weld = WeldInitiator.createWeld();
             WeldInitiator.Builder builder = WeldInitiator.from(weld);
-            @SuppressWarnings("unchecked")
-            List<WeldJunitEnricher> enrichers = (List<WeldJunitEnricher>) context.getRoot().getStore(NAMESPACE).get(WELD_ENRICHERS);
+            List<WeldJunitEnricher> enrichers = getEnrichersFromStore(context);
             if (enrichers.isEmpty()) {
                 throw new IllegalStateException("Cannot build default Weld builder - @WeldSetup WeldInitiator field not declared and no WeldCustomizer found");
             }
             for (WeldJunitEnricher enricher : enrichers) {
                 String property = System.getProperty(enricher.getClass().getName());
                 if (property == null || Boolean.parseBoolean(property)) {
-                    enricher.enrich(context, weld, builder, testInstance);
+                    enricher.enrich(testInstance, context, weld, builder);
                 }
             }
             initiator = builder.build();
         }
-        getStore(context).put(INITIATOR, initiator);
+        setInitiatorToStore(context, initiator);
 
         // and finally, init Weld
-        getStore(context).put(CONTAINER, initiator.initWeld(testInstance));
+        setContainerToStore(context, initiator.initWeld(testInstance));
     }
 
     @Override
@@ -231,50 +235,21 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         }
     }
 
-    private void storeExplicitParamResolutionInformation(ExtensionContext ec) {
+    private static void storeExplicitParamResolutionInformation(ExtensionContext ec) {
         // check system property which may have set the global explicit param injection
-        Boolean globalSettings = Boolean.valueOf(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION));
+        Boolean globalSettings = Boolean.valueOf(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION, "false"));
         if (globalSettings) {
-            getStore(ec).put(EXPLICIT_PARAM_INJECTION, globalSettings);
+            setExplicitInjectionInfoToStore(ec, true);
             return;
         }
         // check class-level annotation
         for (Annotation annotation : ec.getRequiredTestClass().getAnnotations()) {
             if (annotation.annotationType().equals(ExplicitParamInjection.class)) {
-                getStore(ec).put(EXPLICIT_PARAM_INJECTION, true);
+                setExplicitInjectionInfoToStore(ec, true);
                 break;
             }
         }
 
-    }
-
-    /**
-     * We use custom namespace based on this extension class and test class
-     */
-    public static ExtensionContext.Store getStore(ExtensionContext context) {
-        return context.getStore(Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass()));
-    }
-
-    /**
-     * Can return null if WeldInitiator isn't stored yet
-     */
-    private WeldInitiator getInitiatorFromStore(ExtensionContext context) {
-        return getStore(context).get(INITIATOR, WeldInitiator.class);
-    }
-
-    /**
-     * Return boolean indicating whether explicit parameter injection is enabled
-     */
-    public static Boolean getExplicitInjectionInfoFromStore(ExtensionContext context) {
-        Boolean result = getStore(context).get(EXPLICIT_PARAM_INJECTION, Boolean.class);
-        return (result == null) ? Boolean.FALSE : result;
-    }
-
-    /**
-     * Can return null if WeldContainer isn't stored yet
-     */
-    private WeldContainer getContainerFromStore(ExtensionContext context) {
-        return getStore(context).get(CONTAINER, WeldContainer.class);
     }
 
 }

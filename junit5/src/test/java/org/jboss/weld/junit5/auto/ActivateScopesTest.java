@@ -1,6 +1,13 @@
 package org.jboss.weld.junit5.auto;
 
 
+import org.jboss.weld.junit5.EnableWeld;
+import org.jboss.weld.junit5.auto.beans.Engine;
+import org.jboss.weld.junit5.auto.beans.V6;
+import org.jboss.weld.junit5.auto.beans.V8;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import javax.enterprise.context.ContextNotActiveException;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.context.RequestScoped;
@@ -9,13 +16,9 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Named;
 
-import org.jboss.weld.junit5.EnableWeld;
-import org.jboss.weld.junit5.auto.beans.Engine;
-import org.jboss.weld.junit5.auto.beans.V6;
-import org.jboss.weld.junit5.auto.beans.V8;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 

@@ -17,7 +17,7 @@
 package org.jboss.weld.junit5.enricher;
 
 import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.WeldInitiator.Builder;
 import org.jboss.weld.junit5.WeldJunitEnricher;
 import org.jboss.weld.junit5.basic.Foo;
 import org.jboss.weld.junit5.enricher.disabled.WeldJunitEnricherDisabledTest;
@@ -28,7 +28,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public class FooWeldJunitEnricher implements WeldJunitEnricher {
 
     @Override
-    public void enrich(ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder, Object testInstance) {
+    public void enrich(Object testInstance, ExtensionContext context, Weld weld,
+                       Builder weldInitiatorBuilder) {
         if (WeldJunitEnricherTest.class.equals(testInstance.getClass()) || WeldJunitEnricherDisabledTest.class.equals(testInstance.getClass())) {
             weld.addBeanClass(Foo.class);
         }
