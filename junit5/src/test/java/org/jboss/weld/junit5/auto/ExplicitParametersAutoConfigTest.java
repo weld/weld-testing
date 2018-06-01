@@ -1,8 +1,5 @@
 package org.jboss.weld.junit5.auto;
 
-import javax.enterprise.inject.Default;
-
-import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.ExplicitParamInjection;
 import org.jboss.weld.junit5.basic.Foo;
 import org.jboss.weld.junit5.explicitInjection.Bar;
@@ -10,12 +7,15 @@ import org.jboss.weld.junit5.explicitInjection.CustomExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import javax.enterprise.inject.Default;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 
-@EnableWeld
+@EnableAutoWeld
 @ExplicitParamInjection
 @ExtendWith(CustomExtension.class)
 public class ExplicitParametersAutoConfigTest {

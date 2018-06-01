@@ -1,7 +1,6 @@
 package org.jboss.weld.junit5.auto;
 
 
-import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.auto.beans.Engine;
 import org.jboss.weld.junit5.auto.beans.V6;
 import org.jboss.weld.junit5.auto.beans.V8;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 
-@EnableWeld
+@EnableAutoWeld
 @ActivateScopes({ SessionScoped.class, RequestScoped.class })
 class ActivateScopesTest {
 

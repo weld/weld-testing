@@ -156,22 +156,27 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (initiator == null) {
             Weld weld = WeldInitiator.createWeld();
             WeldInitiator.Builder builder = WeldInitiator.from(weld);
-            List<WeldJunitEnricher> enrichers = getEnrichersFromStore(context);
-            if (enrichers.isEmpty()) {
-                throw new IllegalStateException("Cannot build default Weld builder - @WeldSetup WeldInitiator field not declared and no WeldCustomizer found");
-            }
-            for (WeldJunitEnricher enricher : enrichers) {
+
+            weldInit(testInstance, context, weld, builder);
+
+            // Apply discovered enrichers
+            for (WeldJunitEnricher enricher : getEnrichersFromStore(context)) {
                 String property = System.getProperty(enricher.getClass().getName());
                 if (property == null || Boolean.parseBoolean(property)) {
                     enricher.enrich(testInstance, context, weld, builder);
                 }
             }
+
             initiator = builder.build();
         }
         setInitiatorToStore(context, initiator);
 
         // and finally, init Weld
         setContainerToStore(context, initiator.initWeld(testInstance));
+    }
+
+    protected void weldInit(Object testInstance, ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder) {
+        weld.addPackage(false, testInstance.getClass());
     }
 
     @Override

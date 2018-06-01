@@ -24,7 +24,6 @@ import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.spi.Extension;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -32,7 +31,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,8 +40,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -135,12 +131,6 @@ public class ClassScanning {
             AnnotationSupport.findRepeatableAnnotations(currClass, AddBeanClasses.class).stream()
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
-                    .forEach(weld::addBeanClass);
-
-            AnnotationSupport.findRepeatableAnnotations(currClass, AddClasspaths.class).stream()
-                    .flatMap(ann -> stream(ann.value()))
-                    .distinct()
-                    .flatMap(src -> getClassesFromClasspath(src).stream())
                     .forEach(weld::addBeanClass);
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddExtensions.class).stream()
@@ -299,34 +289,6 @@ public class ClassScanning {
         }
 
         return findFirstAnnotatedConstructor(clazz.getSuperclass(), annotationType);
-    }
-
-    public static List<Class<?>> getClassesFromClasspath(Class<?> source) {
-
-        try {
-            URL url = source.getProtectionDomain().getCodeSource().getLocation();
-            List<Class<?>> classes = new ArrayList<>();
-            try (ZipInputStream zip = new ZipInputStream(url.openStream())) {
-
-                for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-                    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-                        // This ZipEntry represents a class. Now, what class does it represent?
-                        String className = entry.getName().replace('/', '.'); // including ".class"
-                        className = className.substring(0, className.length() - ".class".length());
-
-                        try {
-                            classes.add(Class.forName(className));
-                        } catch (Throwable ignored) {
-                        }
-                    }
-                }
-
-            }
-
-            return classes;
-        } catch (IOException ignored) {
-            return Collections.emptyList();
-        }
     }
 
 }

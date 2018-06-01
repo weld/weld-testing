@@ -1,17 +1,17 @@
 package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.basic.Foo;
 import org.jboss.weld.junit5.explicitInjection.Bar;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 
-@EnableWeld
+@EnableAutoWeld
 public class ParametersAutoConfigTest {
 
   @Test
