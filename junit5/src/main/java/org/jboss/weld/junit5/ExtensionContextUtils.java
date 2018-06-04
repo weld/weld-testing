@@ -40,9 +40,9 @@ public class ExtensionContextUtils {
     /**
      * We use custom namespace based on this extension class
      */
-    public static ExtensionContext.Store getExtensionStore(ExtensionContext context) {
+    public static synchronized ExtensionContext.Store getExtensionStore(ExtensionContext context) {
         if (EXTENSION_NAMESPACE == null) {
-            EXTENSION_NAMESPACE = Namespace.create(WeldJunit5Extension.class);
+            EXTENSION_NAMESPACE = Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass());
         }
         return context.getStore(EXTENSION_NAMESPACE);
     }

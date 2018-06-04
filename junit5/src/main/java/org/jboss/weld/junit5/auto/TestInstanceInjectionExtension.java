@@ -45,6 +45,30 @@ import java.util.stream.Collectors;
  */
 public class TestInstanceInjectionExtension implements Extension {
 
+    private static final AnnotationLiteral<Singleton> SINGLETON_LITERAL = new AnnotationLiteral<Singleton>() {};
+
+    private static final class AnnotationRewritingAnnotatedType<T> extends ForwardingAnnotatedType<T> {
+
+        private AnnotatedType<T> delegate;
+        private Set<Annotation> annotations;
+
+        public AnnotationRewritingAnnotatedType(AnnotatedType<T> delegate, Set<Annotation> annotations) {
+            this.delegate = delegate;
+            this.annotations = annotations;
+        }
+
+        @Override
+        public AnnotatedType<T> delegate() {
+            return delegate;
+        }
+
+        @Override
+        public Set<Annotation> getAnnotations() {
+            return annotations;
+        }
+
+    }
+
     private Class<?> testClass;
     private Object testInstance;
 
@@ -66,21 +90,9 @@ public class TestInstanceInjectionExtension implements Extension {
             Set<Annotation> annotations = annotatedType.getAnnotations().stream()
                     .filter(annotation -> beanManager.isScope(annotation.annotationType()))
                     .collect(Collectors.toSet());
-            annotations.add(new AnnotationLiteral<Singleton>() {});
+            annotations.add(SINGLETON_LITERAL);
 
-            pat.setAnnotatedType(new ForwardingAnnotatedType<T>() {
-
-                @Override
-                public AnnotatedType<T> delegate() {
-                    return annotatedType;
-                }
-
-                @Override
-                public Set<Annotation> getAnnotations() {
-                    return annotations;
-                }
-
-            });
+            pat.setAnnotatedType(new AnnotationRewritingAnnotatedType<>(annotatedType, annotations));
         }
     }
 
