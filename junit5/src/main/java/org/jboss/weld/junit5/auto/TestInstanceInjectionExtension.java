@@ -77,9 +77,6 @@ public class TestInstanceInjectionExtension implements Extension {
         this.testInstance = testInstance;
     }
 
-    TestInstanceInjectionExtension() {
-    }
-
     <T> void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
 
         AnnotatedType<T> annotatedType = pat.getAnnotatedType();

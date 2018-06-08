@@ -14,36 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.auto;
+package org.jboss.weld.junit5.auto.interceptorAndDecorator;
 
-
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.TestInstance;
-
+import javax.interceptor.InterceptorBinding;
 
 /**
- * Activates the listed scopes for the duration of the test.
  *
- * Note that the duration will either be that of one test method or one test class based on your settings of
- * {@link TestInstance.Lifecycle}.
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
+@InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-@Repeatable(ActivateScopes.All.class)
-public @interface ActivateScopes {
-
-    Class<? extends Annotation>[] value();
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
-    @interface All {
-        ActivateScopes[] value();
-    }
-
+@Target(ElementType.TYPE)
+public @interface TestInterceptorBinding {
+    
 }

@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Meta-annotation that allows test classes to be extended with <code>&#64;EnableWeld</code>
- * instead of <code>&#64;ExtendWith(WeldJunit5Extension.class)</code>.
+ * Meta-annotation that allows test classes to be extended with {@code @EnableWeld}
+ * instead of {@code @ExtendWith(WeldJunit5Extension.class)}.
  *
  * <pre><br>
  * &#64;EnableWeld
@@ -46,6 +46,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * </pre>
  *
  * @author <a href="mailto:smoyer1@selesy.com">Steve Moyer</a>
+ * @see WeldJunit5Extension
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

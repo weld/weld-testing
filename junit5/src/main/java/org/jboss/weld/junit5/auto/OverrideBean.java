@@ -29,11 +29,29 @@ import java.lang.annotation.Target;
  * Overrides a bean class that <i>may</i> otherwise be included in the container.
  *
  * Using this annotation provides an easy way to replace a bean class during a
- * test; It is usually used along with {@link javax.enterprise.inject.Produces}.
+ * test. It is usually used along with {@code @javax.enterprise.inject.Produces}.
+ *
+ * Here is how such a usage can look like:
+ * <pre>
+ * &#64;EnableAutoWeld
+ * &#64;AddPackages(Foo.class) // this brings in the *original* Foo impl you want to overide
+ * class OverrideFooTest {
+ * 
+ *   &#64;Produces
+ *   &#64;OverrideBean
+ *   Foo fakeFoo = new Foo("non-baz");
+ * 
+ *   &#64;Test
+ *   void test(Foo myFoo) {
+ *     assertNotNull(myFoo);
+ *     assertEquals(myFoo.getBar(), "non-baz");
+ *   }
+ * }
+ * </pre>
  */
 @Stereotype
 @Alternative
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 public @interface OverrideBean {
 }

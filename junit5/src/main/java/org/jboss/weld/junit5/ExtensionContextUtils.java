@@ -16,15 +16,14 @@
  */
 package org.jboss.weld.junit5;
 
+import java.util.List;
+
 import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
-import java.util.List;
-
-
 /**
- * Utility methods for fetching/storing items stored in the JUnit extension context.
+ * Utility methods for fetching/retrieving items stored in the JUnit extension context store.
  */
 public class ExtensionContextUtils {
 
@@ -35,26 +34,30 @@ public class ExtensionContextUtils {
     private static final String WELD_ENRICHERS = "weldEnrichers";
 
     private static Namespace EXTENSION_NAMESPACE;
-    private static Namespace TEST_NAMESPACE;
 
     /**
-     * We use custom namespace based on this extension class
+     * We use custom namespace based on this extension class, can be stored as static variable as it doesn't change throughout
+     * testsuite execution
+     *
+     * @param context {@link ExtensionContext} you are currently using
+     * @return {@link ExtensionContext.Store} based on {@link ExtensionContext} alone
      */
-    public static synchronized ExtensionContext.Store getExtensionStore(ExtensionContext context) {
+    private static synchronized ExtensionContext.Store getExtensionStore(ExtensionContext context) {
         if (EXTENSION_NAMESPACE == null) {
-            EXTENSION_NAMESPACE = Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass());
+            EXTENSION_NAMESPACE = Namespace.create(WeldJunit5Extension.class);
         }
         return context.getStore(EXTENSION_NAMESPACE);
     }
 
     /**
-     * We use custom namespace based on this extension class and test class
+     * We use custom namespace based on this extension class and test class, cannot be stored as static variable as test class
+     * name changes throughout testsuite execution
+     *
+     * @param context {@link ExtensionContext} you are currently using
+     * @return {@link ExtensionContext.Store} based on {@link ExtensionContext} and the required test class
      */
-    public static synchronized ExtensionContext.Store getTestStore(ExtensionContext context) {
-        if (TEST_NAMESPACE == null) {
-            TEST_NAMESPACE = Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass());
-        }
-        return context.getStore(TEST_NAMESPACE);
+    private static ExtensionContext.Store getTestStore(ExtensionContext context) {
+        return context.getStore(Namespace.create(WeldJunit5Extension.class, context.getRequiredTestClass()));
     }
 
     /**
@@ -65,7 +68,7 @@ public class ExtensionContextUtils {
     }
 
     /**
-     * Store initiator to extension context
+     * Stores {@link WeldInitiator} into provided {@link ExtensionContext.Store} based on provided {@link ExtensionContext}
      */
     public static void setInitiatorToStore(ExtensionContext context, WeldInitiator initiator) {
         getTestStore(context).put(INITIATOR, initiator);
@@ -80,7 +83,7 @@ public class ExtensionContextUtils {
     }
 
     /**
-     * Store explicit injection parameter to extension context
+     * Store explicit injection parameter to {@link ExtensionContext.Store} based on provided {@link ExtensionContext}
      */
     public static void setExplicitInjectionInfoToStore(ExtensionContext context, boolean value) {
         getTestStore(context).put(EXPLICIT_PARAM_INJECTION, value);
@@ -88,13 +91,16 @@ public class ExtensionContextUtils {
 
     /**
      * Can return null if WeldContainer isn't stored yet
+     *
+     * @param context {@link ExtensionContext} to search in
+     * @return {@link WeldContainer} or null if it wasn't stored yet
      */
     public static WeldContainer getContainerFromStore(ExtensionContext context) {
         return getTestStore(context).get(CONTAINER, WeldContainer.class);
     }
 
     /**
-     * Store container to extension context
+     * Store {@link WeldContainer} to {@link ExtensionContext.Store}
      */
     public static void setContainerToStore(ExtensionContext context, WeldContainer container) {
         getTestStore(context).put(CONTAINER, container);
@@ -102,6 +108,9 @@ public class ExtensionContextUtils {
 
     /**
      * Can return null if `WeldJunitEnricher`s aren't stored yet.
+     *
+     * @param context {@link ExtensionContext} to search in
+     * @return {@code List<WeldJunitEnricher>} or null in case they weren't stored yet
      */
     public static List<WeldJunitEnricher> getEnrichersFromStore(ExtensionContext context) {
         @SuppressWarnings("unchecked")

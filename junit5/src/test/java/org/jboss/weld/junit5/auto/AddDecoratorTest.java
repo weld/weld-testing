@@ -16,34 +16,32 @@
  */
 package org.jboss.weld.junit5.auto;
 
+import javax.inject.Inject;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.junit.jupiter.api.TestInstance;
-
+import org.jboss.weld.junit5.auto.interceptorAndDecorator.DecoratedBean;
+import org.jboss.weld.junit5.auto.interceptorAndDecorator.TestDecorator;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * Activates the listed scopes for the duration of the test.
  *
- * Note that the duration will either be that of one test method or one test class based on your settings of
- * {@link TestInstance.Lifecycle}.
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-@Repeatable(ActivateScopes.All.class)
-public @interface ActivateScopes {
-
-    Class<? extends Annotation>[] value();
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
-    @interface All {
-        ActivateScopes[] value();
+/**
+ * Test that you can add decorator class and enable it (no need for priority) via annotation.
+ *
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
+ */
+@EnableAutoWeld
+@AddEnabledDecorators(TestDecorator.class)
+public class AddDecoratorTest {
+    
+    @Inject
+    DecoratedBean bean;
+    
+    @Test
+    public void testBeanIsDecorated() {
+        Assertions.assertNotNull(bean);
+        Assertions.assertEquals(TestDecorator.class.toString() + DecoratedBean.class.toString(), bean.ping());
     }
-
 }
