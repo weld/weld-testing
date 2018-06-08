@@ -14,25 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.enricher;
-
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.junit5.WeldInitiator.Builder;
-import org.jboss.weld.junit5.WeldJunitEnricher;
-import org.jboss.weld.junit5.basic.Foo;
-import org.jboss.weld.junit5.enricher.disabled.WeldJunitEnricherDisabledTest;
-import org.junit.jupiter.api.extension.ExtensionContext;
+package org.jboss.weld.junit5.auto;
 
 
+import javax.enterprise.inject.spi.Extension;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class FooWeldJunitEnricher implements WeldJunitEnricher {
 
-    @Override
-    public void enrich(Object testInstance, ExtensionContext context, Weld weld,
-                       Builder weldInitiatorBuilder) {
-        if (WeldJunitEnricherTest.class.equals(testInstance.getClass()) || WeldJunitEnricherDisabledTest.class.equals(testInstance.getClass())) {
-            weld.addBeanClass(Foo.class);
-        }
+/**
+ * Adds the listed classes as portable CDI extensions to the deployed testing container.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Repeatable(AddExtensions.All.class)
+public @interface AddExtensions {
+
+    Class<? extends Extension>[] value();
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    @interface All {
+        AddExtensions[] value();
     }
 
 }

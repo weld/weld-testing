@@ -17,6 +17,10 @@
 package org.jboss.weld.junit5;
 
 import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.junit5.WeldInitiator.Builder;
+import org.junit.jupiter.api.extension.ExtensionContext;
+
+
 
 /**
  * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of this interface are used to enrich the
@@ -38,10 +42,11 @@ public interface WeldJunitEnricher {
      * {@link Weld#initialize()} and {@link WeldInitiator.Builder#build()} methods must never be invoked in an enricher!
      * </p>
      *
+     * @param testInstance
+     * @param context
      * @param weld
      * @param weldInitiatorBuilder
-     * @param testInstance
      */
-    void enrich(Weld weld, WeldInitiator.Builder weldInitiatorBuilder, Object testInstance);
+    void enrich(Object testInstance, ExtensionContext context, Weld weld, Builder weldInitiatorBuilder);
 
 }

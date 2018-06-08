@@ -14,25 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.enricher;
+package org.jboss.weld.junit5.auto.extension;
 
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.junit5.WeldInitiator.Builder;
-import org.jboss.weld.junit5.WeldJunitEnricher;
-import org.jboss.weld.junit5.basic.Foo;
-import org.jboss.weld.junit5.enricher.disabled.WeldJunitEnricherDisabledTest;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Extension;
 
 
+public class AddedExtension implements Extension {
 
-public class FooWeldJunitEnricher implements WeldJunitEnricher {
+    private static boolean enabled = false;
 
-    @Override
-    public void enrich(Object testInstance, ExtensionContext context, Weld weld,
-                       Builder weldInitiatorBuilder) {
-        if (WeldJunitEnricherTest.class.equals(testInstance.getClass()) || WeldJunitEnricherDisabledTest.class.equals(testInstance.getClass())) {
-            weld.addBeanClass(Foo.class);
-        }
+    public void observePAT(@Observes AfterBeanDiscovery abd) {
+        enabled = true;
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
     }
 
 }

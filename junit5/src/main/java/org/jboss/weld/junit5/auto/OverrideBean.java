@@ -14,20 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5;
+package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.environment.se.Weld;
+
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
- * Adds all classes from the test class package.
+ * Overrides a bean class that <i>may</i> otherwise be included in the container.
  *
- * @author Martin Kouba
+ * Using this annotation provides an easy way to replace a bean class during a
+ * test; It is usually used along with {@link javax.enterprise.inject.Produces}.
  */
-public class DefaultWeldJunitEnricher implements WeldJunitEnricher {
-
-    @Override
-    public void enrich(Weld weld, WeldInitiator.Builder weldInitiatorBuilder, Object testInstance) {
-        weld.addPackage(false, testInstance.getClass());
-    }
-
+@Stereotype
+@Alternative
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
+public @interface OverrideBean {
 }

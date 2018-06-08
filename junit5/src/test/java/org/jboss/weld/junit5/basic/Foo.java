@@ -19,10 +19,18 @@ package org.jboss.weld.junit5.basic;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
+
+
 @ApplicationScoped
 public class Foo {
 
     private String bar;
+
+    public Foo() {}
+
+    public Foo(String bar) {
+        this.bar = bar;
+    }
 
     @PostConstruct
     public void init() {
