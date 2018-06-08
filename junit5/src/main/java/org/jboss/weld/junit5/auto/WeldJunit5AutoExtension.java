@@ -23,7 +23,31 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
 
-public class WeldJunit5AutoExtension extends org.jboss.weld.junit5.WeldJunit5Extension {
+import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit5.WeldJunitEnricher;
+
+/**
+ * An alternative to {@link WeldJunit5Extension} allowing to fully leverage annotation based configuration approach.
+ * When used, the extension will attempt to resolve all beans used in your test class and automatically adds them to
+ * Weld container while bootstrapping it.
+ * 
+ * There is quite a few annotations which can be used to configure it further still:
+ * @see ActivateScopes
+ * @see AddBeanClasses
+ * @see AddEnabledDecorators
+ * @see AddEnabledInterceptors
+ * @see AddExtensions
+ * @see AddPackages
+ * @see EnableAlternatives
+ * @see EnableAlternativeStereotypes
+ *
+ * Note that this approach cannot be combined with manual configuration, e.g. you cannot specify {@code WeldInitiator}
+ * along with {@code WeldJunit5AutoExtension}.
+ *
+ * @see EnableAutoWeld
+ * @see WeldJunitEnricher
+ */
+public class WeldJunit5AutoExtension extends WeldJunit5Extension {
 
     @Override
     protected void weldInit(Object testInstance, ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder) {

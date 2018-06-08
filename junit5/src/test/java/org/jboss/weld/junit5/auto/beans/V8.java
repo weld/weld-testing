@@ -3,11 +3,6 @@ package org.jboss.weld.junit5.auto.beans;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.ApplicationScoped;
-
-
-
-@ApplicationScoped
 public class V8 implements Engine, Serializable {
 
   private int throttle = 0;

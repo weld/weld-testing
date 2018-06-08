@@ -158,12 +158,18 @@ public class ClassScanning {
             AnnotationSupport.findRepeatableAnnotations(currClass, AddEnabledInterceptors.class).stream()
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
-                    .forEach(weld::addInterceptor);
+                    .forEach(interceptor -> {
+                        weld.addInterceptor(interceptor);
+                        weld.addBeanClass(interceptor);
+                    });
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddEnabledDecorators.class).stream()
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
-                    .forEach(weld::addDecorator);
+                    .forEach(decorator -> {
+                        weld.addDecorator(decorator);
+                        weld.addBeanClass(decorator);
+                    });
 
             AnnotationSupport.findRepeatableAnnotations(currClass, EnableAlternatives.class).stream()
                     .flatMap(ann -> stream(ann.value()))

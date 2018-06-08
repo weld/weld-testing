@@ -16,34 +16,28 @@
  */
 package org.jboss.weld.junit5.auto;
 
+import javax.inject.Inject;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.junit.jupiter.api.TestInstance;
-
+import org.jboss.weld.junit5.auto.interceptorAndDecorator.InterceptedBean;
+import org.jboss.weld.junit5.auto.interceptorAndDecorator.TestInterceptor;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * Activates the listed scopes for the duration of the test.
+ * Test that you can add interceptor class and enable it (no need for priority) via annotation.
  *
- * Note that the duration will either be that of one test method or one test class based on your settings of
- * {@link TestInstance.Lifecycle}.
+ * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-@Repeatable(ActivateScopes.All.class)
-public @interface ActivateScopes {
-
-    Class<? extends Annotation>[] value();
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
-    @interface All {
-        ActivateScopes[] value();
+@EnableAutoWeld
+@AddEnabledInterceptors(TestInterceptor.class)
+public class AddInterceptorTest {
+    
+    @Inject
+    InterceptedBean bean;
+    
+    @Test
+    public void testBeanIsIntercepted() {
+        Assertions.assertNotNull(bean);
+        Assertions.assertEquals(TestInterceptor.class.toString() + InterceptedBean.class.toString(), bean.ping());
     }
-
 }

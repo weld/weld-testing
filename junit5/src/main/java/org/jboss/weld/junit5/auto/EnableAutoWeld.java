@@ -26,8 +26,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Meta-annotation that allows test classes to be extended with <code>&#64;EnableWeld</code>
- * instead of <code>&#64;ExtendWith(WeldJunit5Extension.class)</code>.
+ * Meta-annotation that allows test classes to be extended with {@code @EnableAutoWeld}
+ * instead of {@code @ExtendWith(WeldJunit5AutoExtension.class)}.
  *
  * <pre><br>
  * &#64;EnableAutoWeld
@@ -45,7 +45,7 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
- * @author <a href="mailto:smoyer1@selesy.com">Steve Moyer</a>
+ * @see WeldJunit5AutoExtension
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

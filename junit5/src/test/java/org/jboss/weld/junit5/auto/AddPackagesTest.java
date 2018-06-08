@@ -20,7 +20,7 @@ public class AddPackagesTest {
   private V8 engine;
 
   @Test
-  @DisplayName("Test that @AddPackages pulls in V8 to fulfill the injected Engine interface")
+  @DisplayName("Test that @AddPackages pulls in V8 (without bean defining annotation) to fulfill the injected Engine interface")
   void test() {
     assertNotNull(engine);
   }
