@@ -42,17 +42,17 @@ public class ExtensionContextUtils {
     }
 
     /**
-     * We use custom namespace based on this extension class, can be stored as static variable as it doesn't change throughout
-     * testsuite execution
+     * We use custom namespace based on this extension class; can be stored as static variable as it doesn't change throughout
+     * testsuite execution.
      *
      * @param context {@link ExtensionContext} you are currently using
-     * @return {@link ExtensionContext.Store} based on {@link ExtensionContext} alone
+     * @return <b>Root</b> {@link ExtensionContext.Store} with {@link Namespace} based on extension class alone
      */
-    private static synchronized ExtensionContext.Store getExtensionStore(ExtensionContext context) {
+    private static synchronized ExtensionContext.Store getRootExtensionStore(ExtensionContext context) {
         if (EXTENSION_NAMESPACE == null) {
             EXTENSION_NAMESPACE = Namespace.create(WeldJunit5Extension.class);
         }
-        return context.getStore(EXTENSION_NAMESPACE);
+        return context.getRoot().getStore(EXTENSION_NAMESPACE);
     }
 
     /**
@@ -120,15 +120,15 @@ public class ExtensionContextUtils {
      */
     public static List<WeldJunitEnricher> getEnrichersFromStore(ExtensionContext context) {
         @SuppressWarnings("unchecked")
-        List<WeldJunitEnricher> enrichers = (List<WeldJunitEnricher>) getExtensionStore(context).get(WELD_ENRICHERS, List.class);
+        List<WeldJunitEnricher> enrichers = (List<WeldJunitEnricher>) getRootExtensionStore(context).get(WELD_ENRICHERS, List.class);
         return enrichers;
     }
 
     /**
-     * Store `WeldJunitEnricher`s to extension context
+     * Store `WeldJunitEnricher`s to <i>root</i> extension context
      */
     public static void setEnrichersToStore(ExtensionContext context, List<WeldJunitEnricher> enrichers) {
-        getExtensionStore(context).put(WELD_ENRICHERS, enrichers);
+        getRootExtensionStore(context).put(WELD_ENRICHERS, enrichers);
     }
 
 }
