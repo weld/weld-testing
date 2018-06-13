@@ -41,8 +41,7 @@ import org.jboss.weld.junit5.WeldJunitEnricher;
  * @see EnableAlternatives
  * @see EnableAlternativeStereotypes
  *
- * Note that this approach cannot be combined with manual configuration, e.g. you cannot specify {@code WeldInitiator}
- * along with {@code WeldJunit5AutoExtension}.
+ * Note that this approach cannot be combined with {@link WeldJunit5Extension}, choose one or the other approach, not both.
  *
  * @see EnableAutoWeld
  * @see WeldJunitEnricher
