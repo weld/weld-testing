@@ -26,15 +26,16 @@ import java.lang.annotation.Target;
 
 
 /**
- * Overrides a bean class that <i>may</i> otherwise be included in the container.
+ * {@code @OverrideBean} is, strictly speaking, an always enabled alternative stereotype.
+ * It is typically used along with {@code @javax.enterprise.inject.Produces}.
  *
- * Using this annotation provides an easy way to replace a bean class during a
- * test. It is usually used along with {@code @javax.enterprise.inject.Produces}.
+ * It "overrides a bean" that <i>may</i> otherwise be included in the container by providing a new bean (via producer) and
+ * selecting it.
  *
  * Here is how such a usage can look like:
  * <pre>
  * &#64;EnableAutoWeld
- * &#64;AddPackages(Foo.class) // this brings in the *original* Foo impl you want to overide
+ * &#64;AddPackages(Foo.class) // this brings in the *original* Foo impl you want to override
  * class OverrideFooTest {
  * 
  *   &#64;Produces
