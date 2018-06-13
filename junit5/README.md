@@ -478,8 +478,9 @@ Selects and alternative for the test bean archive.
 
 ### `@OverrideBean`
 
-This annotations covers a rather specific use case, it allows to override a bean which would otherwise be included in the container.
-It usually goes hand in hand with `@Produces` which is a natural way to provide replacement bean.
+This annotations covers a rather specific use case, it allows to "override a bean" which may otherwise be included in the container.
+It usually goes hand in hand with `@Produces` which is a natural way to provide a replacement bean.
+Strictly speaking, this is just an always enabled alternative stereotype.
 Let's look at a code snippet:
 
 ```java
@@ -498,7 +499,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  
    @Produces
    @OverrideBean
-   Foo fakeFoo = new Foo("non-baz"); // this is what we replace the original bean with
+   Foo fakeFoo = new Foo("non-baz"); // this will be an enabled alternative we provide instead
  
    @Test
    void test(Foo myFoo) {

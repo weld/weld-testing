@@ -73,7 +73,6 @@ class ClassScanning {
         classesToProcess.add(testClass);
 
         Set<Class<?>> foundClasses = new HashSet<>();
-        Set<Class<?>> alternatives = new HashSet<>();
 
         while (!classesToProcess.isEmpty()) {
 
@@ -84,14 +83,6 @@ class ClassScanning {
             }
 
             foundClasses.add(currClass);
-
-            findAnnotatedFields(currClass, Object.class, OverrideBean.class).stream()
-                    .map(Field::getType)
-                    .forEach(alternatives::add);
-
-            AnnotationSupport.findAnnotatedMethods(currClass, OverrideBean.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .map(Method::getReturnType)
-                    .forEach(alternatives::add);
 
             findAnnotatedFields(currClass, Object.class, Inject.class).stream()
                     .map(Field::getType)
@@ -183,7 +174,6 @@ class ClassScanning {
 
         }
 
-        foundClasses.removeAll(alternatives);
         foundClasses.add(testClass);
 
         for (Class<?> foundClass : foundClasses) {
