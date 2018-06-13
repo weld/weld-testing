@@ -23,7 +23,9 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
 /**
- * Utility methods for fetching/retrieving items stored in the JUnit extension context store.
+ * <b>This class is not a public API and it's contents can change unpredictably!</b>
+ *
+ * It contains utility methods for fetching/retrieving items stored in the JUnit extension context store.
  */
 public class ExtensionContextUtils {
 
@@ -34,6 +36,10 @@ public class ExtensionContextUtils {
     private static final String WELD_ENRICHERS = "weldEnrichers";
 
     private static Namespace EXTENSION_NAMESPACE;
+
+    // private constructor to prevent instantiation
+    private ExtensionContextUtils() {        
+    }
 
     /**
      * We use custom namespace based on this extension class, can be stored as static variable as it doesn't change throughout

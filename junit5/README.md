@@ -386,7 +386,7 @@ class MyTest {
 To use this approach, annotate your test class with `ExtendWith(WeldJunit5AutoExtension.class)` or just `@EnableAutoWeld`.
 By default, the extension will:
 
-* Inspect your test class and try to figure out what beans classes does it need based on injection points (field and parameter injection both work)
+* Inspect your test class and try to figure out what beans classes it needs based on injection points (field and parameter injection both work)
   * This is done by finding classes and verifying if they have [bean defining annotation](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#bean_defining_annotations) so make sure they do
 * Add those classes to Weld container
 * Process additional annotations on test class
@@ -553,3 +553,4 @@ Unlike [Arquillian Weld embedded container](https://github.com/arquillian/arquil
 This behaviour can be changed by setting a system property `org.jboss.weld.se.archive.isolation` to `false` or through the `Weld.property()` method.
 If set, Weld will use a _"flat"_ deployment structure - all bean classes share the same bean archive and all beans.xml descriptors are automatically merged into one.
 Thus alternatives, interceptors and decorators selected/enabled for a bean archive will be enabled for the whole application.
+Note that this configuration only makes difference if you run with *enabled discovery*; it won't affect your deployment if you use synthetic bean archive.

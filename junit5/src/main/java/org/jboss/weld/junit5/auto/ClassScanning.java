@@ -65,7 +65,7 @@ import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
 /**
  * Provides <b>automagic</b> bean class discovery for a test class instance.
  */
-public class ClassScanning {
+class ClassScanning {
 
     public static void scanForRequiredBeanClass(Class<?> testClass, Weld weld, boolean explicitInjection) {
 
