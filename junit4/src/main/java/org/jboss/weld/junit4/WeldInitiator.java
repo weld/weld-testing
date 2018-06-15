@@ -37,6 +37,8 @@ import org.junit.runners.model.Statement;
  * JUnit 4 initiator - test rule which starts a Weld container per each test method execution:
  *
  * <pre>
+ * import org.junit.Rule;
+ *
  * public class SimpleTest {
  *
  *     &#64;Rule
@@ -47,6 +49,32 @@ import org.junit.runners.model.Statement;
  *         // Weld container is started automatically
  *         // WeldInitiator can be used to perform programmatic lookup of beans
  *         assertEquals("baz", weld.select(Foo.class).get().getBaz());
+ *     }
+ * }
+ * </pre>
+ *
+ * <p>
+ * Alternatively, the container can be shared accross all test methods:
+ * </p>
+ *
+ * <pre>
+ * import org.junit.ClassRule;
+ *
+ * public class ClassRuleTest {
+ *
+ *     &#64;ClassRule
+ *     public WeldInitiator weld = WeldInitiator.of(Foo.class);
+ *
+ *     &#64;Test
+ *     public void test1() {
+ *         // Weld container is started automatically
+ *         // WeldInitiator can be used to perform programmatic lookup of beans
+ *         assertEquals("baz", weld.select(Foo.class).get().getBaz());
+ *     }
+ *
+ *     &#64;Test
+ *     public void test2() {
+ *         // This test method is using the same Weld container as test1()
  *     }
  * }
  * </pre>

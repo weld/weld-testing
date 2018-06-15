@@ -316,7 +316,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         }
 
         /**
-         * Activate and deactivate contexts for the given normal scopes for each test method execution.
+         * Activate and deactivate contexts for the given normal scopes for the lifetime of the initialized Weld container, by default for each test method
+         * execution.
          * <p>
          * {@link ApplicationScoped} is ignored as it is always active.
          * </p>

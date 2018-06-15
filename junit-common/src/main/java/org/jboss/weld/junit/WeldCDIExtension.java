@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 
 /**
@@ -45,10 +46,10 @@ class WeldCDIExtension implements Extension {
         this.contexts = new ArrayList<>();
     }
 
-    void afterBeandiscovery(@Observes AfterBeanDiscovery event) {
+    void afterBeandiscovery(@Observes AfterBeanDiscovery event, BeanManager beanManager) {
         if (scopesToActivate != null) {
             for (Class<? extends Annotation> scope : scopesToActivate) {
-                ContextImpl ctx = new ContextImpl(scope);
+                ContextImpl ctx = new ContextImpl(scope, beanManager);
                 contexts.add(ctx);
                 event.addContext(ctx);
             }
