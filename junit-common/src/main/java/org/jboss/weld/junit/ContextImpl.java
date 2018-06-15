@@ -19,11 +19,13 @@ package org.jboss.weld.junit;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ContextNotActiveException;
 import javax.enterprise.context.spi.Context;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.BeanManager;
 
 /**
  *
@@ -31,13 +33,18 @@ import javax.enterprise.context.spi.CreationalContext;
  */
 class ContextImpl implements Context {
 
+    private static final Logger LOGGER = Logger.getLogger(ContextImpl.class.getName());
+
     private final Class<? extends Annotation> scope;
+
+    private final BeanManager beanManager;
 
     // It's a normal scope so there may be no more than one mapped instance per contextual type per thread
     private final ThreadLocal<Map<Contextual<?>, ContextualInstance<?>>> currentContext = new ThreadLocal<>();
 
-    public ContextImpl(Class<? extends Annotation> scope) {
+    ContextImpl(Class<? extends Annotation> scope, BeanManager beanManager) {
         this.scope = scope;
+        this.beanManager = beanManager;
     }
 
     public Class<? extends Annotation> getScope() {
@@ -81,6 +88,7 @@ class ContextImpl implements Context {
 
     public void activate() {
         currentContext.set(new HashMap<Contextual<?>, ContextualInstance<?>>());
+        beanManager.fireEvent(new Object(), InitializedLiteral.of(scope));
     }
 
     public void deactivate() {
@@ -92,11 +100,12 @@ class ContextImpl implements Context {
             try {
                 instance.destroy();
             } catch (Exception e) {
-                // LOGGER.warning("Unable to destroy instance" + instance.get() + " for bean: " + instance.getContextual());
+                LOGGER.warning("Unable to destroy instance" + instance.get() + " for bean: " + instance.getContextual());
             }
         }
         ctx.clear();
         currentContext.remove();
+        beanManager.fireEvent(new Object(), DestroyedLiteral.of(scope));
     }
 
     /**
