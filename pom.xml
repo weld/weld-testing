@@ -2,7 +2,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>weld-junit-parent</artifactId>
    <packaging>pom</packaging>
-   <version>1.3.0.Final</version>
+   <version>1.3.1-SNAPSHOT</version>
 
    <name>Weld JUnit Extensions</name>
    <description>Set of JUnit extensions to enhance the testing of CDI components.</description>
@@ -26,7 +26,7 @@
       <connection>scm:git:git://github.com:weld/weld-junit.git</connection>
       <developerConnection>scm:git:git@github.com:weld/weld-junit.git</developerConnection>
       <url>https://github.com/weld/weld-junit</url>
-     <tag>1.3.0.Final</tag>
+     <tag>HEAD</tag>
   </scm>
 
    <developers>
