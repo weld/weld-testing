@@ -53,6 +53,6 @@ import java.lang.annotation.Target;
 @Stereotype
 @Alternative
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface OverrideBean {
 }
