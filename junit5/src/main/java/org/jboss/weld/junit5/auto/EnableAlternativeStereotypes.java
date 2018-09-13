@@ -19,6 +19,7 @@ package org.jboss.weld.junit5.auto;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,6 +31,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Inherited
 @Repeatable(EnableAlternativeStereotypes.All.class)
 public @interface EnableAlternativeStereotypes {
 
@@ -37,6 +39,7 @@ public @interface EnableAlternativeStereotypes {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
+    @Inherited
     @interface All {
         EnableAlternativeStereotypes[] value();
     }
