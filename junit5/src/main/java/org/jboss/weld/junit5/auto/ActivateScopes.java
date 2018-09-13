@@ -19,6 +19,7 @@ package org.jboss.weld.junit5.auto;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.TestInstance;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
+@Inherited
 @Repeatable(ActivateScopes.All.class)
 public @interface ActivateScopes {
 
@@ -42,6 +44,7 @@ public @interface ActivateScopes {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
+    @Inherited
     @interface All {
         ActivateScopes[] value();
     }
