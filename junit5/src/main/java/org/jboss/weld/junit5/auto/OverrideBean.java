@@ -55,4 +55,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface OverrideBean {
+
+    boolean exclude() default false;
+
 }
