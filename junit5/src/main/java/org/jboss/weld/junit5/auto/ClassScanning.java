@@ -67,35 +67,35 @@ import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
  */
 class ClassScanning {
 
-    public static void scanForRequiredBeanClass(Class<?> testClass, Weld weld, boolean explicitInjection) {
+    static void scanForRequiredBeanClass(Class<?> testClass, Weld weld, boolean explicitInjection) {
 
         List<Class<?>> classesToProcess = new ArrayList<>();
         classesToProcess.add(testClass);
 
         Set<Class<?>> foundClasses = new HashSet<>();
-        Set<Class<?>> excludedAlternatives = new HashSet<>();
+        Set<Class<?>> excludedBeanClasses = new HashSet<>();
 
         while (!classesToProcess.isEmpty()) {
 
             Class<?> currClass = classesToProcess.remove(0);
 
-            if (foundClasses.contains(currClass) || currClass.isPrimitive() || currClass.isSynthetic() || currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
+            if (foundClasses.contains(currClass) || excludedBeanClasses.contains(currClass) ||
+                    currClass.isPrimitive() || currClass.isSynthetic() ||
+                    currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
                 continue;
             }
 
             foundClasses.add(currClass);
 
-            findAnnotatedFields(currClass, Object.class, OverrideBean.class).stream()
-                    .filter(field -> field.getAnnotation(OverrideBean.class).exclude())
+            findAnnotatedFields(currClass, ProducesOverride.class).stream()
                     .map(Field::getType)
-                    .forEach(excludedAlternatives::add);
+                    .forEach(excludedBeanClasses::add);
 
-            AnnotationSupport.findAnnotatedMethods(currClass, OverrideBean.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .filter(method -> method.getAnnotation(OverrideBean.class).exclude())
+            AnnotationSupport.findAnnotatedMethods(currClass, ProducesOverride.class, HierarchyTraversalMode.BOTTOM_UP).stream()
                     .map(Method::getReturnType)
-                    .forEach(excludedAlternatives::add);
+                    .forEach(excludedBeanClasses::add);
 
-            findAnnotatedFields(currClass, Object.class, Inject.class).stream()
+            findAnnotatedFields(currClass, Inject.class).stream()
                     .map(Field::getType)
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
@@ -108,7 +108,7 @@ class ClassScanning {
                     .flatMap(cons -> getExecutableParameterTypes(cons, weld, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
-            findAnnotatedFields(currClass, Object.class, Produces.class).stream()
+            findAnnotatedFields(currClass, Produces.class).stream()
                     .map(Field::getType)
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
@@ -185,7 +185,6 @@ class ClassScanning {
 
         }
 
-        foundClasses.removeAll(excludedAlternatives);
         foundClasses.add(testClass);
 
         for (Class<?> foundClass : foundClasses) {
@@ -260,12 +259,12 @@ class ClassScanning {
 
     private static List<Field> findAllFieldsInHierarchy(Class<?> clazz) {
         Preconditions.notNull(clazz, "Class must not be null");
-        List<Field> localFields = getDeclaredFields(clazz).stream().filter((field) -> {
-            return !field.isSynthetic();
-        }).collect(Collectors.toList());
-        List<Field> superclassFields = getSuperclassFields(clazz).stream().filter((field) -> {
-            return !isMethodShadowedByLocalFields(field, localFields);
-        }).collect(Collectors.toList());
+        List<Field> localFields = getDeclaredFields(clazz).stream().
+                filter((field) -> !field.isSynthetic())
+                .collect(Collectors.toList());
+        List<Field> superclassFields = getSuperclassFields(clazz).stream()
+                .filter((field) -> !isMethodShadowedByLocalFields(field, localFields))
+                .collect(Collectors.toList());
         List<Field> methods = new ArrayList<>();
         methods.addAll(superclassFields);
         methods.addAll(localFields);
@@ -283,26 +282,25 @@ class ClassScanning {
     }
 
     private static boolean isMethodShadowedByLocalFields(Field field, List<Field> localFields) {
-        return localFields.stream().anyMatch((local) -> {
-            return isFieldShadowedBy(field, local);
-        });
+        return localFields.stream()
+                .anyMatch((local) -> isFieldShadowedBy(field, local));
     }
 
     private static boolean isFieldShadowedBy(Field upper, Field lower) {
         return upper.getType().equals(lower.getType());
     }
 
-    public static List<Field> findAnnotatedFields(Class<?> clazz, Class<?> fieldType, Class<? extends Annotation> annotationType) {
-        return getDeclaredFields(clazz).stream().filter((field) -> {
-            return fieldType.isAssignableFrom(field.getType()) && isAnnotated(field, annotationType);
-        }).collect(CollectionUtils.toUnmodifiableList());
+    private static List<Field> findAnnotatedFields(Class<?> clazz, Class<? extends Annotation> annotationType) {
+        return getDeclaredFields(clazz).stream()
+                .filter((field) -> isAnnotated(field, annotationType))
+                .collect(CollectionUtils.toUnmodifiableList());
     }
 
     private static List<Constructor<?>> getDeclaredConstructors(Class<?> clazz) {
         return asList(clazz.getDeclaredConstructors());
     }
 
-    public static Optional<Constructor<?>> findFirstAnnotatedConstructor(Class<?> clazz, Class<? extends Annotation> annotationType) {
+    private static Optional<Constructor<?>> findFirstAnnotatedConstructor(Class<?> clazz, Class<? extends Annotation> annotationType) {
 
         Optional<Constructor<?>> found = getDeclaredConstructors(clazz).stream()
                 .filter((cons) -> isAnnotated(cons, annotationType))

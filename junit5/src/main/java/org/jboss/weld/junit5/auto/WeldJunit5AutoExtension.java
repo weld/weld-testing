@@ -18,13 +18,12 @@ package org.jboss.weld.junit5.auto;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit5.WeldJunitEnricher;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
-
-import org.jboss.weld.junit5.WeldJunit5Extension;
-import org.jboss.weld.junit5.WeldJunitEnricher;
 
 /**
  * An alternative to {@link WeldJunit5Extension} allowing to fully leverage annotation based configuration approach.
