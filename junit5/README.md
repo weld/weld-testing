@@ -314,7 +314,7 @@ class AddBeanTest {
 Sometimes it might be useful to add a mock interceptor, e.g. if an interceptor implementation requires some environment-specific features.
 For this use case the `org.jboss.weld.junit.MockInterceptor` is a perfect match:
 
-```
+```java
 @FooBinding
 class Foo {
    boolean ping() {
