@@ -99,6 +99,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         this.beans = beans;
         this.weld = weld;
         boolean hasMockInterceptor = false;
+        boolean dummyBeanAdded = false;
         if (hasScopesToActivate() || hasBeansToAdd()) {
             this.extension = new WeldCDIExtension(this.scopesToActivate, this.beans);
             for (Bean<?> bean : this.beans) {
@@ -106,6 +107,12 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
                     MockBean<?> mockBean = (MockBean<?>) bean;
                     if (mockBean.isAlternative() && mockBean.isSelectForSyntheticBeanArchive()) {
                         this.weld.addAlternative(mockBean.getBeanClass());
+                        if (!dummyBeanAdded) {
+                            // by adding a dummy bean we make sure that synthetic archive gets created even if
+                            // the enabled alternative was the only bean added
+                            this.weld.addBeanClass(Object.class);
+                            dummyBeanAdded = true;
+                        }
                     }
                 } else if (bean instanceof MockInterceptor && ((MockInterceptor) bean).hasDefaultBeanClass()) {
                     hasMockInterceptor = true;
