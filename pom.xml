@@ -41,11 +41,10 @@
       <maven.compiler.target>1.8</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.12</version.junit4>
-      <version.junit.platform>1.1.0</version.junit.platform>
-      <version.junit.jupiter>5.1.0</version.junit.jupiter>
+      <version.junit.jupiter>5.4.1</version.junit.jupiter>
       <version.weld>2.4.8.Final</version.weld>
-      <version.weld3>3.0.5.Final</version.weld3>
-      <version.mockito>2.7.19</version.mockito>
+      <version.weld3>3.1.0.Final</version.weld3>
+      <version.mockito>2.25.1</version.mockito>
       <version.jboss-ejb-api>1.0.0.Final</version.jboss-ejb-api>
       <version.hibernate-jpa-api>1.0.0.Final</version.hibernate-jpa-api>
       <!-- SpotBugs properties -->
@@ -173,5 +172,26 @@
            </build>
        </profile>
    </profiles>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <!--Minimal version with Junit 5 engine support-->
+                    <version>2.22.1</version>
+                    <configuration>
+                        <systemProperties>
+                            <property>
+                                <name>java.util.logging.config.file</name>
+                                <value>${project.build.testOutputDirectory}/logging.properties</value>
+                            </property>
+                        </systemProperties>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
