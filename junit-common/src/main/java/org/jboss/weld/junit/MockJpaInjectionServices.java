@@ -64,7 +64,7 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
         };
     }
 
-    @Override
+    // only for Weld 2
     public EntityManager resolvePersistenceContext(InjectionPoint injectionPoint) {
         if (persistenceContextFactory == null) {
             throw new IllegalStateException("Persistent context factory not set, cannot resolve injection point: " + injectionPoint);
@@ -76,7 +76,7 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
         throw new IllegalStateException("Not an EntityManager instance: " + context);
     }
 
-    @Override
+    // only for Weld 2
     public EntityManagerFactory resolvePersistenceUnit(InjectionPoint injectionPoint) {
         if (persistenceUnitFactory == null) {
             throw new IllegalStateException("Persistent unit factory not set, cannot resolve injection point: " + injectionPoint);

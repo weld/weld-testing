@@ -53,7 +53,7 @@ public class MockEjbInjectionServices implements EjbInjectionServices {
         };
     }
 
-    @Override
+    // only for Weld 2
     public Object resolveEjb(InjectionPoint injectionPoint) {
         return ejbFactory.apply(injectionPoint);
     }

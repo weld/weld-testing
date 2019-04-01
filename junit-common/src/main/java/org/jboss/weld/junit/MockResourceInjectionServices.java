@@ -49,7 +49,7 @@ public class MockResourceInjectionServices implements ResourceInjectionServices 
         this.resources = ImmutableMap.copyOf(resources);
     }
 
-    @Override
+    // only for Weld 2
     public Object resolveResource(InjectionPoint injectionPoint) {
         Resource resource = getResourceAnnotation(injectionPoint);
         if (resource == null) {
@@ -83,7 +83,7 @@ public class MockResourceInjectionServices implements ResourceInjectionServices 
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    // only for Weld 2
     public Object resolveResource(String jndiName, String mappedName) {
         throw new UnsupportedOperationException();
     }
