@@ -48,36 +48,8 @@
          <artifactId>hibernate-jpa-2.1-api</artifactId>
          <scope>test</scope>
       </dependency>
-
+      
    </dependencies>
-
-   <build>
-      <pluginManagement>
-         <plugins>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-surefire-plugin</artifactId>
-               <dependencies>
-                  <!-- Surefire doesn't know JUnit 5 provider yet, we need
-                     to add it here -->
-                  <dependency>
-                     <groupId>org.junit.platform</groupId>
-                     <artifactId>junit-platform-surefire-provider</artifactId>
-                     <version>${version.junit.platform}</version>
-                  </dependency>
-               </dependencies>
-               <configuration>
-                  <systemProperties>
-                     <property>
-                        <name>java.util.logging.config.file</name>
-                        <value>${project.build.testOutputDirectory}/logging.properties</value>
-                     </property>
-                  </systemProperties>
-               </configuration>
-            </plugin>
-         </plugins>
-      </pluginManagement>
-   </build>
 
    <profiles>
 
