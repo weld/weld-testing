@@ -1,8 +1,10 @@
 package org.jboss.weld.junit5.auto;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.jboss.weld.junit5.auto.beans.Engine;
+import org.jboss.weld.junit5.auto.beans.V6;
+import org.jboss.weld.junit5.auto.beans.V8;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import javax.enterprise.context.ContextNotActiveException;
 import javax.enterprise.context.ConversationScoped;
@@ -12,11 +14,9 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Named;
 
-import org.jboss.weld.junit5.auto.beans.Engine;
-import org.jboss.weld.junit5.auto.beans.V6;
-import org.jboss.weld.junit5.auto.beans.V8;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ActivateScopesInheritanceTest extends BaseActivateScopesInheritanceTest {
 
@@ -27,8 +27,7 @@ class ActivateScopesInheritanceTest extends BaseActivateScopesInheritanceTest {
 
     @Produces
     @ConversationScoped
-    @OverrideBean
-    // V8 is annotated with @ApplicationScoped, this tells the container to use this ConversationScoped bean instead
+    @ExcludeBean // V6 is annotated with @ApplicationScoped, this tells the container to use producer instead
     V6 convoEngine = new V6();
 
     @Test

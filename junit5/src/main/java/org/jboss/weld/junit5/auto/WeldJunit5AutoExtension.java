@@ -52,8 +52,6 @@ public class WeldJunit5AutoExtension extends WeldJunit5Extension {
 
         Class<?> testClass = testInstance.getClass();
 
-        weld.addAlternativeStereotype(OverrideBean.class);
-
         ClassScanning.scanForRequiredBeanClass(testClass, weld, getExplicitInjectionInfoFromStore(context));
 
         weld.addBeanClass(testClass);

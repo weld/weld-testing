@@ -73,13 +73,13 @@ class ClassScanning {
         classesToProcess.add(testClass);
 
         Set<Class<?>> foundClasses = new HashSet<>();
-        Set<Class<?>> excludedBeanClasses = new HashSet<>();
+        Set<Type> excludedBeanTypes = new HashSet<>();
 
         while (!classesToProcess.isEmpty()) {
 
             Class<?> currClass = classesToProcess.remove(0);
 
-            if (foundClasses.contains(currClass) || excludedBeanClasses.contains(currClass) ||
+            if (foundClasses.contains(currClass) ||
                     currClass.isPrimitive() || currClass.isSynthetic() ||
                     currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
                 continue;
@@ -87,13 +87,13 @@ class ClassScanning {
 
             foundClasses.add(currClass);
 
-            findAnnotatedFields(currClass, ProducesOverride.class).stream()
+            findAnnotatedFields(currClass, ExcludeBean.class).stream()
                     .map(Field::getType)
-                    .forEach(excludedBeanClasses::add);
+                    .forEach(excludedBeanTypes::add);
 
-            AnnotationSupport.findAnnotatedMethods(currClass, ProducesOverride.class, HierarchyTraversalMode.BOTTOM_UP).stream()
+            AnnotationSupport.findAnnotatedMethods(currClass, ExcludeBeans.class, HierarchyTraversalMode.BOTTOM_UP).stream()
                     .map(Method::getReturnType)
-                    .forEach(excludedBeanClasses::add);
+                    .forEach(excludedBeanTypes::add);
 
             findAnnotatedFields(currClass, Inject.class).stream()
                     .map(Field::getType)
@@ -183,6 +183,11 @@ class ClassScanning {
                     .distinct()
                     .forEach(weld::addAlternativeStereotype);
 
+            AnnotationSupport.findRepeatableAnnotations(currClass, ExcludeBeans.class).stream()
+                    .flatMap(ann -> stream(ann.value()))
+                    .distinct()
+                    .forEach(excludedBeanTypes::add);
+
         }
 
         foundClasses.add(testClass);
@@ -195,6 +200,7 @@ class ClassScanning {
 
         }
 
+        weld.addExtension(new ExcludedBeansExtension(excludedBeanTypes));
     }
 
     private static void addClassesToProcess(Collection<Class<?>> classesToProcess, Type type) {
