@@ -79,7 +79,7 @@ class ClassScanning {
 
             Class<?> currClass = classesToProcess.remove(0);
 
-            if (foundClasses.contains(currClass) ||
+            if (foundClasses.contains(currClass) || excludedBeanTypes.contains(currClass) ||
                     currClass.isPrimitive() || currClass.isSynthetic() ||
                     currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
                 continue;
