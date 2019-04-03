@@ -1,7 +1,8 @@
 package org.jboss.weld.junit5.auto;
 
 import org.jboss.weld.junit5.basic.Foo;
-import org.jboss.weld.junit5.basic.SomeFoo;
+import org.jboss.weld.junit5.basic.IFoo;
+import org.jboss.weld.junit5.basic.SomeIFoo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,18 +13,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddBeanClasses(SomeFoo.class)
-class ExcludeBeanTest {
+@AddBeanClasses(SomeIFoo.class)
+class ExcludeBeanHierarchyTest {
 
     @Produces
     @ExcludeBean
-    Foo fakeFoo = new Foo("non-baz");
+    IFoo fakeFoo = new Foo("non-baz");
 
     @Test
-    @DisplayName("Ensure @ExcludeBean excludes the implied bean class")
-    void test(Foo myFoo) {
-        assertNotNull(myFoo);
-        assertEquals(myFoo.getBar(), "non-baz");
+    @DisplayName("Ensure @ExcludeBean excludes all beans in implied hierarchy")
+    void test(IFoo myIFoo) {
+        assertNotNull(myIFoo);
+        assertEquals(myIFoo.getBar(), "non-baz");
     }
 
 }

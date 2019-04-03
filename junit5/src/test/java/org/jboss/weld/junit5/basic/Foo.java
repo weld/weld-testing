@@ -22,7 +22,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 
 @ApplicationScoped
-public class Foo {
+public class Foo implements IFoo {
 
     private String bar;
 

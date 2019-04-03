@@ -8,16 +8,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code ExcludeBeans} excludes a set of classes with bean defining annotations (e.g. scopes) from automatic
+ * {@code ExcludeBeanClasses} excludes a set of classes with bean defining annotations (e.g. scopes) from automatic
  * discovery. This can be helpful to allow replacing bean classes with a different implementation; typically a mock.
  *
  * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
- * specified type that are defined by {@link javax.enterprise.inject.Produces producer methods or fields}
+ * specified type that are defined by {@link javax.enterprise.inject.Produces producer methods or fields}.
  *
  * Example:
  * <pre>
  * &#64;EnableAutoWeld
- * &#64;ExcludeBeans(Foo.class) // Excludes Foo bean class from automatic discovery
+ * &#64;ExcludeBeanClasses(Foo.class) // Excludes Foo bean class from automatic discovery
  * class TestSomeFoo {
  *
  *   &#64;Inject
@@ -39,8 +39,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
-@Repeatable(ExcludeBeans.All.class)
-public @interface ExcludeBeans {
+@Repeatable(ExcludeBeanClasses.All.class)
+public @interface ExcludeBeanClasses {
 
     Class<?>[] value();
 
@@ -48,7 +48,7 @@ public @interface ExcludeBeans {
     @Target(ElementType.TYPE)
     @Inherited
     @interface All {
-        ExcludeBeans[] value();
+        ExcludeBeanClasses[] value();
     }
 
 }

@@ -33,14 +33,26 @@ import java.util.Set;
 public class ExcludedBeansExtension implements Extension {
 
     private Set<Type> excludedBeanTypes;
+    private Set<Class<?>> excludedBeanClasses;
 
-    ExcludedBeansExtension(Set<Type> excludedBeanTypes) {
+    ExcludedBeansExtension(Set<Type> excludedBeanTypes, Set<Class<?>> excludedBeanClasses) {
         this.excludedBeanTypes = excludedBeanTypes;
+        this.excludedBeanClasses = excludedBeanClasses;
     }
 
     <T> void excludeBeans(@Observes @WithAnnotations({Scope.class, NormalScope.class}) ProcessAnnotatedType<T> pat) {
-        if (excludedBeanTypes.contains(pat.getAnnotatedType().getBaseType())) {
+
+        if (excludedBeanClasses.contains(pat.getAnnotatedType().getJavaClass())) {
             pat.veto();
+            return;
+        }
+
+        Set<Type> typeClosure = pat.getAnnotatedType().getTypeClosure();
+        for (Type excludedBeanType : excludedBeanTypes) {
+            if (typeClosure.contains(excludedBeanType)) {
+                pat.veto();
+                return;
+            }
         }
     }
 

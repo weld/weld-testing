@@ -74,12 +74,14 @@ class ClassScanning {
 
         Set<Class<?>> foundClasses = new HashSet<>();
         Set<Type> excludedBeanTypes = new HashSet<>();
+        Set<Class<?>> excludedBeanClasses = new HashSet<>();
 
         while (!classesToProcess.isEmpty()) {
 
             Class<?> currClass = classesToProcess.remove(0);
 
-            if (foundClasses.contains(currClass) || excludedBeanTypes.contains(currClass) ||
+            if (foundClasses.contains(currClass) ||
+                    excludedBeanTypes.contains(currClass) || excludedBeanClasses.contains(currClass) ||
                     currClass.isPrimitive() || currClass.isSynthetic() ||
                     currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
                 continue;
@@ -91,7 +93,7 @@ class ClassScanning {
                     .map(Field::getType)
                     .forEach(excludedBeanTypes::add);
 
-            AnnotationSupport.findAnnotatedMethods(currClass, ExcludeBeans.class, HierarchyTraversalMode.BOTTOM_UP).stream()
+            AnnotationSupport.findAnnotatedMethods(currClass, ExcludeBean.class, HierarchyTraversalMode.BOTTOM_UP).stream()
                     .map(Method::getReturnType)
                     .forEach(excludedBeanTypes::add);
 
@@ -183,10 +185,10 @@ class ClassScanning {
                     .distinct()
                     .forEach(weld::addAlternativeStereotype);
 
-            AnnotationSupport.findRepeatableAnnotations(currClass, ExcludeBeans.class).stream()
+            AnnotationSupport.findRepeatableAnnotations(currClass, ExcludeBeanClasses.class).stream()
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
-                    .forEach(excludedBeanTypes::add);
+                    .forEach(excludedBeanClasses::add);
 
         }
 
@@ -200,7 +202,7 @@ class ClassScanning {
 
         }
 
-        weld.addExtension(new ExcludedBeansExtension(excludedBeanTypes));
+        weld.addExtension(new ExcludedBeansExtension(excludedBeanTypes, excludedBeanClasses));
     }
 
     private static void addClassesToProcess(Collection<Class<?>> classesToProcess, Type type) {
