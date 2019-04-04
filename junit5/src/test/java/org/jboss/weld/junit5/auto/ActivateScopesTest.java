@@ -32,8 +32,7 @@ class ActivateScopesTest {
 
   @Produces
   @ConversationScoped
-  @OverrideBean
-  // V8 is annotated with @ApplicationScoped, this tells the container to use this ConversationScoped bean instead
+  @ExcludeBean // V6 is annotated with @ApplicationScoped, this tells the container to use this producer instead
   V6 convoEngine = new V6();
 
   @Test

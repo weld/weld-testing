@@ -14,31 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.basic;
+package org.jboss.weld.junit5.basic.unsatisfied;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-
+import javax.inject.Inject;
 
 
 @ApplicationScoped
-public class Foo implements IFoo {
+public class FooDeps {
 
-    private String bar;
+    @Inject
+    Baz baz;
 
-    public Foo() {}
-
-    public Foo(String bar) {
-        this.bar = bar;
-    }
-
-    @PostConstruct
-    public void init() {
-        bar = "baz";
-    }
+    public FooDeps() {}
 
     public String getBar() {
-        return bar;
+        return baz.getBar();
     }
 
 }
