@@ -11,8 +11,12 @@ import java.lang.annotation.Target;
  * {@code ExcludeBeanClasses} excludes a set of classes with bean defining annotations (e.g. scopes) from automatic
  * discovery. This can be helpful to allow replacing bean classes with a different implementation; typically a mock.
  *
+ * This annotation works as an inverse of {@link AddBeanClasses} hence usually requires actual bean implementation
+ * classes as parameters.
+ *
  * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
- * specified type that are defined by {@link javax.enterprise.inject.Produces producer methods or fields}.
+ * specified type that are defined by {@link javax.enterprise.inject.Produces} producer methods/fields or synthetic
+ * beans.
  *
  * Example:
  * <pre>
