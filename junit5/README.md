@@ -22,15 +22,16 @@ Requirements are JUnit 5 and Java 8.
       * [Adding mock interceptors](#adding-mock-interceptors)
       * [Mock injection services](#mock-injection-services)
 * [WeldJunit5AutoExtension](#weldjunit5autoextension)
-  * [`@ActivateScopes`](#activate-scopes)
-  * [`@AddBeanClasses`](#add-bean-classes)
-  * [`@AddEnabledDecorators`](#add-enabled-decorators)
-  * [`@AddEnabledInterceptors`](#add-enabled-interceptors)
-  * [`@AddExtensions`](#add-extensions)
-  * [`@AddPackages`](#add-packages)
-  * [`@EnableAlternativeStereotypes`](#enable-alternative-stereotypes)
-  * [`@EnableAlternatives`](#enable-alternatives)
-  * [`@OverrideBean`](#override-bean)
+  * [`@ActivateScopes`](#activatescopes)
+  * [`@AddBeanClasses`](#addbeanclasses)
+  * [`@AddEnabledDecorators`](#addenableddecorators)
+  * [`@AddEnabledInterceptors`](#addenabledinterceptors)
+  * [`@AddExtensions`](#addextensions)
+  * [`@AddPackages`](#addpackages)
+  * [`@EnableAlternativeStereotypes`](#enablealternativestereotypes)
+  * [`@EnableAlternatives`](#enablealternatives)
+  * [`@ExcludeBean`](#excludebean)
+  * [`@ExcludeBeanClasses`](#excludebeanclasses)
 * [Additional Configuration](#additional-configuration)
   * [Explicit Parameter Injection](#explicit-parameter-injection)
   * [Flat Deployment](#flat-deployment)
@@ -476,38 +477,57 @@ Enables given alternative stereotype.
 
 Selects and alternative for the test bean archive.
 
-### `@OverrideBean`
+### `@ExcludeBean`
 
-This annotations covers a rather specific use case, it allows to "override a bean" which may otherwise be included in the container.
-It usually goes hand in hand with `@Produces` which is a natural way to provide a replacement bean.
-Strictly speaking, this is just an always enabled alternative stereotype.
-Let's look at a code snippet:
+Excludes a bean, or multiple beans, that include a bean defining annotation (e.g. scope) from automatic discovery. 
+This can be helpful to allow replacing a bean class with a different implementation; typically a mock.
+
+The type of bean to exclude is implied by the annotated field's type or annotated method's return type. 
+If the type is a base class or interface all beans extending/implementing that type will be excluded.
+
+NOTE: This annotation will only exclude beans defined by class annotations. 
+It will not exclude beans of the implied type that are defined by `@Produces` producer methods/fields or synthetic beans. 
+Also, current implementation excludes beans based on type, disregarding any qualifiers that are specified.
 
 ```java
-import org.jboss.weld.junit5.auto.AddPackages;
-import org.jboss.weld.junit5.auto.OverrideBean;
+import org.jboss.weld.junit5.auto.ExcludeBean;
 import org.jboss.weld.junit5.auto.WeldJunit5AutoExtension;
 import org.junit.jupiter.api.Test;
 
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
- @EnableAutoWeld
- @AddPackages(Foo.class) // this brings in the *original* Foo impl you want to overide
- class OverrideFooTest {
- 
-   @Produces
-   @OverrideBean
-   Foo fakeFoo = new Foo("non-baz"); // this will be an enabled alternative we provide instead
- 
-   @Test
-   void test(Foo myFoo) {
-     assertNotNull(myFoo);
-     assertEquals(myFoo.getBar(), "non-baz");
-   }
+@EnableAutoWeld
+class TestSomeFoo {
+
+  @Inject
+  SomeFoo someFoo;   // SomeFoo depends upon application scoped bean Foo
+
+  @Produces
+  @ExcludeBean   // Excludes beans with type Foo from automatic discovery
+  Foo mockFoo = mock(Foo.class);  // mockFoo is now produced in place of original Foo impl
+
+  @Test
+  void test(Foo myFoo) {
+    assertNotNull(myFoo);
+    assertEquals(myFoo.getBar(), "mock-foo");
+  }
 }
 ```
+
+### `@ExcludeBeanClasses`
+
+Excludes a set of classes with bean defining annotations (e.g. scopes) from automatic discovery. 
+This can be helpful to allow replacing bean classes with a different implementation; typically a mock.
+
+This annotation works as an inverse of [`@AddBeanClasses`](#addbeanclasses) hence usually requires actual bean implementation classes as parameters.
+
+NOTE: This annotation will only exclude beans defined by class annotations. 
+It will not exclude beans of the specified type that are defined by `Produces` producer methods/fields or synthetic beans.
 
 ## Additional Configuration
 
