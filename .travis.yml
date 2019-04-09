@@ -2,8 +2,5 @@ language: java
 jdk:
   - oraclejdk8
   - openjdk8
-env:
-  - WELD_JUNIT_PROFILE=weld2
-  - WELD_JUNIT_PROFILE=weld3
 script: "WELD_JUNIT_DEBUG=spotbugs mvn verify -Dspotbugs.failOnError=true"
 sudo: false
