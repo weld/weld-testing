@@ -49,7 +49,14 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
         return new ResourceReferenceFactory<EntityManager>() {
             @Override
             public ResourceReference<EntityManager> createResource() {
-                return new SimpleResourceReference<EntityManager>(resolvePersistenceContext(injectionPoint));
+                if (persistenceContextFactory == null) {
+                    throw new IllegalStateException("Persistent context factory not set, cannot resolve injection point: " + injectionPoint);
+                }
+                Object context = persistenceContextFactory.apply(injectionPoint);
+                if (context == null || context instanceof EntityManager) {
+                    return new SimpleResourceReference<EntityManager>((EntityManager) context);
+                }
+                throw new IllegalStateException("Not an EntityManager instance: " + context);
             }
         };
     }
@@ -59,33 +66,16 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
         return new ResourceReferenceFactory<EntityManagerFactory>() {
             @Override
             public ResourceReference<EntityManagerFactory> createResource() {
-                return new SimpleResourceReference<EntityManagerFactory>(resolvePersistenceUnit(injectionPoint));
+                if (persistenceUnitFactory == null) {
+                    throw new IllegalStateException("Persistent unit factory not set, cannot resolve injection point: " + injectionPoint);
+                }
+                Object unit = persistenceUnitFactory.apply(injectionPoint);
+                if (unit == null || unit instanceof EntityManagerFactory) {
+                    return new SimpleResourceReference<EntityManagerFactory>((EntityManagerFactory) unit);
+                }
+                throw new IllegalStateException("Not an EntityManagerFactory instance: " + unit);
             }
         };
-    }
-
-    // only for Weld 2
-    public EntityManager resolvePersistenceContext(InjectionPoint injectionPoint) {
-        if (persistenceContextFactory == null) {
-            throw new IllegalStateException("Persistent context factory not set, cannot resolve injection point: " + injectionPoint);
-        }
-        Object context = persistenceContextFactory.apply(injectionPoint);
-        if (context == null || context instanceof EntityManager) {
-            return (EntityManager) context;
-        }
-        throw new IllegalStateException("Not an EntityManager instance: " + context);
-    }
-
-    // only for Weld 2
-    public EntityManagerFactory resolvePersistenceUnit(InjectionPoint injectionPoint) {
-        if (persistenceUnitFactory == null) {
-            throw new IllegalStateException("Persistent unit factory not set, cannot resolve injection point: " + injectionPoint);
-        }
-        Object unit = persistenceUnitFactory.apply(injectionPoint);
-        if (unit == null || unit instanceof EntityManagerFactory) {
-            return (EntityManagerFactory) unit;
-        }
-        throw new IllegalStateException("Not an EntityManagerFactory instance: " + unit);
     }
 
     @Override
