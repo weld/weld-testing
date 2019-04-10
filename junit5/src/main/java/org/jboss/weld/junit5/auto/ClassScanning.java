@@ -29,13 +29,13 @@ import org.junit.platform.commons.util.CollectionUtils;
 import org.junit.platform.commons.util.Preconditions;
 
 import javax.decorator.Decorator;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.spi.Extension;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
-import javax.inject.Scope;
 import javax.interceptor.Interceptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -233,7 +233,7 @@ class ClassScanning {
         if (explicitInjection) {
             Annotation[][] paramAnns = executable.getParameterAnnotations();
             Class<?>[] paramTypes = executable.getParameterTypes();
-            for (int c = 0; c < paramAnns.length; ++c) {
+            for (int c = 0; c < paramTypes.length; ++c) {
                 if (stream(paramAnns[c]).anyMatch(ClassScanning::isBeanParameterAnnotation)) {
                     types.add(paramTypes[c]);
                 }
@@ -254,13 +254,11 @@ class ClassScanning {
     }
 
     private static boolean isBeanParameterAnnotation(Annotation ann) {
-        return isAnnotated(ann.annotationType(), Qualifier.class) ||
-                isAnnotated(ann.annotationType(), Scope.class) ||
-                isAnnotated(ann.annotationType(), NormalScope.class);
+        return isAnnotated(ann.annotationType(), Qualifier.class);
     }
 
     private static boolean hasBeanDefiningAnnotation(Class<?> clazz) {
-        return isAnnotated(clazz, NormalScope.class) || isAnnotated(clazz, Scope.class) ||
+        return isAnnotated(clazz, NormalScope.class) || isAnnotated(clazz, Dependent.class) ||
                 isAnnotated(clazz, Interceptor.class) || isAnnotated(clazz, Decorator.class) ||
                 isAnnotated(clazz, Stereotype.class);
     }
