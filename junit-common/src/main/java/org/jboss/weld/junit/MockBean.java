@@ -36,6 +36,7 @@ import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.PassivationCapable;
+import javax.enterprise.inject.spi.Prioritized;
 import javax.enterprise.inject.spi.Unmanaged;
 import javax.enterprise.inject.spi.Unmanaged.UnmanagedInstance;
 import javax.enterprise.util.AnnotationLiteral;
@@ -136,7 +137,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     private final Class<?> beanClass;
 
-    private MockBean(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative, boolean selectForSyntheticBeanArchive, String name,
+    protected MockBean(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative, boolean selectForSyntheticBeanArchive, String name,
             Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope, CreateFunction<T> createCallback,
             DestroyFunction<T> destroyCallback) {
         this.beanClass = beanClass;
@@ -325,6 +326,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
         private boolean selectForSyntheticBeanArchive;
 
+        private Integer priority;
+
         private String name;
 
         private Set<Annotation> qualifiers;
@@ -346,6 +349,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             this.types = new HashSet<>();
             this.types.add(Object.class);
             this.beanClass = WeldCDIExtension.class;
+            this.priority = null;
         }
 
         /**
@@ -448,6 +452,32 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         }
 
         /**
+         * Programmatic equivalent to to putting {@link javax.annotation.Priority} annotation on a bean class.
+         * Allows for globally enabled alternatives.
+         *
+         * @param priority
+         * @return self
+         * @see Prioritized#getPriority()
+         */
+        public Builder<T> priority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        /**
+         * This beans is a globally enabled alternative with a priority equal to its method parameter.
+         * Calling this method is a shortcut for {@link Builder#priority(int)} and {@link Builder#alternative(boolean)}
+         *
+         * @param priority
+         * @return self
+         */
+        public Builder<T> globallySelectedAlternative(int priority) {
+            this.priority = priority;
+            this.alternative = true;
+            return this;
+        }
+
+        /**
          * The bean is an alternative and should be automatically selected for the synthetic bean archive.
          *
          * <p>
@@ -455,7 +485,6 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * selected for a bean archive. By default, all mock beans share the same bean class - {@code org.jboss.weld.junit.WeldCDIExtension}.
          * </p>
          *
-         * @param value
          * @return self
          * @see Bean#isAlternative()
          * @see Weld#addAlternative(Class)
@@ -496,7 +525,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
         /**
          *
-         * @param qualifier
+         * @param stereotype
          * @return self
          */
         public Builder<T> addStereotype(Class<? extends Annotation> stereotype) {
@@ -594,8 +623,14 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
                     }
                 }
             }
-            return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope, createCallback,
-                    destroyCallback);
+            // if given any priority, we will instead initialize MockBeanWithPriority
+            if (priority != null) {
+                return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, priority, name, qualifiers, types, scope, createCallback,
+                        destroyCallback);
+            } else {
+                return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope, createCallback,
+                        destroyCallback);
+            }
         }
 
     }

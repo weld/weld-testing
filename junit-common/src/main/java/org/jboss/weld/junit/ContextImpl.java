@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ContextNotActiveException;
+import javax.enterprise.context.Destroyed;
+import javax.enterprise.context.Initialized;
 import javax.enterprise.context.spi.Context;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
@@ -88,7 +90,7 @@ class ContextImpl implements Context {
 
     public void activate() {
         currentContext.set(new HashMap<Contextual<?>, ContextualInstance<?>>());
-        beanManager.fireEvent(new Object(), InitializedLiteral.of(scope));
+        beanManager.fireEvent(new Object(), Initialized.Literal.of(scope));
     }
 
     public void deactivate() {
@@ -105,7 +107,7 @@ class ContextImpl implements Context {
         }
         ctx.clear();
         currentContext.remove();
-        beanManager.fireEvent(new Object(), DestroyedLiteral.of(scope));
+        beanManager.fireEvent(new Object(), Destroyed.Literal.of(scope));
     }
 
     /**

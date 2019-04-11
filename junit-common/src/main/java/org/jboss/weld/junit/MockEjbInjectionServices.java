@@ -48,14 +48,9 @@ public class MockEjbInjectionServices implements EjbInjectionServices {
         return new ResourceReferenceFactory<Object>() {
             @Override
             public ResourceReference<Object> createResource() {
-                return new SimpleResourceReference<Object>(resolveEjb(injectionPoint));
+                return new SimpleResourceReference<Object>(ejbFactory.apply(injectionPoint));
             }
         };
-    }
-
-    // only for Weld 2
-    public Object resolveEjb(InjectionPoint injectionPoint) {
-        return ejbFactory.apply(injectionPoint);
     }
 
 }
