@@ -112,7 +112,12 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Produces.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .map(Method::getReturnType)
+                    .flatMap(method ->
+                        Stream.concat(
+                                getExecutableParameterTypes(method, explicitInjection).stream(),
+                                Stream.of(method.getReturnType())
+                        )
+                    )
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Test.class, HierarchyTraversalMode.BOTTOM_UP).stream()
