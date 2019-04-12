@@ -1,7 +1,7 @@
 package org.jboss.weld.junit5.auto;
 
 
-import org.jboss.weld.junit5.auto.beans.ConstructedV8;
+import org.jboss.weld.junit5.auto.beans.InjectedV8;
 import org.jboss.weld.junit5.auto.beans.V8;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddBeanClasses(ConstructedV8.class)
+@AddBeanClasses(InjectedV8.class)
 public class ScannedClassesAreNotForcedBeansTest {
 
     /**
