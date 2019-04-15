@@ -25,21 +25,18 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
-import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.commons.util.CollectionUtils;
 import org.junit.platform.commons.util.Preconditions;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.ConversationScoped;
+import javax.decorator.Decorator;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.spi.Extension;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
+import javax.interceptor.Interceptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -107,7 +104,7 @@ class ClassScanning {
 
             findFirstAnnotatedConstructor(currClass, Inject.class)
                     .map(Stream::of).orElseGet(Stream::empty)
-                    .flatMap(cons -> getExecutableParameterTypes(cons, weld, explicitInjection).stream())
+                    .flatMap(cons -> getExecutableParameterTypes(cons, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             findAnnotatedFields(currClass, Produces.class).stream()
@@ -115,31 +112,36 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Produces.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .map(Method::getReturnType)
+                    .flatMap(method ->
+                        Stream.concat(
+                                getExecutableParameterTypes(method, explicitInjection).stream(),
+                                Stream.of(method.getReturnType())
+                        )
+                    )
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Test.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .flatMap(method -> getExecutableParameterTypes(method, weld, explicitInjection).stream())
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, RepeatedTest.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .flatMap(method -> getExecutableParameterTypes(method, weld, explicitInjection).stream())
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, BeforeAll.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .flatMap(method -> getExecutableParameterTypes(method, weld, explicitInjection).stream())
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, BeforeEach.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .flatMap(method -> getExecutableParameterTypes(method, weld, explicitInjection).stream())
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, AfterEach.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .flatMap(method -> getExecutableParameterTypes(method, weld, explicitInjection).stream())
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, AfterAll.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .flatMap(method -> getExecutableParameterTypes(method, weld, explicitInjection).stream())
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddPackages.class)
@@ -151,7 +153,10 @@ class ClassScanning {
             AnnotationSupport.findRepeatableAnnotations(currClass, AddBeanClasses.class).stream()
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
-                    .forEach(weld::addBeanClass);
+                    .forEach(it -> {
+                        classesToProcess.add(it);
+                        weld.addBeanClass(it);
+                    });
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddExtensions.class).stream()
                     .flatMap(ann -> stream(ann.value()))
@@ -163,6 +168,7 @@ class ClassScanning {
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
                     .forEach(interceptor -> {
+                        classesToProcess.add(interceptor);
                         weld.addInterceptor(interceptor);
                         weld.addBeanClass(interceptor);
                     });
@@ -171,6 +177,7 @@ class ClassScanning {
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
                     .forEach(decorator -> {
+                        classesToProcess.add(decorator);
                         weld.addDecorator(decorator);
                         weld.addBeanClass(decorator);
                     });
@@ -224,24 +231,20 @@ class ClassScanning {
 
     }
 
-    private static List<Class<?>> getExecutableParameterTypes(Executable executable, Weld weld, boolean explicitInjection) {
+    private static List<Class<?>> getExecutableParameterTypes(Executable executable, boolean explicitInjection) {
 
         List<Class<?>> types = new ArrayList<>();
 
         if (explicitInjection) {
             Annotation[][] paramAnns = executable.getParameterAnnotations();
             Class<?>[] paramTypes = executable.getParameterTypes();
-            for (int c = 0; c < paramAnns.length; ++c) {
-                if (stream(paramAnns[c]).anyMatch(ann -> isAnnotated(ann.annotationType(), Qualifier.class) || isAnnotated(ann.annotationType(), NormalScope.class))) {
-                    weld.addBeanClass(paramTypes[c]);
+            for (int c = 0; c < paramTypes.length; ++c) {
+                if (stream(paramAnns[c]).anyMatch(ClassScanning::isBeanParameterAnnotation)) {
                     types.add(paramTypes[c]);
                 }
             }
         } else {
-            for (Class<?> paramType : executable.getParameterTypes()) {
-                weld.addBeanClass(paramType);
-                types.add(paramType);
-            }
+            types.addAll(asList(executable.getParameterTypes()));
         }
 
         return types;
@@ -255,14 +258,14 @@ class ClassScanning {
         }
     }
 
+    private static boolean isBeanParameterAnnotation(Annotation ann) {
+        return isAnnotated(ann.annotationType(), Qualifier.class);
+    }
+
     private static boolean hasBeanDefiningAnnotation(Class<?> clazz) {
-        return
-                AnnotationUtils.isAnnotated(clazz, ApplicationScoped.class) ||
-                        AnnotationUtils.isAnnotated(clazz, SessionScoped.class) ||
-                        AnnotationUtils.isAnnotated(clazz, ConversationScoped.class) ||
-                        AnnotationUtils.isAnnotated(clazz, RequestScoped.class) ||
-                        AnnotationUtils.isAnnotated(clazz, Dependent.class) ||
-                        AnnotationUtils.isAnnotated(clazz, Stereotype.class);
+        return isAnnotated(clazz, NormalScope.class) || isAnnotated(clazz, Dependent.class) ||
+                isAnnotated(clazz, Interceptor.class) || isAnnotated(clazz, Decorator.class) ||
+                isAnnotated(clazz, Stereotype.class);
     }
 
     private static List<Field> findAllFieldsInHierarchy(Class<?> clazz) {
