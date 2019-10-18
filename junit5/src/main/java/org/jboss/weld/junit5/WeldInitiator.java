@@ -17,6 +17,7 @@
 package org.jboss.weld.junit5;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,7 +99,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
     /**
      * Create a builder instance.
      *
-     * @param weld
+     * @param beanClasses
      * @return a builder instance
      * @see #of(Class...)
      */
@@ -187,9 +188,13 @@ public class WeldInitiator extends AbstractWeldInitiator {
         if (weld == null) {
             weld = createWeld().addPackage(false, testInstance.getClass());
         }
-        // this ensures the test instance is always an InjectionTarget
-        instancesToInject.add(createToInject(testInstance));
 
         return initWeldContainer(weld);
+    }
+
+    void addObjectsToInjectInto(Set<Object> instancesToInjectInto) {
+        for (Object o : instancesToInjectInto) {
+            instancesToInject.add(createToInject(o));
+        }
     }
 }
