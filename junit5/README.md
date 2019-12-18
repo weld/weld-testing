@@ -252,7 +252,7 @@ class Foo {
 class TestClassProducerTest {
 
     @WeldSetup
-    public WeldInitiator weld = WeldInitiator.from(Foo.class).build();
+    public WeldInitiator weld = WeldInitiator.from(Foo.class, TestClassProducerTest.class).build();
 
     @ApplicationScoped
     @Produces
