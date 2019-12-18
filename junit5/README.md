@@ -252,18 +252,18 @@ class Foo {
 class TestClassProducerTest {
 
     @WeldSetup
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, MockBeanTest.class).build();
+    public WeldInitiator weld = WeldInitiator.from(Foo.class).build();
 
     @ApplicationScoped
     @Produces
     Bar produceBar() {
       // Mock object provided by Mockito
-      return Mockito.when(Mockito.mock(Bar.class).ping()).thenReturn("pong").getMock());
+      return Mockito.when(Mockito.mock(Bar.class).ping()).thenReturn("pong").getMock();
     }
 
     @Test
     public void testFoo() {
-        Assert.assertEquals("pong", weld.select(Foo.class).get().ping());
+        Assertions.assertEquals("pong", weld.select(Foo.class).get().ping());
     }
 }
 ```
