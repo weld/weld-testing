@@ -17,9 +17,11 @@
 package org.jboss.weld.junit4.contexts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
@@ -32,13 +34,19 @@ import org.junit.Test;
 public class ContextsActivatedTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(Foo.class, Oof.class)
+    public WeldInitiator weld = WeldInitiator.from(Foo.class, Oof.class, RequestScopedProducer.class)
+            .inject(this)
             .activate(RequestScoped.class, SessionScoped.class).build();
+
+    @Inject
+    String producedString;
 
     @Test
     public void testNormalScopes() {
         assertEquals(weld.select(Foo.class).get().getId(), weld.select(Foo.class).get().getId());
         assertEquals(weld.select(Oof.class).get().getId(), weld.select(Oof.class).get().getId());
+        assertNotNull(producedString);
+        assertEquals("foo", producedString);
     }
 
 }

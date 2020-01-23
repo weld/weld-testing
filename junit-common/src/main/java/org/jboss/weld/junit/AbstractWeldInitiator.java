@@ -500,10 +500,10 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         }
         // Init the container
         container = weld.initialize();
-        injectInstances();
         if (extension != null) {
             extension.activateContexts();
         }
+        injectInstances();
         return container;
     }
 
