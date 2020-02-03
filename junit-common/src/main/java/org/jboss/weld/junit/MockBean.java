@@ -46,6 +46,7 @@ import javax.inject.Scope;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.jboss.weld.util.collections.ImmutableSet;
 import org.jboss.weld.util.reflection.HierarchyDiscovery;
 
 /**
@@ -608,27 +609,28 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             if (createCallback == null) {
                 throw new IllegalStateException("Create callback must not be null");
             }
-            if (qualifiers.size() == 1) {
-                Annotation qualifier = qualifiers.iterator().next();
-                if (qualifier.annotationType().equals(Named.class) || qualifier.equals(AnyLiteral.INSTANCE)) {
-                    // Single qualifier - @Named or @Any
-                    qualifiers.add(DefaultLiteral.INSTANCE);
+            Set<Annotation> normalizedQualfiers = new HashSet<Annotation>(qualifiers);
+            normalizedQualfiers.remove(Any.Literal.INSTANCE);
+            normalizedQualfiers.remove(Default.Literal.INSTANCE);
+            if (normalizedQualfiers.isEmpty()) {
+                normalizedQualfiers.add(Default.Literal.INSTANCE);
+                normalizedQualfiers.add(Any.Literal.INSTANCE);
+            } else {
+                ImmutableSet.Builder<Annotation> builder = ImmutableSet.builder();
+                if (normalizedQualfiers.size() == 1
+                        && normalizedQualfiers.iterator().next().annotationType().equals(Named.class)) {
+                    builder.add(Default.Literal.INSTANCE);
                 }
-            } else if (qualifiers.size() == 2 && qualifiers.contains(AnyLiteral.INSTANCE)) {
-                for (Annotation qualifier : qualifiers) {
-                    if (qualifier.annotationType().equals(Named.class)) {
-                        // Two qualifiers - @Named and @Any
-                        qualifiers.add(DefaultLiteral.INSTANCE);
-                        break;
-                    }
-                }
+                builder.add(Any.Literal.INSTANCE);
+                builder.addAll(qualifiers);
+                normalizedQualfiers = builder.build();
             }
             // if given any priority, we will instead initialize MockBeanWithPriority
             if (priority != null) {
-                return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, priority, name, qualifiers, types, scope, createCallback,
+                return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, priority, name, normalizedQualfiers, types, scope, createCallback,
                         destroyCallback);
             } else {
-                return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope, createCallback,
+                return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, normalizedQualfiers, types, scope, createCallback,
                         destroyCallback);
             }
         }
