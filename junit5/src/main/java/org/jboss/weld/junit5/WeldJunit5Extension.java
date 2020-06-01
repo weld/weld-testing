@@ -127,7 +127,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
             setEnrichersToStore(context, enrichers.build());
         }
         // if the lifecycle is per-class, then we want to start container here
-        starWeldContainerIfAppropriate(PER_CLASS, context);
+        startWeldContainerIfAppropriate(PER_CLASS, context);
     }
 
     @Override
@@ -204,10 +204,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
-        starWeldContainerIfAppropriate(PER_METHOD, extensionContext);
+        startWeldContainerIfAppropriate(PER_METHOD, extensionContext);
     }
 
-    private void starWeldContainerIfAppropriate(TestInstance.Lifecycle expectedLifecycle, ExtensionContext context) throws Exception {
+    private void startWeldContainerIfAppropriate(TestInstance.Lifecycle expectedLifecycle, ExtensionContext context) throws Exception {
         // is the lifecycle is what we expect it to be, start Weld container
         if (determineTestLifecycle(context).equals(expectedLifecycle)) {
             Object testInstance = context.getTestInstance().orElseGet(null);
