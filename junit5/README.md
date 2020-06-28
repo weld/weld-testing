@@ -268,7 +268,8 @@ class TestClassProducerTest {
 }
 ```
 
-This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
+This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)
+which for example `@Nested` test classes don't due to the lack of a no-arg constructor) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
 You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
@@ -382,17 +383,19 @@ class MyTest {
     }
 }
 ```
+
 ## WeldJunit5AutoExtension
 
 To use this approach, annotate your test class with `ExtendWith(WeldJunit5AutoExtension.class)` or just `@EnableAutoWeld`.
 By default, the extension will:
 
-* Inspect your test class and try to figure out what beans classes it needs based on injection points (field and parameter injection both work)
+* Inspect your test class and try to figure out what bean classes it needs based on injection points (field and parameter injection both work)
   * This is done by finding classes and verifying if they have [bean defining annotation](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#bean_defining_annotations) so make sure they do
 * Add those classes to Weld container
 * Process additional annotations on test class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
 * Bootstrap Weld container
+* Deploy the test class as if it were a regular bean including support for `@Produces` etc. (does not work with `@Nested` test classes due to their lack of a no-arg constructor) the instantiation of which replaced with the test instance provided by JUnit
 * Inject into test instance, e.g. into all `@Inject` fields
 * Inject into method parameters of your test methods
   * In case the type of the parameter matches a known and resolvable bean
