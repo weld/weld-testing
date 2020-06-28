@@ -394,9 +394,10 @@ By default, the extension will:
 * Add those classes to Weld container
 * Process additional annotations on test class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
+* Add the test classes to Weld container with the instantiation replaced with the test instance provided by JUnit
+  * `@Produces`, `@Disposes`, and `@Observes` are ignored with `@Nested` test classes due to their lack of a no-arg constructor violating [CDI specs for valid beans](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)
 * Bootstrap Weld container
-* Deploy the test class as if it were a regular bean including support for `@Produces` etc. (does not work with `@Nested` test classes due to their lack of a no-arg constructor) the instantiation of which replaced with the test instance provided by JUnit
-* Inject into test instance, e.g. into all `@Inject` fields
+* Inject into test instances, e.g. into all `@Inject` fields
 * Inject into method parameters of your test methods
   * In case the type of the parameter matches a known and resolvable bean
   * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in CDI container
