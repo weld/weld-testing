@@ -18,13 +18,10 @@ package org.jboss.weld.junit5.auto;
 
 import org.jboss.weld.util.annotated.ForwardingAnnotatedType;
 
-import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.ProcessInjectionTarget;
 import javax.enterprise.util.AnnotationLiteral;
@@ -89,48 +86,14 @@ public class TestInstanceInjectionExtension implements Extension {
         }
     }
 
-    <T> void rewriteTestClassInjections(@Observes ProcessInjectionTarget<T> pit) {
+    <T> void rewriteTestInstanceInjectionTarget(@Observes ProcessInjectionTarget<T> pit) {
 
-        Object testInstance = testInstancesByClass.get(pit.getAnnotatedType().getJavaClass());
+        @SuppressWarnings("unchecked")
+        T testInstance = (T) testInstancesByClass.get(pit.getAnnotatedType().getJavaClass());
         if (testInstance != null) {
-
-            InjectionTarget<T> wrapped = pit.getInjectionTarget();
-
-            pit.setInjectionTarget(new InjectionTarget<T>() {
-
-                @SuppressWarnings("unchecked")
-                @Override
-                public T produce(CreationalContext<T> creationalContext) {
-                    return (T) testInstance;
-                }
-
-                @Override
-                public void dispose(T t) {
-                    wrapped.dispose(t);
-                }
-
-                @Override
-                public Set<InjectionPoint> getInjectionPoints() {
-                    return wrapped.getInjectionPoints();
-                }
-
-                @Override
-                public void inject(T t, CreationalContext<T> creationalContext) {
-                    wrapped.inject(t, creationalContext);
-                }
-
-                @Override
-                public void postConstruct(T t) {
-                    wrapped.postConstruct(t);
-                }
-
-                @Override
-                public void preDestroy(T t) {
-                    wrapped.preDestroy(t);
-                }
-            });
-
+            pit.setInjectionTarget(new TestInstanceInjectionTarget<T>(pit.getInjectionTarget(), testInstance));
         }
+
     }
 
 }
