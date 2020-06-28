@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
@@ -39,17 +38,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.weld.junit5.ExtensionContextUtils.clearInstancesToInjectToFromRootStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getContainerFromStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.getInstancesToInjectToFromRootStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getEnrichersFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getInitiatorFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setContainerToStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.setInstancesToInjectToToRootStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setEnrichersToStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setExplicitInjectionInfoToStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setInitiatorToStore;
@@ -87,7 +82,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
  * @see WeldJunitEnricher
  */
 public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
-        BeforeEachCallback, AfterEachCallback, ParameterResolver, TestInstancePostProcessor {
+        BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     // global system property
     public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit5.explicitParamInjection";
@@ -114,8 +109,6 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (determineTestLifecycle(context).equals(PER_CLASS)) {
             getInitiatorFromStore(context).shutdownWeld();
         }
-        // root context survives in between test classes, we need to clear information stored there
-        clearInstancesToInjectToFromRootStore(context);
     }
 
     @Override
@@ -277,20 +270,11 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
 
             // this ensures the test class is injected into
             // in case of nested tests, this also injects into any outer classes
-            Set<Object> enclosingClasses = getInstancesToInjectToFromRootStore(context);
-            if (enclosingClasses != null) {
-                initiator.addObjectsToInjectInto(enclosingClasses);
-            }
+            initiator.addObjectsToInjectInto(context.getRequiredTestInstances().getAllInstances().stream().collect(Collectors.toSet()));
 
             // and finally, init Weld
             setContainerToStore(context, initiator.initWeld(testInstance));
         }
     }
 
-    @Override
-    public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-        // in case of nested tests, this method gets invoked for the outer class and the inner class
-        // therefore we can use that to collect instances of objects we want to inject into
-        setInstancesToInjectToToRootStore(context, testInstance);
-    }
 }
