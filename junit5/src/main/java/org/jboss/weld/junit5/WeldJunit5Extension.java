@@ -137,8 +137,8 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         }
     }
 
-    protected void weldInit(Object testInstance, ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder) {
-        weld.addPackage(false, testInstance.getClass());
+    protected void weldInit(ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder) {
+        weld.addPackage(false, context.getRequiredTestClass());
     }
 
     @Override
@@ -261,7 +261,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
                 Weld weld = WeldInitiator.createWeld();
                 WeldInitiator.Builder builder = WeldInitiator.from(weld);
 
-                weldInit(testInstance, context, weld, builder);
+                weldInit(context, weld, builder);
 
                 // Apply discovered enrichers
                 for (WeldJunitEnricher enricher : getEnrichersFromStore(context)) {

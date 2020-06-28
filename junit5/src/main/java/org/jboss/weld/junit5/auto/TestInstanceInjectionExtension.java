@@ -30,18 +30,16 @@ import javax.enterprise.inject.spi.ProcessInjectionTarget;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 /**
- * Extension class that ensure proper injection of an externally provided
- * test instance.
- *
- * NOTE: When JUnit 5 provides a test instance creation extension point this
- * should be removed and the test instance should be obtained from the
- * container via proper CDI methods.
- * https://github.com/junit-team/junit5/issues/672
+ * Extension that makes test classes appear like regular beans even though instances are created by JUnit.
+ * This includes injection into all test instances.
+ * Proper handling of all other CDI annotations such as {@code @}{@link javax.enterprise.inject.Produces Produces} is supported only on top level test classes.
  */
 public class TestInstanceInjectionExtension implements Extension {
 
@@ -69,19 +67,17 @@ public class TestInstanceInjectionExtension implements Extension {
 
     }
 
-    private Class<?> testClass;
-    private Object testInstance;
+    private Map<Class<?>, ?> testInstancesByClass;
 
-    TestInstanceInjectionExtension(Class<?> testClass, Object testInstance) {
-        this.testClass = testClass;
-        this.testInstance = testInstance;
+    TestInstanceInjectionExtension(List<?> testInstances) {
+        this.testInstancesByClass = testInstances.stream().collect(Collectors.toMap(Object::getClass, Function.identity()));
     }
 
     <T> void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
 
         AnnotatedType<T> annotatedType = pat.getAnnotatedType();
 
-        if (annotatedType.getJavaClass().equals(testClass)) {
+        if (testInstancesByClass.containsKey(annotatedType.getJavaClass())) {
 
             // Replace any test class's scope with @Singleton
             Set<Annotation> annotations = annotatedType.getAnnotations().stream()
@@ -95,7 +91,8 @@ public class TestInstanceInjectionExtension implements Extension {
 
     <T> void rewriteTestClassInjections(@Observes ProcessInjectionTarget<T> pit) {
 
-        if (pit.getAnnotatedType().getJavaClass().equals(testClass)) {
+        Object testInstance = testInstancesByClass.get(pit.getAnnotatedType().getJavaClass());
+        if (testInstance != null) {
 
             InjectionTarget<T> wrapped = pit.getInjectionTarget();
 
