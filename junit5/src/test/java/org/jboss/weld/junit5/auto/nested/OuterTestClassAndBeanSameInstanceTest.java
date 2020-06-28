@@ -1,4 +1,4 @@
-package org.jboss.weld.junit5.nested;
+package org.jboss.weld.junit5.auto.nested;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
