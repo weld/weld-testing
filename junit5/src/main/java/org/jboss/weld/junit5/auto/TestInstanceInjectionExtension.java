@@ -32,7 +32,7 @@ import javax.inject.Singleton;
 /**
  * Extension that makes test classes appear like regular beans even though instances are created by JUnit.
  * This includes injection into all test instances.
- * Proper handling of all other CDI annotations such as {@code @}{@link javax.enterprise.inject.Produces Produces} is supported only on top level test classes.
+ * Proper handling of all other CDI annotations such as {@link javax.enterprise.inject.Produces &#064;Produces} is supported only on top level test classes.
  */
 public class TestInstanceInjectionExtension implements Extension {
 
