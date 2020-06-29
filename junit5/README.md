@@ -268,8 +268,7 @@ class TestClassProducerTest {
 }
 ```
 
-This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)
-which for example `@Nested` test classes don't due to the lack of a no-arg constructor) although it's a little bit cumbersome.
+This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
 You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
@@ -394,8 +393,7 @@ By default, the extension will:
 * Add those classes to Weld container
 * Process additional annotations on test class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
-* Add the test classes to Weld container with the instantiation replaced with the test instance provided by JUnit
-  * `@Produces`, `@Disposes`, and `@Observes` are ignored with `@Nested` test classes due to their lack of a no-arg constructor violating [CDI specs for valid beans](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)
+* Prevents another instantiation of test classes as beans by Weld and substitutes the test instance provided by JUnit instead
 * Bootstrap Weld container
 * Inject into test instances, e.g. into all `@Inject` fields
 * Inject into method parameters of your test methods
@@ -579,3 +577,8 @@ This behaviour can be changed by setting a system property `org.jboss.weld.se.ar
 If set, Weld will use a _"flat"_ deployment structure - all bean classes share the same bean archive and all beans.xml descriptors are automatically merged into one.
 Thus alternatives, interceptors and decorators selected/enabled for a bean archive will be enabled for the whole application.
 Note that this configuration only makes difference if you run with *enabled discovery*; it won't affect your deployment if you use synthetic bean archive.
+
+
+## Limitations
+
+* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
