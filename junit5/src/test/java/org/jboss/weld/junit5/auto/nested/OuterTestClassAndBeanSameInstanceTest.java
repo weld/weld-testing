@@ -19,8 +19,9 @@ import org.junit.jupiter.api.Test;
  * Tests that outer test classes don't get instantiated again for {@link Produces &#064;Produces},
  * {@link Disposes &#064;Disposes}, or {@link Observes &#064;Observes} annotations.
  * 
- * Pay attention to with particular instance each outer class member variable reference would refer to
- * if CDI instantiated another undesired instance of the outer test class besides the one obviously instantiated by JUnit.
+ * In order to understand how the test works (or failed earlier),
+ * consider to with particular test instance each outer test class member variable reference would refer to
+ * if CDI instantiated another, second, and undesired instance of the outer test class besides the obviously wanted one instantiated by JUnit.
  */
 @EnableAutoWeld
 public class OuterTestClassAndBeanSameInstanceTest {
