@@ -64,7 +64,7 @@ import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
  */
 class ClassScanning {
 
-    static void scanForRequiredBeanClass(List<Class<?>> testClasses, Weld weld, boolean explicitInjection) {
+    static void scanForRequiredBeanClasses(List<Class<?>> testClasses, Weld weld, boolean explicitInjection) {
 
         List<Class<?>> classesToProcess = new ArrayList<>();
         classesToProcess.addAll(testClasses);
@@ -200,7 +200,7 @@ class ClassScanning {
         }
 
         for (Class<?> foundClass : foundClasses) {
-            if (hasBeanDefiningAnnotation(foundClass)) {
+            if (hasBeanDefiningAnnotation(foundClass) || testClasses.contains(foundClass)) {
                 weld.addBeanClass(foundClass);
             }
         }

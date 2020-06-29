@@ -56,9 +56,8 @@ public class WeldJunit5AutoExtension extends WeldJunit5Extension {
         List<?> testInstances = context.getRequiredTestInstances().getAllInstances();
         List<Class<?>> testClasses = testInstances.stream().map(Object::getClass).collect(Collectors.toList());
 
-        ClassScanning.scanForRequiredBeanClass(testClasses, weld, getExplicitInjectionInfoFromStore(context));
+        ClassScanning.scanForRequiredBeanClasses(testClasses, weld, getExplicitInjectionInfoFromStore(context));
 
-        weld.addBeanClasses(testClasses.stream().toArray(Class<?>[]::new));
         weld.addExtension(new TestInstanceInjectionExtension(testInstances));
 
         for (Class<?> testClass : testClasses) {
