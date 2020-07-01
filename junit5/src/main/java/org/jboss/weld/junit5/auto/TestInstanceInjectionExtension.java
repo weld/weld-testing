@@ -21,13 +21,17 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
+import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.ProcessInjectionTarget;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Singleton;
+
+import org.jboss.weld.injection.ForwardingInjectionTarget;
 
 /**
  * Extension that makes test classes appear like regular beans even though instances are created by JUnit.
@@ -52,12 +56,34 @@ public class TestInstanceInjectionExtension implements Extension {
 
     }
 
+    private static class TestInstanceInjectionTarget<T> extends ForwardingInjectionTarget<T> {
+
+        private InjectionTarget<T> injectionTarget;
+        private T testInstance;
+
+        TestInstanceInjectionTarget(InjectionTarget<T> injectionTarget, T testInstance) {
+            this.injectionTarget = injectionTarget;
+            this.testInstance = testInstance;
+        }
+
+        @Override
+        protected InjectionTarget<T> delegate() {
+            return injectionTarget;
+        }
+
+        @Override
+        public T produce(CreationalContext<T> creationalContext) {
+            return testInstance;
+        }
+
+    }
+
     <T> void rewriteTestInstanceInjectionTarget(@Observes ProcessInjectionTarget<T> pit) {
 
         @SuppressWarnings("unchecked")
         T testInstance = (T) testInstancesByClass.get(pit.getAnnotatedType().getJavaClass());
         if (testInstance != null) {
-            pit.setInjectionTarget(new TestInstanceInjectionTarget<T>(pit.getInjectionTarget(), testInstance));
+            pit.setInjectionTarget(new TestInstanceInjectionTarget<>(pit.getInjectionTarget(), testInstance));
         }
 
     }
