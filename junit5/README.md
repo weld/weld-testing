@@ -393,7 +393,7 @@ By default, the extension will:
 * Add those classes to Weld container
 * Process additional annotations on test class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
-* Prevents another instantiation of test classes as beans by Weld and substitutes the test instance provided by JUnit instead
+* Annotates test classes with `@Singleton` and prevents another instantiation by Weld and instead substitutes the test instances provided by JUnit
 * Bootstrap Weld container
 * Inject into test instances, e.g. into all `@Inject` fields
 * Inject into method parameters of your test methods
