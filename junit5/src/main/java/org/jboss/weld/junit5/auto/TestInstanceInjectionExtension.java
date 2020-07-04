@@ -16,11 +16,6 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.BeanManager;
@@ -34,36 +29,36 @@ import javax.inject.Singleton;
 import org.jboss.weld.injection.ForwardingInjectionTarget;
 
 /**
- * Extension that makes test classes appear like regular beans even though instances are created by JUnit.
- * This includes injection into all test instances.
+ * Extension that makes a test instance appear like a regular bean even though instantiated by JUnit.
+ * Injection into all test instances, also {@link org.junit.jupiter.api.Nested &#064;Nested} ones, is handled in {@link org.jboss.weld.junit5.WeldInitiator#addObjectsToInjectInto} and related.
  * Proper handling of all other CDI annotations such as {@link javax.enterprise.inject.Produces &#064;Produces} is supported only on top level test classes.
  */
-public class TestInstanceInjectionExtension implements Extension {
+public class TestInstanceInjectionExtension<T> implements Extension {
 
     private static final AnnotationLiteral<Singleton> SINGLETON_LITERAL = new AnnotationLiteral<Singleton>() {};
 
-    private Map<Class<?>, ?> testInstancesByClass;
+    private Class<?> testClass;
+    private T testInstance;
 
-    TestInstanceInjectionExtension(List<?> testInstances) {
-        this.testInstancesByClass = testInstances.stream().collect(Collectors.toMap(Object::getClass, Function.identity()));
+    TestInstanceInjectionExtension(T testInstance) {
+        this.testClass = testInstance.getClass();
+        this.testInstance = testInstance;
     }
 
-    <T> void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
+    void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
 
-        if (testInstancesByClass.containsKey(pat.getAnnotatedType().getJavaClass())) {
+        if (pat.getAnnotatedType().getJavaClass().equals(testClass)) {
             pat.configureAnnotatedType().add(SINGLETON_LITERAL);
         }
 
     }
 
-    private static class TestInstanceInjectionTarget<T> extends ForwardingInjectionTarget<T> {
+    private class TestInstanceInjectionTarget extends ForwardingInjectionTarget<T> {
 
         private InjectionTarget<T> injectionTarget;
-        private T testInstance;
 
-        TestInstanceInjectionTarget(InjectionTarget<T> injectionTarget, T testInstance) {
+        TestInstanceInjectionTarget(InjectionTarget<T> injectionTarget) {
             this.injectionTarget = injectionTarget;
-            this.testInstance = testInstance;
         }
 
         @Override
@@ -78,12 +73,10 @@ public class TestInstanceInjectionExtension implements Extension {
 
     }
 
-    <T> void rewriteTestInstanceInjectionTarget(@Observes ProcessInjectionTarget<T> pit) {
+    void rewriteTestInstanceInjectionTarget(@Observes ProcessInjectionTarget<T> pit) {
 
-        @SuppressWarnings("unchecked")
-        T testInstance = (T) testInstancesByClass.get(pit.getAnnotatedType().getJavaClass());
-        if (testInstance != null) {
-            pit.setInjectionTarget(new TestInstanceInjectionTarget<>(pit.getInjectionTarget(), testInstance));
+        if (pit.getAnnotatedType().getJavaClass().equals(testClass)) {
+            pit.setInjectionTarget(new TestInstanceInjectionTarget(pit.getInjectionTarget()));
         }
 
     }
