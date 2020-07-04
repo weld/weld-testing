@@ -58,17 +58,17 @@ public class WeldJunit5AutoExtension extends WeldJunit5Extension {
 
         ClassScanning.scanForRequiredBeanClasses(testClasses, weld, getExplicitInjectionInfoFromStore(context));
 
-        // Add the outer-most test class only because or even though Weld would ignore inner, @Nested test classes anyway
+        // Add the outer-most test class only because Weld would ignore inner, @Nested test classes anyway
         // due to their not meeting valid beans requirements for not having a no-arg constructor.
         // Note that getAllInstances above returns the tests "ordered from outermost to innermost".
         weld.addBeanClasses(testClasses.get(0));
 
         weld.addExtension(new TestInstanceInjectionExtension(testInstances));
 
-        for (Class<?> testClass : testClasses) {
-            AnnotationSupport.findRepeatableAnnotations(testClass, ActivateScopes.class)
-                    .forEach(ann -> weldInitiatorBuilder.activate(ann.value()));
-        }
+        testClasses.stream()
+                .map(testClass -> AnnotationSupport.findRepeatableAnnotations(testClass, ActivateScopes.class))
+                .flatMap(ann -> ann.stream().map(ActivateScopes::value))
+                .forEach(weldInitiatorBuilder::activate);
 
     }
 
