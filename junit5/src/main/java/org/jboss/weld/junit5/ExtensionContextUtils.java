@@ -16,9 +16,7 @@
  */
 package org.jboss.weld.junit5;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -36,12 +34,11 @@ public class ExtensionContextUtils {
     private static final String CONTAINER = "weldContainer";
     private static final String EXPLICIT_PARAM_INJECTION = "explicitParamInjection";
     private static final String WELD_ENRICHERS = "weldEnrichers";
-    private static final String INSTANCES_TO_INJECT_TO = "instancesToInjectTo";
 
     private static Namespace EXTENSION_NAMESPACE;
 
     // private constructor to prevent instantiation
-    private ExtensionContextUtils() {        
+    private ExtensionContextUtils() {
     }
 
     /**
@@ -81,34 +78,6 @@ public class ExtensionContextUtils {
      */
     public static void setInitiatorToStore(ExtensionContext context, WeldInitiator initiator) {
         getTestStore(context).put(INITIATOR, initiator);
-    }
-
-    /**
-     * For {@code @Nested} tests, this stores the enclosing class instance into root {@link ExtensionContext.Store}
-     * This has to be root store as each class and its nested classes have different {@link ExtensionContext}.
-     */
-    public static void setInstancesToInjectToToRootStore(ExtensionContext context, Object instanceToInjectTo) {
-        Set<Object> setOfObjects = getInstancesToInjectToFromRootStore(context);
-        if (setOfObjects == null) {
-            setOfObjects = new HashSet<>();
-        }
-        setOfObjects.add(instanceToInjectTo);
-        getRootExtensionStore(context).put(INSTANCES_TO_INJECT_TO, setOfObjects);
-    }
-
-    /**
-     * Root {@link ExtensionContext.Store} survives in between tests, we need to clear it after each test.
-     */
-    public static void clearInstancesToInjectToFromRootStore(ExtensionContext context) {
-        getRootExtensionStore(context).put(INSTANCES_TO_INJECT_TO, null);
-    }
-
-    /**
-     * For {@code @Nested} tests, this retrieves the enclosing class instances from root {@link ExtensionContext.Store}.
-     * This has to be root store as each class and its nested classes have different {@link ExtensionContext}.
-     */
-    public static Set<Object> getInstancesToInjectToFromRootStore(ExtensionContext context) {
-        return getRootExtensionStore(context).get(INSTANCES_TO_INJECT_TO, Set.class);
     }
 
     /**

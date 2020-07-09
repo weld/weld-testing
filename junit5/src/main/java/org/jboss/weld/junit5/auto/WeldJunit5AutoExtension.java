@@ -25,6 +25,9 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * An alternative to {@link WeldJunit5Extension} allowing to fully leverage annotation based configuration approach.
  * When used, the extension will attempt to resolve all beans used in your test class and automatically adds them to
@@ -48,17 +51,24 @@ import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionIn
 public class WeldJunit5AutoExtension extends WeldJunit5Extension {
 
     @Override
-    protected void weldInit(Object testInstance, ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder) {
+    protected void weldInit(ExtensionContext context, Weld weld, WeldInitiator.Builder weldInitiatorBuilder) {
 
-        Class<?> testClass = testInstance.getClass();
+        List<?> testInstances = context.getRequiredTestInstances().getAllInstances();
+        List<Class<?>> testClasses = testInstances.stream().map(Object::getClass).collect(Collectors.toList());
 
-        ClassScanning.scanForRequiredBeanClass(testClass, weld, getExplicitInjectionInfoFromStore(context));
+        ClassScanning.scanForRequiredBeanClasses(testClasses, weld, getExplicitInjectionInfoFromStore(context));
 
-        weld.addBeanClass(testClass);
-        weld.addExtension(new TestInstanceInjectionExtension(testClass, testInstance));
+        // Add the outer-most test class only because Weld would ignore inner, @Nested test classes anyway
+        // due to their not meeting valid beans requirements for not having a no-arg constructor.
+        // Note that getAllInstances above returns the tests "ordered from outermost to innermost".
+        Object outermostTestInstance = testInstances.get(0);
+        weld.addBeanClasses(outermostTestInstance.getClass());
+        weld.addExtension(new TestInstanceInjectionExtension<>(outermostTestInstance));
 
-        AnnotationSupport.findRepeatableAnnotations(testClass, ActivateScopes.class)
-                .forEach(ann -> weldInitiatorBuilder.activate(ann.value()));
+        testClasses.stream()
+                .map(testClass -> AnnotationSupport.findRepeatableAnnotations(testClass, ActivateScopes.class))
+                .flatMap(ann -> ann.stream().map(ActivateScopes::value))
+                .forEach(weldInitiatorBuilder::activate);
 
     }
 

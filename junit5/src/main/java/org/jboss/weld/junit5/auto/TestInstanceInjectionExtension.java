@@ -16,124 +16,69 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.util.annotated.ForwardingAnnotatedType;
-
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.ProcessInjectionTarget;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Singleton;
-import java.lang.annotation.Annotation;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+import org.jboss.weld.injection.ForwardingInjectionTarget;
 
 /**
- * Extension class that ensure proper injection of an externally provided
- * test instance.
- *
- * NOTE: When JUnit 5 provides a test instance creation extension point this
- * should be removed and the test instance should be obtained from the
- * container via proper CDI methods.
- * https://github.com/junit-team/junit5/issues/672
+ * Extension that makes a test instance appear like a regular bean even though instantiated by JUnit.
+ * Injection into all test instances, also {@link org.junit.jupiter.api.Nested &#064;Nested} ones, is handled in {@link org.jboss.weld.junit5.WeldInitiator#addObjectsToInjectInto} and related.
+ * Proper handling of all other CDI annotations such as {@link javax.enterprise.inject.Produces &#064;Produces} is supported only on top level test classes.
  */
-public class TestInstanceInjectionExtension implements Extension {
+public class TestInstanceInjectionExtension<T> implements Extension {
 
     private static final AnnotationLiteral<Singleton> SINGLETON_LITERAL = new AnnotationLiteral<Singleton>() {};
 
-    private static final class AnnotationRewritingAnnotatedType<T> extends ForwardingAnnotatedType<T> {
-
-        private AnnotatedType<T> delegate;
-        private Set<Annotation> annotations;
-
-        public AnnotationRewritingAnnotatedType(AnnotatedType<T> delegate, Set<Annotation> annotations) {
-            this.delegate = delegate;
-            this.annotations = annotations;
-        }
-
-        @Override
-        public AnnotatedType<T> delegate() {
-            return delegate;
-        }
-
-        @Override
-        public Set<Annotation> getAnnotations() {
-            return annotations;
-        }
-
-    }
-
     private Class<?> testClass;
-    private Object testInstance;
+    private T testInstance;
 
-    TestInstanceInjectionExtension(Class<?> testClass, Object testInstance) {
-        this.testClass = testClass;
+    TestInstanceInjectionExtension(T testInstance) {
+        this.testClass = testInstance.getClass();
         this.testInstance = testInstance;
     }
 
-    <T> void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
+    void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
 
-        AnnotatedType<T> annotatedType = pat.getAnnotatedType();
-
-        if (annotatedType.getJavaClass().equals(testClass)) {
-
-            // Replace any test class's scope with @Singleton
-            Set<Annotation> annotations = annotatedType.getAnnotations().stream()
-                    .filter(annotation -> beanManager.isScope(annotation.annotationType()))
-                    .collect(Collectors.toSet());
-            annotations.add(SINGLETON_LITERAL);
-
-            pat.setAnnotatedType(new AnnotationRewritingAnnotatedType<>(annotatedType, annotations));
+        if (pat.getAnnotatedType().getJavaClass().equals(testClass)) {
+            pat.configureAnnotatedType().add(SINGLETON_LITERAL);
         }
+
     }
 
-    <T> void rewriteTestClassInjections(@Observes ProcessInjectionTarget<T> pit) {
+    private class TestInstanceInjectionTarget extends ForwardingInjectionTarget<T> {
+
+        private InjectionTarget<T> injectionTarget;
+
+        TestInstanceInjectionTarget(InjectionTarget<T> injectionTarget) {
+            this.injectionTarget = injectionTarget;
+        }
+
+        @Override
+        protected InjectionTarget<T> delegate() {
+            return injectionTarget;
+        }
+
+        @Override
+        public T produce(CreationalContext<T> creationalContext) {
+            return testInstance;
+        }
+
+    }
+
+    void rewriteTestInstanceInjectionTarget(@Observes ProcessInjectionTarget<T> pit) {
 
         if (pit.getAnnotatedType().getJavaClass().equals(testClass)) {
-
-            InjectionTarget<T> wrapped = pit.getInjectionTarget();
-
-            pit.setInjectionTarget(new InjectionTarget<T>() {
-
-                @SuppressWarnings("unchecked")
-                @Override
-                public T produce(CreationalContext<T> creationalContext) {
-                    return (T) testInstance;
-                }
-
-                @Override
-                public void dispose(T t) {
-                    wrapped.dispose(t);
-                }
-
-                @Override
-                public Set<InjectionPoint> getInjectionPoints() {
-                    return wrapped.getInjectionPoints();
-                }
-
-                @Override
-                public void inject(T t, CreationalContext<T> creationalContext) {
-                    wrapped.inject(t, creationalContext);
-                }
-
-                @Override
-                public void postConstruct(T t) {
-                    wrapped.postConstruct(t);
-                }
-
-                @Override
-                public void preDestroy(T t) {
-                    wrapped.preDestroy(t);
-                }
-            });
-
+            pit.setInjectionTarget(new TestInstanceInjectionTarget(pit.getInjectionTarget()));
         }
+
     }
 
 }
