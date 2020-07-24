@@ -26,6 +26,8 @@ import org.jboss.weld.junit5.ofpackage.Alpha;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import javax.inject.Inject;
+
 /**
  *
  * @author Matej Novotny
@@ -49,5 +51,16 @@ public class SimpleTest {
         assertFalse(weld.select(Alpha.class).isResolvable());
     }
 
+    @Test
+    public void testManualNonContextualInjection() throws Exception {
+        final NonContextual sut = new NonContextual();
+        try (AutoCloseable contextReleaser = weld.injectNonContextual(sut)) {
+            assertEquals("baz", sut.foo.getBar());
+        }
+    }
 
+    private static class NonContextual {
+        @Inject
+        private Foo foo;
+    }
 }

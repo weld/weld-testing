@@ -32,7 +32,7 @@ This project consists of three modules.
 Below is a list with links to detailed README of each extension:
 
 * JUnit 4 extension
-  * [JUnit 4 extension using `@Rule` mechanism](junit4/README.md)
+  * [JUnit 4 extension using `@Rule` and `@ClassRule` mechanism](junit4/README.md)
 * JUnit 5
   * [JUnit 5 extension using the `@ExtendWith` mechanism](junit5/README.md)
 * JUnit-common
