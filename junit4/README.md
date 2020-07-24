@@ -1,6 +1,6 @@
 # Weld JUnit 4 Extension
 
-Weld JUnit 4 extension uses the original JUnit extension system via `@Rule` annotation.
+Weld JUnit 4 extension uses the original JUnit extension system via `@Rule` or `@ClassRule` annotation.
 It requires JUnit 4.9+ and Java 8.
 
 ## Table of contents
@@ -27,7 +27,8 @@ It requires JUnit 4.9+ and Java 8.
 
 ## WeldInitiator
 
-`org.jboss.weld.junit4.WeldInitiator` is a `TestRule` (JUnit 4.9+) which allows to *start/stop* a Weld container per test method execution.
+`org.jboss.weld.junit4.WeldInitiator` is a `TestRule` (JUnit 4.9+) which allows to *start/stop*
+a Weld container per test method execution if used as `@Rule` or per test class if used as `@ClassRule`.
 The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance.
 By default, the container is optimized for testing purposes, i.e. with automatic discovery and concurrent deployment disabled (see also `WeldInitiator.createWeld()`).
 However, it is possible to provide a customized `Weld` instance  - see also `WeldInitiator.of(Weld)` and `WeldInitiator.from(Weld)` methods.
@@ -100,7 +101,33 @@ class InjectTest {
     @Rule
     public WeldInitiator weld = WeldInitiator.from(Foo.class).inject(this).build();
 
-  // Gets injected by WeldInitiator when testFoo() is about to be run
+    // Gets injected by WeldInitiator when testFoo() is about to be run
+    @Inject
+    @MyQualifier
+    Foo foo;
+
+    @Test
+    public void testFoo() {
+        assertEquals(42, foo.getValue());
+    }
+}
+```
+
+When using the `WeldInitiator` as `@ClassRule` to only have one weld instance for the whole test class,
+`inject(this)` cannot be used, as no `this` reference is available yet and it cannot be done on the `WeldInitiator` itself.
+For this situation `WeldInitiator` provides the method `getTestClassInjectorRule()` that returns a `MethodRule`
+which can be used as a `@Rule` and injects into the test instance automatically:
+
+```java
+class InjectTest {
+
+    @ClassRule
+    public static WeldInitiator weld = WeldInitiator.from(Foo.class).build();
+
+    @Rule
+    public MethodRule testClassInjectorRule = weld.getTestClassInjectorRule();
+
+    // Gets injected by testClassInjector when testFoo() is about to be run
     @Inject
     @MyQualifier
     Foo foo;

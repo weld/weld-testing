@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2017, Red Hat, Inc., and individual contributors
+ * Copyright 2020, Red Hat, Inc., and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -16,38 +16,40 @@
  */
 package org.jboss.weld.junit4.inject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.jboss.weld.junit4.Foo;
+import org.jboss.weld.junit4.WeldInitiator;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.rules.RuleChain;
+import org.junit.runners.model.Statement;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.jboss.weld.junit4.Foo;
-import org.jboss.weld.junit4.WeldInitiator;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.runners.model.Statement;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
- * @author Martin Kouba
+ * @author Björn Kautler
  */
-public class InjectTest {
-
-    private final WeldInitiator weld = WeldInitiator
-            .from(Foo.class, MeatyStringObserver.class, IamDependent.class)
-            .inject(this)
+public class InjectWithClassRuleTest {
+    private static WeldInitiator weld = WeldInitiator.from(Foo.class, MeatyStringObserver.class, IamDependent.class)
             .build();
 
-    @Rule
-    public RuleChain chain = RuleChain.outerRule((base, description) -> new Statement() {
+    @ClassRule
+    public static RuleChain chain = RuleChain.outerRule((base, description) -> new Statement() {
         @Override
         public void evaluate() throws Throwable {
             base.evaluate();
             assertTrue(IamDependent.DESTROYED.get());
         }
     }).around(weld);
+
+    @Rule
+    public MethodRule testClassInjectorRule = weld.getTestClassInjectorRule();
 
     @Inject
     Foo foo;
@@ -67,20 +69,6 @@ public class InjectTest {
         assertEquals(1, MeatyStringObserver.MESSAGES.size());
         assertEquals("hello", MeatyStringObserver.MESSAGES.get(0));
         iamDependent.bang();
-    }
-
-    @Test
-    public void testManualNonContextualInjection() throws Exception {
-        final InjectTest sut = new InjectTest();
-        try (AutoCloseable contextReleaser = weld.injectNonContextual(sut)) {
-            MeatyStringObserver.MESSAGES.clear();
-            assertEquals("baz", sut.foo.getBar());
-            sut.event.fire("hello");
-            assertEquals(1, MeatyStringObserver.MESSAGES.size());
-            assertEquals("hello", MeatyStringObserver.MESSAGES.get(0));
-            sut.iamDependent.bang();
-        }
-        assertTrue(IamDependent.DESTROYED.get());
     }
 
 }

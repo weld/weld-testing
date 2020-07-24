@@ -136,6 +136,26 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         return new ToInject(instanceToInject);
     }
 
+    /**
+     * Injects the given non-contextual instance immediately. The returned {@link AutoCloseable} should be used
+     * to release the creational context once the injected beans are no longer needed.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * try (AutoCloseable contextReleaser = injectNonContextual(this)) {
+     *     // do some things with the injected instances
+     * }
+     * }</pre>
+     *
+     * @param target the target to inject
+     * @return an {@code AutoCloseable} to release the creational context
+     */
+    public AutoCloseable injectNonContextual(Object target) {
+        ToInject toInject = new ToInject(target);
+        toInject.inject();
+        return toInject::release;
+    }
+
     @Override
     public Iterator<Object> iterator() {
         checkContainer();
@@ -382,7 +402,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
          * </pre>
          *
          * <p>
-         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the licecycle of the non-contextual instance is not
+         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the lifecycle of the non-contextual instance is not
          * managed by the container and all injected references will be invalid after the test execution.
          * </p>
          *

@@ -29,6 +29,9 @@ import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit.AbstractWeldInitiator;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -211,6 +214,35 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
         Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
         Function<InjectionPoint, Object> persistenceContextFactory) {
         super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
+    }
+
+    /**
+     * Returns a {@link MethodRule} that can be used as a {@link Rule} to inject into the test class instance.
+     * When using this Weld initiator as {@code Rule}, the same can be achieved by calling
+     * {@link AbstractBuilder#inject(Object) inject(this)} on the builder. But when using this Weld initiator as
+     * {@link ClassRule}, there is no {@code this} reference available. In that case this method can be used
+     * as {@code Rule} to do the test class injection part.
+     *
+     * <p><b>Example:</b>
+     * <pre>{@code
+     * }&#64;{@code ClassRule
+     * public static WeldInitiator weld = WeldInitiator.from(Foo.class).build();
+     *
+     * }&#64;{@code Rule
+     * public MethodRule testClassInjectorRule = weld.getTestClassInjectorRule();
+     * }</pre>
+     *
+     * @return the test class injector rule
+     */
+    public MethodRule getTestClassInjectorRule() {
+        return (base, method, target) -> new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                try (AutoCloseable contextReleaser = injectNonContextual(target)) {
+                    base.evaluate();
+                }
+            }
+        };
     }
 
     @Override
