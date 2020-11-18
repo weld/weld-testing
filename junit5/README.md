@@ -5,7 +5,7 @@ Therefore, in order to use this extension in your test, you have to annotate you
 In their default behaviour, the extensions will automatically start/stop Weld SE container and inject into all your `@Inject` fields and method parameters in the given test instance.
 Furthermore you can provide configuration and modify Weld bootstrapping process in various ways - extensions, scope activation, interception, ...
 
-The extensions support both test lifecycles - per method and per class.
+This JUnit extension supports both test lifecycles [as described by JUnit 5](https://junit.org/junit5/docs/current/user-guide/#writing-tests-test-instance-lifecycle) - per method and per class.
 
 Requirements are JUnit 5 and Java 8.
 
