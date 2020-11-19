@@ -1,7 +1,0 @@
-language: java
-jdk:
-  - openjdk8
-  - openjdk11
-  - openjdk12
-script: "WELD_JUNIT_DEBUG=spotbugs mvn verify -Dspotbugs.failOnError=true"
-sudo: false
