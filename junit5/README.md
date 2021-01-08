@@ -385,7 +385,7 @@ class MyTest {
 
 ## WeldJunit5AutoExtension
 
-To use this approach, annotate your test class with `ExtendWith(WeldJunit5AutoExtension.class)` or just `@EnableAutoWeld`.
+To use this approach, annotate your test class with `@ExtendWith(WeldJunit5AutoExtension.class)` or just `@EnableAutoWeld`.
 By default, the extension will:
 
 * Inspect your test class and try to figure out what bean classes it needs based on injection points (field and parameter injection both work)
