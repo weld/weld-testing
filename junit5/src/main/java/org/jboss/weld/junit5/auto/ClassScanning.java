@@ -335,7 +335,12 @@ class ClassScanning {
         Class<?> type = field.getType();
         if (type.equals(Instance.class)) {
             ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-            type = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            Type typeParameter = parameterizedType.getActualTypeArguments()[0];
+            if (typeParameter instanceof ParameterizedType) {
+                type = (Class<?>) ((ParameterizedType) typeParameter).getRawType();
+            } else {
+                type = (Class<?>) typeParameter;
+            }
         }
         return type;
     }
