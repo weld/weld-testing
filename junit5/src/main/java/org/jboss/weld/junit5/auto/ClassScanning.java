@@ -86,7 +86,7 @@ class ClassScanning {
 
             foundClasses.add(currClass);
 
-            findAnnotatedFields(currClass, ExcludeBean.class).stream()
+            AnnotationSupport.findAnnotatedFields(currClass, ExcludeBean.class).stream()
                     .map(Field::getType)
                     .forEach(excludedBeanTypes::add);
 
@@ -94,7 +94,7 @@ class ClassScanning {
                     .map(Method::getReturnType)
                     .forEach(excludedBeanTypes::add);
 
-            findAnnotatedFields(currClass, Inject.class).stream()
+            AnnotationSupport.findAnnotatedFields(currClass, Inject.class).stream()
                     .map(Field::getType)
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
@@ -107,11 +107,11 @@ class ClassScanning {
                     .flatMap(cons -> getExecutableParameterTypes(cons, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
-            findAnnotatedFields(currClass, Produces.class).stream()
+            findAnnotatedDeclaredFields(currClass, Produces.class).stream()
                     .map(Field::getType)
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
-            AnnotationSupport.findAnnotatedMethods(currClass, Produces.class, HierarchyTraversalMode.BOTTOM_UP).stream()
+            findAnnotatedDeclaredMethods(currClass, Produces.class).stream()
                     .flatMap(method ->
                         Stream.concat(
                                 getExecutableParameterTypes(method, explicitInjection).stream(),
@@ -288,6 +288,10 @@ class ClassScanning {
         return asList(clazz.getDeclaredFields());
     }
 
+    private static List<Method> getDeclaredMethods(Class<?> clazz) {
+        return asList(clazz.getDeclaredMethods());
+    }
+
     private static boolean isMethodShadowedByLocalFields(Field field, List<Field> localFields) {
         return localFields.stream()
                 .anyMatch((local) -> isFieldShadowedBy(field, local));
@@ -297,8 +301,14 @@ class ClassScanning {
         return upper.getType().equals(lower.getType());
     }
 
-    private static List<Field> findAnnotatedFields(Class<?> clazz, Class<? extends Annotation> annotationType) {
+    private static List<Field> findAnnotatedDeclaredFields(Class<?> clazz, Class<? extends Annotation> annotationType) {
         return getDeclaredFields(clazz).stream()
+                .filter((field) -> isAnnotated(field, annotationType))
+                .collect(CollectionUtils.toUnmodifiableList());
+    }
+
+    private static List<Method> findAnnotatedDeclaredMethods(Class<?> clazz, Class<? extends Annotation> annotationType) {
+        return getDeclaredMethods(clazz).stream()
                 .filter((field) -> isAnnotated(field, annotationType))
                 .collect(CollectionUtils.toUnmodifiableList());
     }
