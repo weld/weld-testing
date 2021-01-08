@@ -186,7 +186,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     private TestInstance.Lifecycle determineTestLifecycle(ExtensionContext ec) {
-        // check the test for import org.junit.jupiter.api.TestInstance annotation
+        // check the test for org.junit.jupiter.api.TestInstance annotation
         TestInstance annotation = ec.getRequiredTestClass().getAnnotation(TestInstance.class);
         if (annotation != null) {
             return annotation.value();
