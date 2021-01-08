@@ -31,6 +31,7 @@ import org.junit.platform.commons.util.Preconditions;
 import javax.decorator.Decorator;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.context.NormalScope;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.spi.Extension;
@@ -95,7 +96,7 @@ class ClassScanning {
                     .forEach(excludedBeanTypes::add);
 
             findAnnotatedFields(currClass, Inject.class).stream()
-                    .map(Field::getType)
+                    .map(ClassScanning::unwrapInstanceTypeParameter)
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Inject.class, HierarchyTraversalMode.BOTTOM_UP).stream()
@@ -318,6 +319,15 @@ class ClassScanning {
         }
 
         return findFirstAnnotatedConstructor(clazz.getSuperclass(), annotationType);
+    }
+
+    private static Class<?> unwrapInstanceTypeParameter(Field field) {
+        Class<?> type = field.getType();
+        if (type.equals(Instance.class)) {
+            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+            type = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+        }
+        return type;
     }
 
 }
