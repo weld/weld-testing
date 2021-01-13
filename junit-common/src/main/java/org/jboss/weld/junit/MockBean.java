@@ -53,13 +53,13 @@ import org.jboss.weld.util.reflection.HierarchyDiscovery;
  * This custom {@link Bean} implementation is useful for mocking.
  * <p>
  * A new instance is usually created through a {@link Builder} (see also {@link #builder()}) and then passed to the
- * {@link WeldInitiator.Builder#addBeans(Bean...)} method.
+ * {@code WeldInitiator.Builder#addBeans(Bean...)} method.
  * </p>
  *
  * @author Martin Kouba
  *
  * @param <T>
- * @see WeldInitiator.Builder#addBean(Bean)
+ * See also {@code WeldInitiator.Builder#addBean(Bean)} method.
  * @since 1.1
  */
 public class MockBean<T> implements Bean<T>, PassivationCapable {
@@ -654,7 +654,6 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          *
          * @param instance
          * @param creationalContext
-         * @return a new bean instance
          */
         void destroy(T instance, CreationalContext<T> creationalContext);
 

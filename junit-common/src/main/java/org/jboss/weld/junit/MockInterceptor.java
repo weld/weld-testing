@@ -42,7 +42,7 @@ import org.jboss.weld.util.bean.SerializableForwardingBean;
  * This custom {@link Interceptor} implementation is useful for mocking.
  * <p>
  * A new instance is usually created through a {@link Builder} (see also {@link #withBindings(Annotation...)} method) and then passed to the
- * {@link WeldInitiator.Builder#addBeans(Bean...)} method.
+ * {@code WeldInitiator.Builder#addBeans(Bean...)} method.
  * </p>
  * <p>
  * Note that by default all mock interceptors are automatically enabled for the synthetic bean archive. If needed a custom bean class can be set through the
@@ -51,7 +51,7 @@ import org.jboss.weld.util.bean.SerializableForwardingBean;
  * </p>
  *
  * @author Martin Kouba
- * @see WeldInitiator.Builder#addBean(Bean)
+ * See also {code WeldInitiator.Builder#addBean(Bean)} method.
  * @since 1.2.1
  */
 public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
@@ -250,7 +250,7 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
 
         /**
          *
-         * @param function The interception callback, intercepted bean might be <code>null</code>
+         * @param callback The interception callback, intercepted bean might be <code>null</code>
          * @return self
          */
         public Builder callback(InterceptionCallback callback) {
