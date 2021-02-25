@@ -16,9 +16,9 @@
  */
 package org.jboss.weld.junit5.auto.interceptorAndDecorator;
 
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.inject.Inject;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.inject.Inject;
 
 /**
  *

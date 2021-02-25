@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * is a base class or interface all beans extending/implementing that type will be excluded.
  *
  * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
- * implied type that are defined by {@link javax.enterprise.inject.Produces} producer methods/fields or synthetic
+ * implied type that are defined by {@link jakarta.enterprise.inject.Produces} producer methods/fields or synthetic
  * beans. Also, current implementation excludes beans based on type, disregarding any qualifiers that are specified.
  *
  * Example:

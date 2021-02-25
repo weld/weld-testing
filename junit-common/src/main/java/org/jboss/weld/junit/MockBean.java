@@ -26,23 +26,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.NormalScope;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Stereotype;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.PassivationCapable;
-import javax.enterprise.inject.spi.Prioritized;
-import javax.enterprise.inject.spi.Unmanaged;
-import javax.enterprise.inject.spi.Unmanaged.UnmanagedInstance;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.inject.Named;
-import javax.inject.Qualifier;
-import javax.inject.Scope;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.NormalScope;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Stereotype;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.inject.spi.PassivationCapable;
+import jakarta.enterprise.inject.spi.Prioritized;
+import jakarta.enterprise.inject.spi.Unmanaged;
+import jakarta.enterprise.inject.spi.Unmanaged.UnmanagedInstance;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.inject.Named;
+import jakarta.inject.Qualifier;
+import jakarta.inject.Scope;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -453,7 +453,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         }
 
         /**
-         * Programmatic equivalent to to putting {@link javax.annotation.Priority} annotation on a bean class.
+         * Programmatic equivalent to to putting {@link jakarta.annotation.Priority} annotation on a bean class.
          * Allows for globally enabled alternatives.
          *
          * @param priority

@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.extensionInjection;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.junit.jupiter.api.Assertions;

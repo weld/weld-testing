@@ -19,8 +19,8 @@ package org.jboss.weld.junit5.contexts;
 import java.io.Serializable;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
 
 @SuppressWarnings("serial")
 @SessionScoped

@@ -22,9 +22,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.util.TypeLiteral;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit4.WeldInitiator;

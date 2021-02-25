@@ -16,8 +16,8 @@
  */
 package org.jboss.weld.junit5.auto.alternatives;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 
 /**
  *

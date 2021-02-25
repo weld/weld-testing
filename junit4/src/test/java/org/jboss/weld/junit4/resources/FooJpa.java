@@ -16,11 +16,11 @@
  */
 package org.jboss.weld.junit4.resources;
 
-import javax.enterprise.context.Dependent;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
+import jakarta.enterprise.context.Dependent;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceUnit;
 
 @Dependent
 public class FooJpa {

@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.auto.interceptorAndDecorator;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 /**
  *

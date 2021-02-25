@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.InjectionPoint;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit.AbstractWeldInitiator;

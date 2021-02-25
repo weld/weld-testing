@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.explicitInjection;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *

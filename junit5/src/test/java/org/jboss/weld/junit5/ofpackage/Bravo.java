@@ -16,8 +16,8 @@
  */
 package org.jboss.weld.junit5.ofpackage;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.Dependent;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.Dependent;
 
 @Dependent
 public class Bravo {

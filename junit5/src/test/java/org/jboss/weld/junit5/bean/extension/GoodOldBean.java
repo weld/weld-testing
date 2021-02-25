@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.bean.extension;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *

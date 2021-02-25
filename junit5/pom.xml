@@ -39,13 +39,13 @@
       </dependency>
 
       <dependency>
-         <groupId>org.jboss.spec.javax.ejb</groupId>
-         <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+         <groupId>jakarta.ejb</groupId>
+         <artifactId>jakarta.ejb-api</artifactId>
       </dependency>
 
       <dependency>
-         <groupId>org.hibernate.javax.persistence</groupId>
-         <artifactId>hibernate-jpa-2.1-api</artifactId>
+         <groupId>jakarta.persistence</groupId>
+         <artifactId>jakarta.persistence-api</artifactId>
          <scope>test</scope>
       </dependency>
 

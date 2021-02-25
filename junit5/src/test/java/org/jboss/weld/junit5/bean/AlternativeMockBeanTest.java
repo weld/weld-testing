@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.bean;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.EnableWeld;

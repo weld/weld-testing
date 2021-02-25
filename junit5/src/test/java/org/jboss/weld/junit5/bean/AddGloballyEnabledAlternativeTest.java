@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.util.TypeLiteral;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.util.TypeLiteral;
 
 import java.util.List;
 import java.util.Set;

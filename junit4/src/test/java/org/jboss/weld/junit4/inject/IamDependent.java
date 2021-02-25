@@ -18,8 +18,8 @@ package org.jboss.weld.junit4.inject;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.Dependent;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.Dependent;
 
 /**
  *

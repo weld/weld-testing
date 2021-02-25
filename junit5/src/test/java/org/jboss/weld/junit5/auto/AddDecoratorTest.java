@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jboss.weld.junit5.auto.interceptorAndDecorator.DecoratedBean;
 import org.jboss.weld.junit5.auto.interceptorAndDecorator.TestDecorator;

@@ -3,7 +3,7 @@ package org.jboss.weld.junit5.auto.beans;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 
 

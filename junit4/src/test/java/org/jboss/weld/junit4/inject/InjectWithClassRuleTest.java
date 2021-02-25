@@ -25,8 +25,8 @@ import org.junit.rules.MethodRule;
 import org.junit.rules.RuleChain;
 import org.junit.runners.model.Statement;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

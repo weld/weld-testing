@@ -18,8 +18,8 @@ package org.jboss.weld.junit5.enricher.disabled;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.basic.Foo;

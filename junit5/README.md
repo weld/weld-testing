@@ -109,7 +109,7 @@ class BasicUsageTest {
 The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance.
 By default, the container is optimized for testing purposes, i.e. with automatic discovery and concurrent deployment disabled (see also `WeldInitiator.createWeld()`).
 However, it is possible to provide a customized `Weld` instance  - see also `WeldInitiator.of(Weld)` and `WeldInitiator.from(Weld)` methods.
-`WeldInitiator` also implements `javax.enterprise.inject.Instance` and therefore might be used to perform programmatic lookup of bean instances.
+`WeldInitiator` also implements `jakarta.enterprise.inject.Instance` and therefore might be used to perform programmatic lookup of bean instances.
 
 `WeldInitiator` should be a public field annotated with `@org.jboss.weld.junit5.WeldSetup`.
 From there you can use static methods:
@@ -270,7 +270,7 @@ class TestClassProducerTest {
 
 This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `javax.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
+You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
 
 ```java
@@ -410,7 +410,7 @@ import org.jboss.weld.junit5.auto.beans.V8;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -496,8 +496,8 @@ import org.jboss.weld.junit5.auto.ExcludeBean;
 import org.jboss.weld.junit5.auto.WeldJunit5AutoExtension;
 import org.junit.jupiter.api.Test;
 
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -542,7 +542,7 @@ It will claim the ability to resolve any parameter which is known as a bean type
 This is mainly for usability, as it would be annoying to constantly type additional annotations to mark which parameter should be injected and which should be left alone.
 
 However, we are aware that this might cause trouble if more extensions are competing for parameter resolution.
-In such case, you can turn on explicit parameter resolution and Weld will only resolve parameters which have at least one `javax.inject.Qualifier` annotation on them.
+In such case, you can turn on explicit parameter resolution and Weld will only resolve parameters which have at least one `jakarta.inject.Qualifier` annotation on them.
 There are two ways to enable it; firstly, you can do it globally, through system property - `org.jboss.weld.junit5.explicitParamInjection=true`
 This property is also available as a constant in our extension class, e.g. you can use `org.jboss.weld.junit5.WeldJunit5Extension.GLOBAL_EXPLICIT_PARAM_INJECTION`.
 Secondly, you can use `@ExplicitParamInjection` on your method, or test class.

@@ -7,7 +7,7 @@ import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.enterprise.inject.Any;
+import jakarta.enterprise.inject.Any;
 
 /**
  * Tests that {@link MockBean} with custom qualifiers has {@link Any} qualifier automatically added.

@@ -7,9 +7,9 @@ import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.Bean;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.inject.Inject;
 
 /**
  * Tests that synthetic archive with only enabled alternative in it still works.

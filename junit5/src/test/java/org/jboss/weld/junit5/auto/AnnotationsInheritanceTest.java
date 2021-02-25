@@ -3,7 +3,7 @@ package org.jboss.weld.junit5.auto;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jboss.weld.junit5.auto.beans.Engine;
 import org.jboss.weld.junit5.auto.beans.V8;

@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.explicitInjection;
 
-import javax.enterprise.inject.Default;
+import jakarta.enterprise.inject.Default;
 
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldJunit5Extension;

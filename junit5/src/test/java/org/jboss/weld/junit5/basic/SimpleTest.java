@@ -26,7 +26,7 @@ import org.jboss.weld.junit5.ofpackage.Alpha;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  *
