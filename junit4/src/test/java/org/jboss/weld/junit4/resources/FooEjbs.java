@@ -16,8 +16,8 @@
  */
 package org.jboss.weld.junit4.resources;
 
-import javax.ejb.EJB;
-import javax.enterprise.context.Dependent;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.Dependent;
 
 @Dependent
 public class FooEjbs {

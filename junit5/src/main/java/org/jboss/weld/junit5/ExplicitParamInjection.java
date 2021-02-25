@@ -19,7 +19,7 @@ package org.jboss.weld.junit5;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import javax.enterprise.inject.Default;
+import jakarta.enterprise.inject.Default;
 
 /**
  * An annotation used to enforce explicit parameter annotation. When applied, Weld will only attempt to resolve method

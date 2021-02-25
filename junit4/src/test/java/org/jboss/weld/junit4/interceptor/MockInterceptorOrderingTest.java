@@ -27,8 +27,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.enterprise.util.AnnotationLiteral;
-import javax.interceptor.InterceptorBinding;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.interceptor.InterceptorBinding;
 
 import org.jboss.weld.junit.MockInterceptor;
 import org.jboss.weld.junit4.WeldInitiator;

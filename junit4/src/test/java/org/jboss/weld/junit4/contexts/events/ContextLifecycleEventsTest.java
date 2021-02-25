@@ -18,10 +18,10 @@ package org.jboss.weld.junit4.contexts.events;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.enterprise.context.Destroyed;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.Destroyed;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.SessionScoped;
 
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.AfterClass;

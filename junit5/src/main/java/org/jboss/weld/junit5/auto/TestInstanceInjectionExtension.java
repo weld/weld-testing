@@ -16,22 +16,22 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.InjectionTarget;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
-import javax.enterprise.inject.spi.ProcessInjectionTarget;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.inject.Singleton;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.InjectionTarget;
+import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
+import jakarta.enterprise.inject.spi.ProcessInjectionTarget;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.inject.Singleton;
 
 import org.jboss.weld.injection.ForwardingInjectionTarget;
 
 /**
  * Extension that makes a test instance appear like a regular bean even though instantiated by JUnit.
  * Injection into all test instances, also {@link org.junit.jupiter.api.Nested &#064;Nested} ones, is handled in {@link org.jboss.weld.junit5.WeldInitiator#addObjectsToInjectInto} and related.
- * Proper handling of all other CDI annotations such as {@link javax.enterprise.inject.Produces &#064;Produces} is supported only on top level test classes.
+ * Proper handling of all other CDI annotations such as {@link jakarta.enterprise.inject.Produces &#064;Produces} is supported only on top level test classes.
  */
 public class TestInstanceInjectionExtension<T> implements Extension {
 

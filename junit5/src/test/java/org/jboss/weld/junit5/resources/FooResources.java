@@ -16,8 +16,8 @@
  */
 package org.jboss.weld.junit5.resources;
 
-import javax.annotation.Resource;
-import javax.enterprise.context.Dependent;
+import jakarta.annotation.Resource;
+import jakarta.enterprise.context.Dependent;
 
 @Dependent
 public class FooResources {

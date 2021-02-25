@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * classes as parameters.
  *
  * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
- * specified type that are defined by {@link javax.enterprise.inject.Produces} producer methods/fields or synthetic
+ * specified type that are defined by {@link jakarta.enterprise.inject.Produces} producer methods/fields or synthetic
  * beans.
  *
  * Example:

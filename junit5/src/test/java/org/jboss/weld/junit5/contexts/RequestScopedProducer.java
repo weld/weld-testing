@@ -1,8 +1,8 @@
 package org.jboss.weld.junit5.contexts;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Produces;
 
 @RequestScoped
 public class RequestScopedProducer {

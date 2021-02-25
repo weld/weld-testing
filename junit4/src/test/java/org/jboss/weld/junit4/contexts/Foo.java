@@ -18,8 +18,8 @@ package org.jboss.weld.junit4.contexts;
 
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.RequestScoped;
 
 @RequestScoped
 public class Foo {

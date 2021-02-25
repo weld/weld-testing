@@ -1,7 +1,7 @@
 package org.jboss.weld.junit5.auto.beans;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class ConstructedV8 {

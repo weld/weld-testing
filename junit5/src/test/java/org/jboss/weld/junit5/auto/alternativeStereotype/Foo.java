@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.auto.alternativeStereotype;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  *

@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit5.extensionInjection;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 /**
  *

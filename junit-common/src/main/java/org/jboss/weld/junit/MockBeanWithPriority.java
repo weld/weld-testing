@@ -1,6 +1,6 @@
 package org.jboss.weld.junit;
 
-import javax.enterprise.inject.spi.Prioritized;
+import jakarta.enterprise.inject.spi.Prioritized;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Set;

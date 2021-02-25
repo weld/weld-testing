@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.enterprise.inject.Any;
+import jakarta.enterprise.inject.Any;
 
 /**
  * Tests that {@link MockBean} with custom qualifiers has {@link Any} qualifier automatically added.

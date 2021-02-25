@@ -28,10 +28,10 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.inject.spi.InterceptionType;
-import javax.enterprise.inject.spi.Interceptor;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.interceptor.InterceptorBinding;
+import jakarta.enterprise.inject.spi.InterceptionType;
+import jakarta.enterprise.inject.spi.Interceptor;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.interceptor.InterceptorBinding;
 
 import org.jboss.weld.junit.MockInterceptor;
 import org.jboss.weld.junit4.WeldInitiator;

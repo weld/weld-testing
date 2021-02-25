@@ -16,7 +16,7 @@
  */
 package org.jboss.weld.junit4;
 
-import javax.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Alternative;
 
 @Alternative
 public class FooAlternative extends Foo {

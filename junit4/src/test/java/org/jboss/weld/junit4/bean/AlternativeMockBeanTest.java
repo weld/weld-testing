@@ -18,7 +18,7 @@ package org.jboss.weld.junit4.bean;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit4.WeldInitiator;
