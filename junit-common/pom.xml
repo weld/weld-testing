@@ -22,6 +22,12 @@
          <artifactId>jakarta.persistence-api</artifactId>
       </dependency>
 
+      <dependency>
+         <groupId>com.github.spotbugs</groupId>
+         <artifactId>spotbugs-annotations</artifactId>
+         <version>${version.spotbugs}</version>
+      </dependency>
+
    </dependencies>
 </project>
 

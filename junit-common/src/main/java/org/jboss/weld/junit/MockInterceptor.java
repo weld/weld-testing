@@ -37,6 +37,7 @@ import jakarta.interceptor.InvocationContext;
 import org.jboss.weld.bean.builtin.BeanManagerProxy;
 import org.jboss.weld.junit.MockInterceptor.MockInterceptorInstance;
 import org.jboss.weld.util.bean.SerializableForwardingBean;
+import org.jboss.weld.util.collections.ImmutableSet;
 
 /**
  * This custom {@link Interceptor} implementation is useful for mocking.
@@ -89,7 +90,7 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
 
     @Override
     public Set<Annotation> getInterceptorBindings() {
-        return interceptorBindings;
+        return ImmutableSet.copyOf(interceptorBindings);
     }
 
     @Override

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -328,6 +329,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Weld object reference is intentionally externally mutable")
     protected static abstract class AbstractBuilder<I extends AbstractWeldInitiator, T extends AbstractBuilder<I, T>> {
 
         protected final Weld weld;
