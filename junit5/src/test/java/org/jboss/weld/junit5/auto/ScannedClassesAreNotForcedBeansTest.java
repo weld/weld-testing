@@ -1,8 +1,8 @@
 package org.jboss.weld.junit5.auto;
 
 
-import org.jboss.weld.junit5.auto.beans.InjectedV8;
-import org.jboss.weld.junit5.auto.beans.V8;
+import org.jboss.weld.junit5.auto.beans.unsatisfied.InjectedV8NoAnnotation;
+import org.jboss.weld.junit5.auto.beans.unsatisfied.V8NoAnnotation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddBeanClasses(InjectedV8.class)
+@AddBeanClasses(InjectedV8NoAnnotation.class)
 public class ScannedClassesAreNotForcedBeansTest {
 
     /**
@@ -28,11 +28,11 @@ public class ScannedClassesAreNotForcedBeansTest {
      */
 
     @Produces
-    private V8 engine = new V8();
+    private V8NoAnnotation engine = new V8NoAnnotation();
 
     @Test
     @DisplayName("Test that V8 is not ambiguous to do incorrectly being identified as a bean class")
-    void test(V8 engine) {
+    void test(V8NoAnnotation engine) {
         assertNotNull(engine);
     }
 

@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @EnableAutoWeld
-@AddPackages(Engine.class)
+@AddPackages(value = Engine.class, recursively = false)
 public class AddPackagesTest {
 
   @Inject
   private V8 engine;
 
   @Test
-  @DisplayName("Test that @AddPackages pulls in V8 (without bean defining annotation) to fulfill the injected Engine interface")
+  @DisplayName("Test that @AddPackages pulls in V8 to fulfill the injected Engine interface")
   void test() {
     assertNotNull(engine);
   }

@@ -16,10 +16,13 @@
  */
 package org.jboss.weld.junit5.explicitInjection;
 
+import jakarta.enterprise.context.Dependent;
+
 /**
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
+@Dependent
 public class Foo {
 
     public String ping() {
