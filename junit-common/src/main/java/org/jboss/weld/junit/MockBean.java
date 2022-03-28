@@ -177,11 +177,6 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     }
 
     @Override
-    public boolean isNullable() {
-        return false;
-    }
-
-    @Override
     public Set<Type> getTypes() {
         return types;
     }

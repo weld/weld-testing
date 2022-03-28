@@ -204,6 +204,18 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         container.destroy(instance);
     }
 
+    @Override
+    public Handle<Object> getHandle() {
+        checkContainer();
+        return container.getHandle();
+    }
+
+    @Override
+    public Iterable<? extends Handle<Object>> handles() {
+        checkContainer();
+        return container.handles();
+    }
+
     /**
      * Allows to fire events.
      *
