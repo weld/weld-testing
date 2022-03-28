@@ -12,16 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - { name: "8",
-              java-version: 8,
+          - { name: "11",
+              java-version: 11,
           }
           - {
-            name: "11",
-            java-version: 11,
-          }
-          - {
-            name: "12",
-            java-version: 12,
+            name: "17",
+            java-version: 17,
           }
     steps:
     - uses: actions/checkout@v2
