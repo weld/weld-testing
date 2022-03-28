@@ -88,7 +88,7 @@ public class AnnotationsInheritanceTest {
     }
 
     @EnableAutoWeld
-    @AddPackages(Engine.class)
+    @AddPackages(value = Engine.class, recursively = false)
     class BaseAddPackagesTest {
     }
 
