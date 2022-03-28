@@ -178,12 +178,12 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     @Override
     public Set<Type> getTypes() {
-        return types;
+        return ImmutableSet.copyOf(types);
     }
 
     @Override
     public Set<Annotation> getQualifiers() {
-        return qualifiers;
+        return ImmutableSet.copyOf(qualifiers);
     }
 
     @Override
@@ -198,7 +198,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     @Override
     public Set<Class<? extends Annotation>> getStereotypes() {
-        return stereotypes;
+        return ImmutableSet.copyOf(stereotypes);
     }
 
     @Override
