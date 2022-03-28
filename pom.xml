@@ -10,7 +10,7 @@
    <parent>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-parent</artifactId>
-      <version>42</version>
+      <version>46</version>
    </parent>
 
    <url>http://weld.cdi-spec.org</url>
@@ -37,15 +37,15 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <maven.compiler.source>1.8</maven.compiler.source>
-      <maven.compiler.target>1.8</maven.compiler.target>
+      <maven.compiler.source>11</maven.compiler.source>
+      <maven.compiler.target>11</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.13.1</version.junit4>
       <version.junit.jupiter>5.4.1</version.junit.jupiter>
-      <version.weld>4.0.0.Final</version.weld>
+      <version.weld>5.0.0.CR2</version.weld>
       <version.mockito>2.25.1</version.mockito>
       <version.jakarta.ejb.api>4.0.0</version.jakarta.ejb.api>
-      <version-jpa-api>3.0.0</version-jpa-api>
+      <version-jpa-api>3.1.0-RC2</version-jpa-api>
       <!-- SpotBugs properties -->
       <version.spotbugs>3.1.11</version.spotbugs>
       <version.spotbugs.plugin>3.1.10</version.spotbugs.plugin>

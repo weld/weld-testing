@@ -90,7 +90,7 @@ class ContextImpl implements Context {
 
     public void activate() {
         currentContext.set(new HashMap<Contextual<?>, ContextualInstance<?>>());
-        beanManager.fireEvent(new Object(), Initialized.Literal.of(scope));
+        beanManager.getEvent().select(Initialized.Literal.of(scope)).fire(new Object());
     }
 
     public void deactivate() {
@@ -107,7 +107,7 @@ class ContextImpl implements Context {
         }
         ctx.clear();
         currentContext.remove();
-        beanManager.fireEvent(new Object(), Destroyed.Literal.of(scope));
+        beanManager.getEvent().select(Destroyed.Literal.of(scope)).fire(new Object());
     }
 
     /**

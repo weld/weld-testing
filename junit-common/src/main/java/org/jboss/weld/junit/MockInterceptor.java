@@ -123,11 +123,6 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
     }
 
     @Override
-    public boolean isNullable() {
-        return false;
-    }
-
-    @Override
     public Set<Type> getTypes() {
         return Collections.singleton(Object.class);
     }
