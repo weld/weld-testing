@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,9 +55,9 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 
 /**
- * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method (or per once per test class
- * if running {@link org.junit.jupiter.api.TestInstance.Lifecycle#PER_CLASS}) and tear it down afterwards. Also allows to
- * inject CDI beans as parameters to @Test methods and resolves all @Inject fields in test class.
+ * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method (or once per test class
+ * if running {@link org.junit.jupiter.api.TestInstance.Lifecycle#PER_CLASS}) and tear it down afterwards. Also allows
+ * injecting CDI beans as parameters to @Test methods and resolves all @Inject fields in test class.
  *
  * <p>
  * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of
@@ -109,7 +110,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     @Override
     public void afterAll(ExtensionContext context) {
         if (determineTestLifecycle(context).equals(PER_CLASS)) {
-            getInitiatorFromStore(context).shutdownWeld();
+            WeldInitiator initiator = getInitiatorFromStore(context);
+            if (initiator != null) {
+                initiator.shutdownWeld();
+            }
         }
     }
 
@@ -128,7 +132,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     @Override
     public void afterEach(ExtensionContext context) {
         if (determineTestLifecycle(context).equals(PER_METHOD)) {
-            getInitiatorFromStore(context).shutdownWeld();
+            WeldInitiator initiator = getInitiatorFromStore(context);
+            if (initiator != null) {
+                initiator.shutdownWeld();
+            }
         }
     }
 
@@ -149,7 +156,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        // if weld container isn't up yet or if its not Method, we don't resolve it
+        // if weld container isn't up yet or if it's not Method, we don't resolve it
         if (getContainerFromStore(extensionContext) == null || (!(parameterContext.getDeclaringExecutable() instanceof Method))) {
             return false;
         }
@@ -234,19 +241,38 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     private WeldInitiator findInitiatorInInstance(Object testInstance) {
         // all found fields which are WeldInitiator and have @WeldSetup annotation
         List<Field> foundInitiatorFields = new ArrayList<>();
+        WeldInitiator initiator = null;
         // We will go through class hierarchy in search of @WeldSetup field (even private)
         for (Class<?> clazz = testInstance.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
             // Find @WeldSetup field using getDeclaredFields() - this allows even for private fields
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(WeldSetup.class)) {
-                    if (WeldInitiator.class.isAssignableFrom(field.getType())) {
+                    Object fieldInstance;
+                    try {
+                        fieldInstance = field.get(testInstance);
+                    } catch (IllegalAccessException e) {
+                        // In case we cannot get to the field, we need to set accessibility as well
+                        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                            field.setAccessible(true);
+                            return null;
+                        });
+                        try {
+                            fieldInstance = field.get(testInstance);
+                        } catch (IllegalAccessException e2) {
+                            // we should never get to this point, because setAccessible would have thrown earlier if access could
+                            // not be granted.
+                            throw new AssertionError();
+                        }
+                    }
+                    if (fieldInstance instanceof WeldInitiator) {
+                        initiator = (WeldInitiator) fieldInstance;
                         foundInitiatorFields.add(field);
                     } else {
-                        // Field with other type than WeldInitiator was annotated with @WeldSetup
-                        throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type"
-                                                        + " WeldInitiator but was found on a field of type "
-                                                        + field.getType() + " which is declared in class "
-                                                        + field.getDeclaringClass());
+                        // Field with other value than WeldInitiator was annotated with @WeldSetup
+                        throw new IllegalStateException("@WeldSetup annotation should only be used on a field with a "
+                                + "WeldInitiator value but was found on field " + field.getName() + "with a "
+                                + ((fieldInstance == null) ? "null" : fieldInstance.getClass())
+                                + " value which is declared in class " + field.getDeclaringClass());
                     }
                 }
             }
@@ -254,32 +280,17 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (foundInitiatorFields.isEmpty()) {
             return null;
         }
+        validateInitiator(foundInitiatorFields);
         // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception
         if (foundInitiatorFields.size() > 1) {
             final String msg = foundInitiatorFields.stream()
-                    .map(f -> "Field type of type" + f.getType() + " which is declared in " + f.getDeclaringClass())
+                    .map(f -> "Field '" + f.getName() + "' with type " + f.getType() + " which is declared in " + f.getDeclaringClass())
                     .collect(Collectors.joining("\n", "Multiple @WeldSetup annotated fields found, "
                                                       + "only one is allowed! Fields found:\n", ""));
             throw new IllegalStateException(msg);
         }
 
-        Field field = foundInitiatorFields.get(0);
-        try {
-            return (WeldInitiator) field.get(testInstance);
-        } catch (IllegalAccessException e) {
-            // In case we cannot get to the field, we need to set accessibility as well
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                field.setAccessible(true);
-                return null;
-            });
-            try {
-                return (WeldInitiator) field.get(testInstance);
-            } catch (IllegalAccessException e2) {
-                // we should never get to this point, because setAccessible would have thrown earlier if access could
-                // not be granted.
-            }
-        }
-        return null;
+        return initiator;
     }
 
     private WeldInitiator getDefaultInitiator(ExtensionContext context, Object testInstance) {
@@ -300,4 +311,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         return builder.build();
     }
 
+    protected void validateInitiator(List<Field> foundInitiatorFields) {
+        // a found initiator is always good for this variant
+    }
 }

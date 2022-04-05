@@ -36,6 +36,9 @@ public @interface AddBeanClasses {
 
     Class<?>[] value();
 
+    /**
+     * Container annotation for repeatable {@link AddBeanClasses}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited

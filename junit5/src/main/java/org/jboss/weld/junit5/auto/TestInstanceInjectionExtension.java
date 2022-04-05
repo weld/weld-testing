@@ -37,15 +37,15 @@ public class TestInstanceInjectionExtension<T> implements Extension {
 
     private static final AnnotationLiteral<Singleton> SINGLETON_LITERAL = new AnnotationLiteral<Singleton>() {};
 
-    private Class<?> testClass;
-    private T testInstance;
+    private final Class<?> testClass;
+    private final T testInstance;
 
     TestInstanceInjectionExtension(T testInstance) {
         this.testClass = testInstance.getClass();
         this.testInstance = testInstance;
     }
 
-    void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
+    void rewriteTestClassScope(@Observes ProcessAnnotatedType<T> pat) {
 
         if (pat.getAnnotatedType().getJavaClass().equals(testClass)) {
             pat.configureAnnotatedType().add(SINGLETON_LITERAL);
@@ -55,7 +55,7 @@ public class TestInstanceInjectionExtension<T> implements Extension {
 
     private class TestInstanceInjectionTarget extends ForwardingInjectionTarget<T> {
 
-        private InjectionTarget<T> injectionTarget;
+        private final InjectionTarget<T> injectionTarget;
 
         TestInstanceInjectionTarget(InjectionTarget<T> injectionTarget) {
             this.injectionTarget = injectionTarget;

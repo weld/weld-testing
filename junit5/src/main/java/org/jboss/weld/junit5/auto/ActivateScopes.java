@@ -42,6 +42,9 @@ public @interface ActivateScopes {
 
     Class<? extends Annotation>[] value();
 
+    /**
+     * Container annotation for repeatable {@link ActivateScopes}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
     @Inherited

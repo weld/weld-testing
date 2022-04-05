@@ -37,6 +37,9 @@ public @interface AddExtensions {
 
     Class<? extends Extension>[] value();
 
+    /**
+     * Container annotation for repeatable {@link AddExtensions}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited

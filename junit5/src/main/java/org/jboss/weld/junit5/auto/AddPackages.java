@@ -27,8 +27,8 @@ import java.lang.annotation.Target;
 
 /**
  * Adds all bean classes from the listed packages to the deployed testing container.
- * <p>
- * Packages are selected by providing <i>any</i> bean class in the package.
+ *
+ * <p>Packages are selected by providing <i>any</i> bean class in the package.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -40,6 +40,9 @@ public @interface AddPackages {
 
     boolean recursively() default true;
 
+    /**
+     * Container annotation for repeatable {@link AddPackages}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited

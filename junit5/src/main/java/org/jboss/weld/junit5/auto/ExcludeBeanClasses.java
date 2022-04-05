@@ -7,28 +7,29 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import jakarta.enterprise.inject.Produces;
+
 /**
- * {@code ExcludeBeanClasses} excludes a set of classes with bean defining annotations (e.g. scopes) from automatic
- * discovery. This can be helpful to allow replacing bean classes with a different implementation; typically a mock.
+ * {@code @ExcludeBeanClasses} excludes a set of classes with bean defining annotations (e.g. scopes) from automatic
+ * discovery. This can be helpful to allow replacing bean classes with a different implementation, typically a mock.
  *
- * This annotation works as an inverse of {@link AddBeanClasses} hence usually requires actual bean implementation
+ * <p>This annotation works as an inverse of {@link AddBeanClasses} hence usually requires actual bean implementation
  * classes as parameters.
  *
- * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
- * specified type that are defined by {@link jakarta.enterprise.inject.Produces} producer methods/fields or synthetic
- * beans.
+ * <p>NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
+ * specified type that are defined by {@link Produces} producer methods / fields or synthetic beans.
  *
- * Example:
+ * <p><b>Example:</b>
  * <pre>
  * &#64;EnableAutoWeld
- * &#64;ExcludeBeanClasses(Foo.class) // Excludes Foo bean class from automatic discovery
+ * &#64;ExcludeBeanClasses(Foo.class)     // Excludes Foo bean class from automatic discovery
  * class TestSomeFoo {
  *
  *   &#64;Inject
- *   SomeFoo someFoo;   // SomeFoo depends upon application scoped bean Foo
+ *   SomeFoo someFoo;                 // SomeFoo depends upon application scoped bean Foo
  *
  *   &#64;Produces
- *   Foo mockFoo = mock(Foo.class);  // mockFoo is now produced in place of original Foo impl
+ *   Foo mockFoo = mock(Foo.class);   // mockFoo is now produced in place of original Foo impl
  *
  *   &#64;Test
  *   void test(Foo myFoo) {
@@ -37,7 +38,7 @@ import java.lang.annotation.Target;
  *   }
  * }
  * </pre>
-
+ *
  * @see ExcludeBean
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -48,6 +49,9 @@ public @interface ExcludeBeanClasses {
 
     Class<?>[] value();
 
+    /**
+     * Container annotation for repeatable {@link ExcludeBeanClasses}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited
