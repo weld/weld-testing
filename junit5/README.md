@@ -5,7 +5,7 @@ Therefore, in order to use this extension in your test, you have to annotate you
 In their default behaviour, the extensions will automatically start/stop Weld SE container and inject into all your `@Inject` fields and method parameters in the given test instance.
 Furthermore you can provide configuration and modify Weld bootstrapping process in various ways - extensions, scope activation, interception, ...
 
-This JUnit extension supports both test lifecycles [as described by JUnit 5](https://junit.org/junit5/docs/current/user-guide/#writing-tests-test-instance-lifecycle) - per method and per class.
+This JUnit extension supports both test lifecycles [as described by JUnit 5](s://junit.ohttprg/junit5/docs/current/user-guide/#writing-tests-test-instance-lifecycle) - per method and per class.
 
 Requirements are JUnit 5 and Java 8.
 
@@ -231,7 +231,7 @@ class ContextsActivatedTest {
 Sometimes you might need to add a mock for a bean that cannot be part of the test deployment, e.g. the original bean implementation has dependencies which cannot be satisfied in the test environment.
 Very often, it's an ideal use case for mocking libraries, ie. to create a bean instance with the desired behavior.
 In this case, there are two options.
-The first option is to add a [producer method](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#producer_method) to the test class and add the test class to the deployment.
+The first option is to add a [producer method](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#producer_method) to the test class and add the test class to the deployment.
 The test class will be recognized as a bean and therefore the producer will also be discovered.
 
 ```java
@@ -268,9 +268,9 @@ class TestClassProducerTest {
 }
 ```
 
-This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
+This should work in most of the cases (assuming the test class [meets some conditions](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
+You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or, for most use cases, a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
 
 ```java
@@ -389,7 +389,7 @@ To use this approach, annotate your test class with `@ExtendWith(WeldJunit5AutoE
 By default, the extension will:
 
 * Inspect your test class and try to figure out what bean classes it needs based on injection points (field and parameter injection both work)
-  * This is done by finding classes and verifying if they have [bean defining annotation](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#bean_defining_annotations) so make sure they do
+  * This is done by finding classes and verifying if they have [bean defining annotation](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#bean_defining_annotations) so make sure they do
 * Add those classes to Weld container
 * Process additional annotations on test class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
@@ -581,4 +581,4 @@ Note that this configuration only makes difference if you run with *enabled disc
 
 ## Limitations
 
-* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
+* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
