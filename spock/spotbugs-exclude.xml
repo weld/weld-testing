@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+        xmlns="https://github.com/spotbugs/filter/3.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.10/spotbugs/etc/findbugsfilter.xsd">
+    <!--
+        The method call has the side effect that the message is rendered and cached,
+        as later on the Weld container would be shut down and rendering of proxies would fail
+    -->
+    <Match>
+        <Class name="org.jboss.weld.spock.impl.EagerExceptionRenderer"/>
+        <Method name="~lambda\$(?:visitSpec|null)\$\d++" params="org.spockframework.runtime.extension.IMethodInvocation" returns="void"/>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"/>
+    </Match>
+</FindBugsFilter>

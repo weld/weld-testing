@@ -8,7 +8,11 @@
       <version>3.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>weld-junit5</artifactId>
+   <artifactId>weld-spock</artifactId>
+
+   <properties>
+      <spotbugs.excludeFilterFile>${project.basedir}/spotbugs-exclude.xml</spotbugs.excludeFilterFile>
+   </properties>
 
    <dependencies>
 
@@ -22,20 +26,28 @@
          <artifactId>weld-junit-common</artifactId>
       </dependency>
 
-      <!--JUnit 5 dependencies -->
+      <!-- Spock dependencies -->
       <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
+         <groupId>org.spockframework</groupId>
+         <artifactId>spock-core</artifactId>
+         <scope>provided</scope>
       </dependency>
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-core</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.junit.platform</groupId>
+         <artifactId>junit-platform-testkit</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>groovy</artifactId>
+         <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -56,4 +68,19 @@
 
    </dependencies>
 
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+               <show>package</show>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>
