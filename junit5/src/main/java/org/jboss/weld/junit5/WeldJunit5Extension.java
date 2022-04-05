@@ -35,9 +35,11 @@ import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.jboss.weld.junit5.ExtensionContextUtils.getContainerFromStore;
@@ -89,7 +91,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
 
     private static void storeExplicitParamResolutionInformation(ExtensionContext ec) {
         // check system property which may have set the global explicit param injection
-        Boolean globalSettings = Boolean.valueOf(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION, "false"));
+        boolean globalSettings = Boolean.parseBoolean(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION, "false"));
         if (globalSettings) {
             setExplicitInjectionInfoToStore(ec, true);
             return;
@@ -105,14 +107,14 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     @Override
-    public void afterAll(ExtensionContext context) throws Exception {
+    public void afterAll(ExtensionContext context) {
         if (determineTestLifecycle(context).equals(PER_CLASS)) {
             getInitiatorFromStore(context).shutdownWeld();
         }
     }
 
     @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
+    public void beforeAll(ExtensionContext context) {
         // we are storing them into root context, hence only needs to be done once per test suite
         if (getEnrichersFromStore(context) == null) {
             ImmutableList.Builder<WeldJunitEnricher> enrichers = ImmutableList.builder();
@@ -124,7 +126,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         if (determineTestLifecycle(context).equals(PER_METHOD)) {
             getInitiatorFromStore(context).shutdownWeld();
         }
@@ -196,85 +198,106 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     @Override
-    public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    public void beforeEach(ExtensionContext extensionContext) {
         startWeldContainerIfAppropriate(PER_METHOD, extensionContext);
     }
 
-    private void startWeldContainerIfAppropriate(TestInstance.Lifecycle expectedLifecycle, ExtensionContext context) throws Exception {
-        // is the lifecycle is what we expect it to be, start Weld container
+    private void startWeldContainerIfAppropriate(TestInstance.Lifecycle expectedLifecycle, ExtensionContext context) {
+        // if the lifecycle is what we expect it to be, start Weld container
         if (determineTestLifecycle(context).equals(expectedLifecycle)) {
-            Object testInstance = context.getTestInstance().orElseGet(null);
-            if (testInstance == null) {
-                throw new IllegalStateException("ExtensionContext.getTestInstance() returned empty Optional!");
-            }
+            Object testInstance = context.getRequiredTestInstance();
 
             // store info about explicit param injection, either from global settings or from annotation on the test class
             storeExplicitParamResolutionInformation(context);
 
-            // all found fields which are WeldInitiator and have @WeldSetup annotation
-            List<Field> foundInitiatorFields = new ArrayList<>();
-            WeldInitiator initiator = null;
-            // We will go through class hierarchy in search of @WeldSetup field (even private)
-            for (Class<?> clazz = testInstance.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
-                // Find @WeldSetup field using getDeclaredFields() - this allows even for private fields
-                for (Field field : clazz.getDeclaredFields()) {
-                    if (field.isAnnotationPresent(WeldSetup.class)) {
-                        Object fieldInstance;
-                        try {
-                            fieldInstance = field.get(testInstance);
-                        } catch (IllegalAccessException e) {
-                            // In case we cannot get to the field, we need to set accessibility as well
-                            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                                field.setAccessible(true);
-                                return null;
-                            });
-                            fieldInstance = field.get(testInstance);
-                        }
-                        if (fieldInstance != null && fieldInstance instanceof WeldInitiator) {
-                            initiator = (WeldInitiator) fieldInstance;
-                            foundInitiatorFields.add(field);
-                        } else {
-                            // Field with other type than WeldInitiator was annotated with @WeldSetup
-                            throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type"
-                                    + " WeldInitiator but was found on a field of type " + field.getType() + " which is declared "
-                                    + "in class " + field.getDeclaringClass());
-                        }
-                    }
-                }
-            }
-            // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception
-            if (foundInitiatorFields.size() > 1) {
-                throw new IllegalStateException(foundInitiatorFields.stream().map(f -> "Field type - " + f.getType() + " which is "
-                        + "in " + f.getDeclaringClass()).collect(Collectors.joining("\n", "Multiple @WeldSetup annotated fields found, "
-                        + "only one is allowed! Fields found:\n", "")));
-            }
-
-            // at this point we can be sure that either no or exactly one WeldInitiator was found
-            if (initiator == null) {
-                Weld weld = WeldInitiator.createWeld();
-                WeldInitiator.Builder builder = WeldInitiator.from(weld);
-
-                weldInit(context, weld, builder);
-
-                // Apply discovered enrichers
-                for (WeldJunitEnricher enricher : getEnrichersFromStore(context)) {
-                    String property = System.getProperty(enricher.getClass().getName());
-                    if (property == null || Boolean.parseBoolean(property)) {
-                        enricher.enrich(testInstance, context, weld, builder);
-                    }
-                }
-
-                initiator = builder.build();
-            }
+            // iterate through the testInstance, the enclosing instance (in case of nested tests),
+            // the enclosing instance of the enclosing instance (in cases of twice nested tests) and so on
+            // until we find a WeldInitiator
+            final List<Object> allTestInstances = new ArrayList<>(context.getRequiredTestInstances().getAllInstances());
+            Collections.reverse(allTestInstances); // so we can iterate from inner-most to outer-most
+            WeldInitiator initiator = allTestInstances.stream()
+                    .map(this::findInitiatorInInstance)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseGet(() -> getDefaultInitiator(context, testInstance));
             setInitiatorToStore(context, initiator);
 
             // this ensures the test class is injected into
             // in case of nested tests, this also injects into any outer classes
-            initiator.addObjectsToInjectInto(context.getRequiredTestInstances().getAllInstances().stream().collect(Collectors.toSet()));
+            initiator.addObjectsToInjectInto(new HashSet<>(allTestInstances));
 
             // and finally, init Weld
             setContainerToStore(context, initiator.initWeld(testInstance));
         }
+    }
+
+    private WeldInitiator findInitiatorInInstance(Object testInstance) {
+        // all found fields which are WeldInitiator and have @WeldSetup annotation
+        List<Field> foundInitiatorFields = new ArrayList<>();
+        // We will go through class hierarchy in search of @WeldSetup field (even private)
+        for (Class<?> clazz = testInstance.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+            // Find @WeldSetup field using getDeclaredFields() - this allows even for private fields
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.isAnnotationPresent(WeldSetup.class)) {
+                    if (WeldInitiator.class.isAssignableFrom(field.getType())) {
+                        foundInitiatorFields.add(field);
+                    } else {
+                        // Field with other type than WeldInitiator was annotated with @WeldSetup
+                        throw new IllegalStateException("@WeldSetup annotation should only be used on a field of type"
+                                                        + " WeldInitiator but was found on a field of type "
+                                                        + field.getType() + " which is declared in class "
+                                                        + field.getDeclaringClass());
+                    }
+                }
+            }
+        }
+        if (foundInitiatorFields.isEmpty()) {
+            return null;
+        }
+        // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception
+        if (foundInitiatorFields.size() > 1) {
+            final String msg = foundInitiatorFields.stream()
+                    .map(f -> "Field type of type" + f.getType() + " which is declared in " + f.getDeclaringClass())
+                    .collect(Collectors.joining("\n", "Multiple @WeldSetup annotated fields found, "
+                                                      + "only one is allowed! Fields found:\n", ""));
+            throw new IllegalStateException(msg);
+        }
+
+        Field field = foundInitiatorFields.get(0);
+        try {
+            return (WeldInitiator) field.get(testInstance);
+        } catch (IllegalAccessException e) {
+            // In case we cannot get to the field, we need to set accessibility as well
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                field.setAccessible(true);
+                return null;
+            });
+            try {
+                return (WeldInitiator) field.get(testInstance);
+            } catch (IllegalAccessException e2) {
+                // we should never get to this point, because setAccessible would have thrown earlier if access could
+                // not be granted.
+            }
+        }
+        return null;
+    }
+
+    private WeldInitiator getDefaultInitiator(ExtensionContext context, Object testInstance) {
+
+        Weld weld = WeldInitiator.createWeld();
+        WeldInitiator.Builder builder = WeldInitiator.from(weld);
+
+        weldInit(context, weld, builder);
+
+        // Apply discovered enrichers
+        for (WeldJunitEnricher enricher : getEnrichersFromStore(context)) {
+            String property = System.getProperty(enricher.getClass().getName());
+            if (property == null || Boolean.parseBoolean(property)) {
+                enricher.enrich(testInstance, context, weld, builder);
+            }
+        }
+
+        return builder.build();
     }
 
 }

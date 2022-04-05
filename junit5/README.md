@@ -383,6 +383,49 @@ class MyTest {
 }
 ```
 
+#### Nested test classes
+
+A `@Nested` test class can have its own `WeldInitiator` field. If it has, that is the configuration that the nested class
+will use. If the nested class has no `WeldInitiator` field, the enclosing class is queried for *its* `WeldInitiator`
+field and so on until the outermost test class is reached.
+
+```java
+@EnableWeld
+class TestSomeFoo {
+
+    @WeldSetup
+    WeldInitiator weld = WeldInitiator.of(Foo.class);
+
+    @Test
+    void test(Foo myFoo) {
+        assertNotNull(myFoo);
+        assertThrows(UnsatisfiedResolutionException.class, () -> outerWeld.select(Bar.class).get());
+    }
+
+    @Nested
+    class TestSomeNested {
+
+        @Test
+        void testInnerMethodWithOuterWeldContainer(Foo myFoo) {
+            assertNotNull(myFoo);
+        }
+    }
+
+    @Nested
+    class TestSomeOtherNested {
+        
+        @WeldSetup
+        WeldInitiator weld = WeldInitiator.of(Foo.class, Bar.class);
+
+        @Test
+        void testInnerMethodWithInnerWeldContainer(Foo myFoo, Bar myBar) {
+            assertNotNull(myFoo);
+            assertNotNull(myBar);
+        }
+    }
+}
+```
+
 ## WeldJunit5AutoExtension
 
 To use this approach, annotate your test class with `@ExtendWith(WeldJunit5AutoExtension.class)` or just `@EnableAutoWeld`.
