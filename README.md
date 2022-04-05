@@ -7,7 +7,7 @@
 The primary goal of this project is to provide simple and fast tools for CDI *unit/component* testing.
 The tools are implemented as JUnit 4 and JUnit 5 extensions.
 
-:warning: **Version 3.x of this extension supports Weld 4.0 (CDI 3.0) along with `jakarta` namespace**
+:warning: **Version 4.x of this extension supports Weld 5.0 (CDI 4.0) along with `jakarta` namespace**
 
 ## The What
 
