@@ -7,6 +7,7 @@ import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.mockito.Mockito;
 
 import jakarta.enterprise.inject.spi.Bean;
@@ -20,6 +21,7 @@ import java.util.Set;
  *
  * @author Matej Novotny
  */
+@Isolated
 @ExtendWith(WeldJunit5Extension.class)
 public class AddGloballyEnabledAlternativeTest {
 

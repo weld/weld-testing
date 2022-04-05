@@ -33,7 +33,7 @@ public class InvalidScopeTest {
     public void testFoo() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             // the container doesn't really even start here and it's not proper way to start it
-            // but it's suffiecient to check that only scopes can be activated
+            // but it's sufficient to check that only scopes can be activated
             WeldInitiator.from(Foo.class).activate(SomeAnnotation.class);
         });
     }

@@ -40,12 +40,12 @@
       <maven.compiler.source>11</maven.compiler.source>
       <maven.compiler.target>11</maven.compiler.target>
       <!-- Versions -->
-       <version.junit4>4.13.2</version.junit4>
-       <version.junit.jupiter>5.8.2</version.junit.jupiter>
-       <version.weld>5.0.0.CR2</version.weld>
-       <version.mockito>4.4.0</version.mockito>
+      <version.junit4>4.13.2</version.junit4>
+      <version.junit.jupiter>5.8.2</version.junit.jupiter>
+      <version.weld>5.0.0.CR2</version.weld>
+      <version.mockito>4.4.0</version.mockito>
       <version.jakarta.ejb.api>4.0.0</version.jakarta.ejb.api>
-      <version-jpa-api>3.1.0-RC2</version-jpa-api>
+      <version.jpa-api>3.1.0-RC2</version.jpa-api>
       <!-- SpotBugs properties -->
       <version.spotbugs>4.6.0</version.spotbugs>
       <version.spotbugs.plugin>4.6.0.0</version.spotbugs.plugin>
@@ -110,7 +110,7 @@
          <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
-            <version>${version-jpa-api}</version>
+            <version>${version.jpa-api}</version>
             <optional>true</optional>
          </dependency>
 
@@ -167,12 +167,9 @@
                     <!--Minimal version with Junit 5 engine support-->
                     <version>2.22.1</version>
                     <configuration>
-                        <systemProperties>
-                            <property>
-                                <name>java.util.logging.config.file</name>
-                                <value>${project.build.testOutputDirectory}/logging.properties</value>
-                            </property>
-                        </systemProperties>
+                        <systemPropertyVariables>
+                            <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>

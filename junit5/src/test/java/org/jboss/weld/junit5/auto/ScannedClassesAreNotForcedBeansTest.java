@@ -31,7 +31,7 @@ public class ScannedClassesAreNotForcedBeansTest {
     private V8NoAnnotation engine = new V8NoAnnotation();
 
     @Test
-    @DisplayName("Test that V8 is not ambiguous to do incorrectly being identified as a bean class")
+    @DisplayName("Test that V8NoAnnotation is not ambiguous to do incorrectly being identified as a bean class")
     void test(V8NoAnnotation engine) {
         assertNotNull(engine);
     }
