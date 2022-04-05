@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * exception was throws inside an extension. The test is fragile and can break because of internal JUnit 5 changes
  * in which case we might want to revisit if we want to keep it or whether there is a better way.
  *
- * @author bkautler
+ * @author Björn Kautler
  */
 @EnableAutoWeld
 class AutoConfigWithWeldSetupTest {
@@ -37,7 +37,7 @@ class AutoConfigWithWeldSetupTest {
   }
 
   /**
-   * @author bkautler
+   * @author Björn Kautler
    */
   static public class AssertExceptionExtension implements AfterEachCallback {
 
