@@ -32,8 +32,8 @@ import java.util.Set;
  */
 public class ExcludedBeansExtension implements Extension {
 
-    private Set<Type> excludedBeanTypes;
-    private Set<Class<?>> excludedBeanClasses;
+    private final Set<Type> excludedBeanTypes;
+    private final Set<Class<?>> excludedBeanClasses;
 
     ExcludedBeansExtension(Set<Type> excludedBeanTypes, Set<Class<?>> excludedBeanClasses) {
         this.excludedBeanTypes = excludedBeanTypes;

@@ -33,6 +33,7 @@ import org.jboss.weld.junit.AbstractWeldInitiator;
 /**
  * JUnit 5 initiator - can be used to customize the Weld SE container started by {@link WeldJunit5Extension}.
  *
+ * <p><b>Example:</b>
  * <pre>
  * &#64;ExtendWith(WeldJunit5Extension.class)
  * public class SimpleTest {
@@ -185,6 +186,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
     WeldContainer initWeld(Object testInstance) {
         Weld weld = WeldInitiator.this.weld;
         if (weld == null) {
+            // null in case of fromTestPackage() was used
             weld = createWeld().addPackage(false, testInstance.getClass());
         }
 

@@ -14,35 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.weld.junit5.auto;
+package org.jboss.weld.junit5.initiator.discovery;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.junit5.EnableWeld;
+import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.WeldSetup;
+import org.jboss.weld.junit5.initiator.bean.Foo;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Adds, and enables, the listed classes as CDI decorators to the deployed testing container.
+ * Tests a case where WeldInitiator is an Object typed field
+ *
+ * @author Björn Kautler
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Inherited
-@Repeatable(AddEnabledDecorators.All.class)
-public @interface AddEnabledDecorators {
+@EnableWeld
+public class ObjectWeldInitiatorTest {
 
-    Class<?>[] value();
+    @WeldSetup
+    public Object weld = WeldInitiator
+        .of(new Weld()
+            .addBeanClass(Foo.class));
 
-    /**
-     * Container annotation for repeatable {@link AddEnabledDecorators}.
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
-    @Inherited
-    @interface All {
-        AddEnabledDecorators[] value();
+    @Test
+    public void testObjectWeldInit() {
+        final Foo foo = ((WeldInitiator) weld).select(Foo.class).get();
+        assertNotNull(foo);
     }
-
 }

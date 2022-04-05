@@ -1,11 +1,18 @@
-# Weld JUnit 5 Extensions
+# Weld JUnit 5 (Jupiter) Extensions
 
 There are two extension here, both of which follow the extension mechanism introduced in JUnit 5.
 Therefore, in order to use this extension in your test, you have to annotate your test class with `@ExtendWith(WeldJunit5Extension.class)` or `@ExtendWith(WeldJunit5AutoExtension.class)` respectively.
 In their default behaviour, the extensions will automatically start/stop Weld SE container and inject into all your `@Inject` fields and method parameters in the given test instance.
-Furthermore you can provide configuration and modify Weld bootstrapping process in various ways - extensions, scope activation, interception, ...
+Furthermore, you can provide configuration and modify Weld bootstrapping process in various ways - extensions, scope activation, interception, ...
 
-This JUnit extension supports both test lifecycles [as described by JUnit 5](https://junit.org/junit5/docs/current/user-guide/#writing-tests-test-instance-lifecycle) - per method and per class.
+These JUnit extensions supports both test lifecycles [as described by JUnit 5](https://junit.org/junit5/docs/current/user-guide/#writing-tests-test-instance-lifecycle) - per method and per class.
+
+These extensions fully support parallel execution mode of JUnit Jupiter, except for if `WeldContainer.current()` is
+used which does not work if multiple containers are running from the same class loader. This includes the usage of
+`MockBean.Builder#useUnmanaged` with the default create function and also `MockBean.read` which calls `useUnmanaged`
+internally, as soon as the according beans are resolved and thus created. If either of these are used, you will
+get a `WELD-ENV-002016` error if another container is running at the same time, so you should use `@Isolated`
+for these features to make sure they are running individually.
 
 Requirements are JUnit 5 and Java 8.
 
@@ -16,8 +23,8 @@ Requirements are JUnit 5 and Java 8.
 * [WeldJunit5Extension](#weldjunit5extension)
   * [WeldInitiator](#weldinitiator)
     * [Convenient Starting Points](#convenient-starting-points)
-      * [Test class injection](#test-class-injection)
-      * [Activating context for a normal scope](#activating-context-for-a-normal-scope)
+      * [Test Class Injection](#test-class-injection)
+      * [Activating Context for a Normal Scope](#activating-context-for-a-normal-scope)
       * [Adding mock beans](#adding-mock-beans)
       * [Adding mock interceptors](#adding-mock-interceptors)
       * [Mock injection services](#mock-injection-services)
@@ -55,15 +62,15 @@ While both are ultimately achieving the same thing, each opts for a different ap
 
 `WeldJunit5Extension.class` is the original one where you declaratively configure the container, much like booting Weld SE itself.
 There are some additional builder patterns on top of that allowing for easy addition of mocked beans and such.
-The advantage of this approach is that you have complete control over what gets into Weld container and can easily change that.
+The advantage of this approach is that you have complete control over what gets into the Weld container and can easily change that.
 On the other hand, it may be rather verbose and requires you to add a specifically annotated field to every test (described below).
 
 `WeldJunit5AutoExtension.class` is more of an annotation based approach where you don't need any special field in your test class.
-In fact, you don't need anything except the JUnit `@ExtendWith` and our extension will try its best to find out what classes should be added to Weld container as beans.
-This of course makes some assumptions on your tests which may not always be met, hence there is bunch of annotations which allow you to configure the container.
-Pros of this approach are quick setup for basic cases, less verbose code and that eerie feeling that things are happening automagically.
-On the not so bright side, automatic config is not almighty and in some cases will falter forcing you to add some configuration via annotations.
-Last but not least, overly complex test scenarios may mean loads of annotations and you may be better off with the former extension.
+In fact, you don't need anything except the JUnit `@ExtendWith` and our extension will try its best to find out what classes should be added to the Weld container as beans.
+This of course makes some assumptions on your tests which may not always be met, hence there is a bunch of annotations which allow you to configure the container further.
+Advantages of this approach are quick setup for basic cases, less verbose code and that eerie feeling that things are happening automagically.
+On the not so bright side, automatic config is not almighty and in some cases will falter, forcing you to add some configuration via annotations.
+Last but not least, overly complex test scenarios may mean loads of annotations, and you may be better off with the former extension.
 
 No matter what extension you choose, do not mix them together!
 
@@ -71,21 +78,19 @@ No matter what extension you choose, do not mix them together!
 
 The simplest way to use this extension is to annotate your test class with `@ExtendWith(WeldJunit5Extension.class)`.
 If you are in for shorter annotations, you can also use `@EnableWeld`.
-With just these annotations, Weld container will be started before each test is run and stopped afterwards.
+With just these annotations, the Weld container will be started before each test is run and stopped afterwards.
+
 This default behaviour includes:
-
-* Bootstrapping Weld SE container with
+* Bootstrap Weld SE container with
   * Disabled discovery
-  * Added test class package as source of beans
   * Disabled concurrent deployment
-* Injecting into test instance, e.g. into all `@Inject` fields
-* Injecting into method parameters of your test methods
-  * In case the type of the parameter matches a known and resolvable bean
-  * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in CDI container
-  * If you wish to change this behaviour, please refer to [additional configuration section](#explicit-parameter-injection)
-* Shutting down the container after test is done
-
-And this is how you achieve it:
+  * Added test class package as source of beans
+* Inject into all fields of the test instance that are annotated with `@Inject`
+* Inject into method parameters of your test methods
+  * If the type of the parameter matches a known and resolvable bean
+  * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in the container
+  * If this behaviour should be different, refer to [additional configuration section](#explicit-parameter-injection)
+* Shut down the container after test is done
 
 ```java
 import org.jboss.weld.junit5.WeldJunit5Extension;
@@ -95,13 +100,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(WeldJunit5Extension.class)
 class BasicUsageTest {
 
-    @Inject
-    MyBean myBean;
+  @Inject
+  MyBean myBean;
 
-    @Test
-    public void testFoo(MyOtherBean otherBean) {
-      // Weld SE container is bootstrapped here and the injection points are resolved
-    }
+  @Test
+  public void testFoo(MyOtherBean otherBean) {
+    // Weld SE container is bootstrapped here and the injection points are resolved
+  }
 }
 ```
 
@@ -113,7 +118,7 @@ By default, the container is optimized for testing purposes, i.e. with automatic
 However, it is possible to provide a customized `Weld` instance  - see also `WeldInitiator.of(Weld)` and `WeldInitiator.from(Weld)` methods.
 `WeldInitiator` also implements `jakarta.enterprise.inject.Instance` and therefore might be used to perform programmatic lookup of bean instances.
 
-`WeldInitiator` should be a public field annotated with `@org.jboss.weld.junit5.WeldSetup`.
+`WeldInitiator` should be available in a field annotated with `@org.jboss.weld.junit5.WeldSetup`.
 From there you can use static methods:
 
 ```java
@@ -181,7 +186,7 @@ class AnotherSimpleTest {
 
 Furthermore, `WeldInitiator.Builder` can be used to customize the final `WeldInitiator` instance, e.g. to *activate a context for a given normal scope* or to *inject the test class*.
 
-##### Test class injection
+##### Test Class Injection
 
 Everytime `WeldJunit5Extension` processes your test instance, it will automatically resolve all `@Inject` fields as well as attempt to resolve any test method parameters, should they be injectable beans.
 
@@ -192,7 +197,7 @@ class InjectTest {
     @WeldSetup
     public WeldInitiator weld = WeldInitiator.from(Foo.class).build();
 
-  // Gets injected before executing test
+    // Gets injected before executing test
     @Inject
     @MyQualifier
     Foo foo;
@@ -205,7 +210,7 @@ class InjectTest {
 }
 ```
 
-##### Activating context for a normal scope
+##### Activating Context for a Normal Scope
 
 `WeldInitiator.Builder.activate(Class<? extends Annotation>...)` makes it possible to activate and deactivate contexts for the specified normal scopes for each test method execution:
 
@@ -231,9 +236,9 @@ class ContextsActivatedTest {
 ##### Adding mock beans
 
 Sometimes you might need to add a mock for a bean that cannot be part of the test deployment, e.g. the original bean implementation has dependencies which cannot be satisfied in the test environment.
-Very often, it's an ideal use case for mocking libraries, ie. to create a bean instance with the desired behavior.
+Very often, it's an ideal use case for mocking libraries, i.e. to create a bean instance with the desired behavior.
 In this case, there are two options.
-The first option is to add a [producer method](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#producer_method) to the test class and add the test class to the deployment.
+The first option is to add a [producer method](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#producer_method) or [field](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#producer_field) to the test class and add the test class to the deployment.
 The test class will be recognized as a bean and therefore the producer will also be discovered.
 
 ```java
@@ -270,9 +275,9 @@ class TestClassProducerTest {
 }
 ```
 
-This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
+This should work in most of the cases (assuming the test class [meets some conditions](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
+You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or, for most use cases, a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
 
 ```java
@@ -318,11 +323,12 @@ Sometimes it might be useful to add a mock interceptor, e.g. if an interceptor i
 For this use case the `org.jboss.weld.junit.MockInterceptor` is a perfect match:
 
 ```java
+
 @FooBinding
 class Foo {
-   boolean ping() {
-      return true;
-   }
+  boolean ping() {
+    return true;
+  }
 }
 
 @Target({ TYPE, METHOD })
@@ -330,34 +336,33 @@ class Foo {
 @InterceptorBinding
 @interface FooBinding {
 
-   @SuppressWarnings("serial")
-   static final class Literal extends AnnotationLiteral<FooBinding> implements FooBinding {
-      public static final Literal INSTANCE = new Literal();
-    };
-   }
+  @SuppressWarnings("serial")
+  final class Literal extends AnnotationLiteral<FooBinding> implements FooBinding {
+    public static final Literal INSTANCE = new Literal();
+  }
+}
 }
 
 @EnableWeld
 class MockInterceptorTest {
 
-    @WeldSetup
-    public WeldInitiator weld = WeldInitiator.from(Foo.class).addBeans(
-            MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).aroundInvoke((ctx, b) -> {
-                return false;
-                })).build();
+  @WeldSetup
+  public WeldInitiator weld = WeldInitiator.from(Foo.class).addBeans(
+          MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).aroundInvoke((ctx, b) -> {
+            return false;
+          })).build();
 
-
-    @Test
-    public void testInterception() {
-       Assert.assertFalse(weld.select(Foo.class).get().ping());
-    }
+  @Test
+  public void testInterception() {
+    Assert.assertFalse(weld.select(Foo.class).get().ping());
+  }
 }
 ```
 
 ##### Mock injection services
 
 If a bean under the test declares a non-CDI injection point (such as `@Resource`) a mock injection service must be installed.
-`WeldInitiator` builder comes with several convenient methods which allow to easily mock the Weld SPI:
+`WeldInitiator.Builder` comes with several convenient methods which allow to easily mock the Weld SPI:
 
 * `bindResource()` - to handle `@Resource`
 * `setEjbFactory()` - to handle `@EJB`
@@ -488,18 +493,21 @@ To use this approach, annotate your test class with `@ExtendWith(WeldJunit5AutoE
 By default, the extension will:
 
 * Inspect your test class and try to figure out what bean classes it needs based on injection points (field and parameter injection both work)
-  * This is done by finding classes and verifying if they have [bean defining annotation](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#bean_defining_annotations) so make sure they do
-* Add those classes to Weld container
-* Process additional annotations on test class
+  * This is done by finding classes and verifying whether they have a [bean defining annotation](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#bean_defining_annotations) so make sure they do
+* Add those classes to the Weld container
+* Process additional annotations on the test class and also on each discovered class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
 * Annotates test classes with `@Singleton` and prevents another instantiation by Weld and instead substitutes the test instances provided by JUnit
-* Bootstrap Weld container
-* Inject into test instances, e.g. into all `@Inject` fields
+* Bootstrap Weld SE container with
+  * Disabled discovery
+  * Disabled concurrent deployment
+  * Added test class package as source of beans
+* Inject into all fields of the test instance that are annotated with `@Inject`
 * Inject into method parameters of your test methods
-  * In case the type of the parameter matches a known and resolvable bean
-  * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in CDI container
-  * If you wish to change this behaviour, please refer to [additional configuration section](#explicit-parameter-injection)
-* Shutting down the container after test is done
+  * If the type of the parameter matches a known and resolvable bean
+  * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in the container
+  * If this behaviour should be different, refer to [additional configuration section](#explicit-parameter-injection)
+* Shut down the container after test is done
 
 Here is a simple example using the default plus one additional annotation (`@AddPackages`):
 
@@ -525,14 +533,14 @@ public class BasicAutomagicTest {
 
   @Test
   void test() {
-    assertNotNull(V8Engine);
+    assertNotNull(v8Engine);
     assertNotNull(v6Engine);
   }
 
 }
 ```
 
-The default behaviour is powerful enough to handle basic cases where you simply want to inject a bean make assertions on it.
+The default behaviour is powerful enough to handle basic cases where you simply want to inject a bean and make assertions on it.
 However, it will not be enough if you want to, say, test your CDI extensions, enable custom interceptors or make sure certain scopes are active.
 Or if you want to inject interfaces instead of implementations of beans.
 For those cases, and many others, there are special annotations you can use - we will go over them, one at a time.
@@ -541,7 +549,7 @@ At the end there is an example showing several of them.
 ### `@ActivateScopes`
 
 Normally, only `@ApplicationScoped` and `@Dependent` beans work without any additional settings.
-`@ActivateScopes` annotation allows you to list scopes which are to be actived for the duration of the test.
+`@ActivateScopes` annotation allows you to list scopes which are to be activated for the duration of the test.
 Note that the duration is dependent on your setting of JUnit test lifecycle - it can be either per method or per class.
 
 ### `@AddBeanClasses`
@@ -562,33 +570,33 @@ Adds the interceptor class into deployment and enables it.
 
 ### `@AddExtensions`
 
-Registers one or more extensions within Weld container; this is programmatic replacement for placing the extension in `META-INF`.
+Registers one or more extensions within the Weld container. This is the programmatic replacement for placing the extension in `META-INF`.
 
 ### `@AddPackages`
 
-Adds all bean classes from listed packages to Weld container.
+Adds all bean classes from listed packages to the Weld container.
 Packages are selected by providing any bean class in the package.
 You can also specify if this should be done recursively using the `recursive` parameter.
 
 ### `@EnableAlternativeStereotypes`
 
-Enables given alternative stereotype.
+Enables given alternative stereotypes.
 
 ### `@EnableAlternatives`
 
-Selects and alternative for the test bean archive.
+Selects given alternatives for the test bean archive.
 
 ### `@ExcludeBean`
 
-Excludes a bean, or multiple beans, that include a bean defining annotation (e.g. scope) from automatic discovery. 
-This can be helpful to allow replacing a bean class with a different implementation; typically a mock.
+Excludes a bean, or multiple beans, that include a bean defining annotation (e.g. scope) from automatic discovery.
+This can be helpful to allow replacing a bean class with a different implementation, typically a mock.
 
-The type of bean to exclude is implied by the annotated field's type or annotated method's return type. 
+The type of bean to exclude is implied by the annotated field's type or annotated method's return type.
 If the type is a base class or interface all beans extending/implementing that type will be excluded.
 
-NOTE: This annotation will only exclude beans defined by class annotations. 
-It will not exclude beans of the implied type that are defined by `@Produces` producer methods/fields or synthetic beans. 
-Also, current implementation excludes beans based on type, disregarding any qualifiers that are specified.
+NOTE: This annotation will only exclude beans defined by class annotations.
+It will not exclude beans of the implied type that are defined by `@Produces` producer methods/fields or synthetic beans.
+Also, the current implementation excludes beans based on type, disregarding any qualifiers that are specified.
 
 ```java
 import org.jboss.weld.junit5.auto.ExcludeBean;
@@ -622,12 +630,12 @@ class TestSomeFoo {
 
 ### `@ExcludeBeanClasses`
 
-Excludes a set of classes with bean defining annotations (e.g. scopes) from automatic discovery. 
+Excludes a set of classes with bean defining annotations (e.g. scopes) from automatic discovery.
 This can be helpful to allow replacing bean classes with a different implementation; typically a mock.
 
 This annotation works as an inverse of [`@AddBeanClasses`](#addbeanclasses) hence usually requires actual bean implementation classes as parameters.
 
-NOTE: This annotation will only exclude beans defined by class annotations. 
+NOTE: This annotation will only exclude beans defined by class annotations.
 It will not exclude beans of the specified type that are defined by `Produces` producer methods/fields or synthetic beans.
 
 ## Additional Configuration
@@ -667,17 +675,16 @@ class ExplicitParamInjectionTest {
 ```
 
 As you might know, if you want to inject a bean where you would normally not use any qualifier, you can do that using `@Default` qualifier (as shown in the code above).
-This is in accordance with CDI specification, feel free to [read more about it](http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#builtin_qualifiers).
+This is in accordance with the CDI specification, feel free to [read more about it](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#builtin_qualifiers).
 
-#### Flat Deployment
+### Flat Deployment
 
 Unlike [Arquillian Weld embedded container](https://github.com/arquillian/arquillian-container-weld), weld-junit has bean archive isolation enabled by default.
-This behaviour can be changed by setting a system property `org.jboss.weld.se.archive.isolation` to `false` or through the `Weld.property()` method.
-If set, Weld will use a _"flat"_ deployment structure - all bean classes share the same bean archive and all beans.xml descriptors are automatically merged into one.
-Thus alternatives, interceptors and decorators selected/enabled for a bean archive will be enabled for the whole application.
-Note that this configuration only makes difference if you run with *enabled discovery*; it won't affect your deployment if you use synthetic bean archive.
-
+This behaviour can be changed by setting the system property `org.jboss.weld.se.archive.isolation` to `false` or through the `Weld.property()` method.
+If set to `false`, Weld will use a _"flat"_ deployment structure - all bean classes share the same bean archive and all `beans.xml` descriptors are automatically merged into one.
+Thus, alternatives, interceptors, and decorators selected / enabled for a bean archive will be enabled for the whole application.
+Note that this configuration only makes a difference if you run with *enabled discovery*; it won't affect your deployment if you use the synthetic bean archive.
 
 ## Limitations
 
-* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
+* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.

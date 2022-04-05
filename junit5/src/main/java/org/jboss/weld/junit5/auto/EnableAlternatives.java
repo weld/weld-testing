@@ -36,6 +36,9 @@ public @interface EnableAlternatives {
 
     Class<?>[] value();
 
+    /**
+     * Container annotation for repeatable {@link EnableAlternatives}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited
