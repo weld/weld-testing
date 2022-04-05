@@ -1,0 +1,2 @@
+org.jboss.weld.spock.impl.EnableWeldExtension
+org.jboss.weld.spock.impl.EagerExceptionRenderer
