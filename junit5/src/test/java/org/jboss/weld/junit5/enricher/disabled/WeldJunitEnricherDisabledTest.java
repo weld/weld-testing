@@ -17,6 +17,7 @@
 package org.jboss.weld.junit5.enricher.disabled;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.Resources.SYSTEM_PROPERTIES;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -27,8 +28,10 @@ import org.jboss.weld.junit5.enricher.FooWeldJunitEnricher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 @EnableWeld
+@ResourceLock(SYSTEM_PROPERTIES)
 public class WeldJunitEnricherDisabledTest {
 
     @Inject

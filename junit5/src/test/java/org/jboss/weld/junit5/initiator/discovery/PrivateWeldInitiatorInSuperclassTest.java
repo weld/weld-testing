@@ -22,12 +22,14 @@ import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.initiator.bean.Foo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
 /**
  * Tests a case where WeldInitiator resides in a private field within a superclass
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
+@Isolated
 @EnableWeld
 public class PrivateWeldInitiatorInSuperclassTest extends SuperclassWithPrivateWeldInitiator {
 

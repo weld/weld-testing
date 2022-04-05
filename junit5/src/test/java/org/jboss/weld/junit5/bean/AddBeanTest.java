@@ -37,6 +37,7 @@ import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -44,6 +45,7 @@ import org.mockito.Mockito;
  *
  * @author Matej Novotny
  */
+@Isolated
 @ExtendWith(WeldJunit5Extension.class)
 public class AddBeanTest {
 
@@ -99,7 +101,7 @@ public class AddBeanTest {
         myService.doBusiness("Adalbert");
         Mockito.verify(myService, Mockito.atLeastOnce()).doBusiness(ArgumentMatchers.anyString());
 
-        // Test applicaction scoped bean
+        // Test application scoped bean
         assertEquals(weld.select(IdSupplier.class).get().getId(), weld.select(IdSupplier.class).get().getId());
 
         // The scope is changed to @Dependent

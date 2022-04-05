@@ -35,6 +35,9 @@ public @interface AddEnabledInterceptors {
 
     Class<?>[] value();
 
+    /**
+     * Container annotation for repeatable {@link AddEnabledInterceptors}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited

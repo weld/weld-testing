@@ -11,6 +11,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Isolated;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author Matej Novotny
  */
+@Isolated
 @ExtendWith(WeldJunit5Extension.class)
 @TestMethodOrder(value = MethodOrderer.Alphanumeric.class) // enforces ordering of methods, required!
 public class DisabledMethodsTest {

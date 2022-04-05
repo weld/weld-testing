@@ -25,7 +25,7 @@ public class AddedExtension implements Extension {
 
     private static boolean enabled = false;
 
-    public void observePAT(@Observes AfterBeanDiscovery abd) {
+    public void observeABD(@Observes AfterBeanDiscovery abd) {
         enabled = true;
     }
 

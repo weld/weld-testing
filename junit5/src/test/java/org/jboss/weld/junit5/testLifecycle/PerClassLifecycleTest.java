@@ -25,18 +25,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Isolated;
 
 /**
  * Note that we cannot be sure which method executes first - only one of them will do actual verification.
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
+@Isolated
 @ExtendWith(WeldJunit5Extension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PerClassLifecycleTest {
 
     @WeldSetup
-    public WeldInitiator initiator = WeldInitiator.of(new Weld(String.valueOf(System.currentTimeMillis()))
+    public WeldInitiator initiator = WeldInitiator.of(new Weld(String.valueOf(System.nanoTime()))
         .disableDiscovery().addBeanClass(PlainBean.class));
 
     String containerId = null;

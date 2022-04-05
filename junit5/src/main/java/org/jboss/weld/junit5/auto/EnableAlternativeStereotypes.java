@@ -37,6 +37,9 @@ public @interface EnableAlternativeStereotypes {
 
     Class<? extends Annotation>[] value();
 
+    /**
+     * Container annotation for repeatable {@link EnableAlternativeStereotypes}.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     @Inherited

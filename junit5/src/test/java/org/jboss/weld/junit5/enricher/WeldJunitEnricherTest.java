@@ -17,14 +17,18 @@
 package org.jboss.weld.junit5.enricher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ;
+import static org.junit.jupiter.api.parallel.Resources.SYSTEM_PROPERTIES;
 
 import jakarta.inject.Inject;
 
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.basic.Foo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 @EnableWeld
+@ResourceLock(value = SYSTEM_PROPERTIES, mode = READ)
 public class WeldJunitEnricherTest {
 
     @Inject
