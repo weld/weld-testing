@@ -71,6 +71,9 @@ public class NestedClassesWeldInitiatorTest {
         void testWeldWorksInInnerClass() {
             Assertions.assertNotNull(outerFoo);
             Assertions.assertNotNull(bar);
+
+            // verify outer weld container is not running
+            Assertions.assertThrows(IllegalStateException.class, () -> outerWeld.select(Foo.class));
         }
 
         @Nested
@@ -90,7 +93,27 @@ public class NestedClassesWeldInitiatorTest {
 
                 Assertions.assertNotNull(bar);
                 Assertions.assertNotNull(innerBar);
+
+                // verify outer weld container is not running
+                Assertions.assertThrows(IllegalStateException.class, () -> outerWeld.select(Foo.class));
             }
+        }
+    }
+
+    @Nested
+    class NestedWithInheritedWeldInitiatorTest extends SuperclassWithProtectedWeldInitiator {
+
+        @Inject
+        Foo innerFoo;
+
+        @Test
+        void testInheritedTakesPrecedenceOverEnclosingWeldInitiator() {
+            Assertions.assertNotNull(outerFoo);
+            Assertions.assertNotNull(innerFoo);
+            Assertions.assertThrows(UnsatisfiedResolutionException.class, () -> weld.select(Bar.class).get());
+
+            // verify outer weld container is not running
+            Assertions.assertThrows(IllegalStateException.class, () -> outerWeld.select(Foo.class));
         }
     }
 }
