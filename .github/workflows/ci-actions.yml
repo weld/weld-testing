@@ -2,7 +2,7 @@ name: Weld-JUnit CI
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ 3.0 ]
 
 jobs:
   build-weld-junit:
