@@ -21,6 +21,8 @@ Requirements are JUnit 5 and Java 8.
       * [Adding mock beans](#adding-mock-beans)
       * [Adding mock interceptors](#adding-mock-interceptors)
       * [Mock injection services](#mock-injection-services)
+    * [Inheritance](#inheritance-of-test-classes)
+    * [Nested test classes](#nested-test-classes)
 * [WeldJunit5AutoExtension](#weldjunit5autoextension)
   * [`@ActivateScopes`](#activatescopes)
   * [`@AddBeanClasses`](#addbeanclasses)
@@ -380,6 +382,103 @@ class MyTest {
     public void test(Baz baz) {
        Assertions.assertEquals("coolString", baz.coolResource);
     }
+}
+```
+
+#### Inheritance of test classes
+
+The `@WeldSetup` field can be defined in a superclass, but there can only be one `@WeldSetup` field in the class
+hierarchy.
+
+```java
+abstract class GenericTest {
+  @WeldSetup
+  protected WeldInitiator weldInitiator = WeldInitiator.of(Foo.class);
+}
+
+@EnableWeld
+class SpecializedTest extends GenericTest {
+
+  @Inject
+  Foo foo; // injected by the inherited Weld container
+
+  // This would throw an exception, because there would be two @WeldSetup fields in the class hierarchy
+  //
+  // @WeldSetup
+  // WeldInitiator secondWeldInitiator = WeldInitiator.of(Foo.class, Bar.class);
+}
+```
+
+#### Nested test classes
+
+A `@Nested` test class can have its own `WeldInitiator` field to configure a Weld container for the test methods of the
+nested class. If there is no `WeldInitiator` field in the class hierarchy of the nested class, the enclosing class (and
+its class hierarchy) is queried for *its* `WeldInitiator`
+field and so on until the outermost test class is reached.
+
+```java
+
+@EnableWeld
+class OuterTest {
+
+  @WeldSetup
+  WeldInitiator weld = WeldInitiator.of(Foo.class);
+
+  @Test
+  void test(Foo myFoo) {
+    assertNotNull(myFoo);
+    assertThrows(UnsatisfiedResolutionException.class, () -> outerWeld.select(Bar.class).get());
+  }
+
+  @Nested
+  class InnerTestWithoutItsOwnInitiator {
+
+    @Test
+    void testInnerMethodWithOuterWeldContainer(Foo myFoo) {
+      assertNotNull(myFoo);
+    }
+  }
+
+  @Nested
+  class InnerTestWithItsOwnInitiator {
+
+    @WeldSetup
+    WeldInitiator weld = WeldInitiator.of(Foo.class, Bar.class);
+
+    @Test
+    void testInnerMethodWithInnerWeldContainer(Foo myFoo, Bar myBar) {
+      assertNotNull(myFoo);
+      assertNotNull(myBar);
+    }
+  }
+}
+```
+
+**Attention**: There is only one Weld container for every test so no matter if the inner or the outer `WeldInitiator` field is chosen to initialize that container, it is used to fill the injection points in the nested class *and* its enclosing class(es). Therefore, you have to make sure that all beans that the outer class(es) requires are also present in the inner `WeldInitiator`!
+
+```java
+class OuterTest {
+
+  @WeldSetup
+  WeldInitiator outerWeld = WeldInitiator.of(Foo.class);
+
+  @Inject
+  Foo foo;
+
+  @Nested
+  class InnerTest {
+
+    @WeldSetup
+    WeldInitiator innerWeld = WeldInitiator.of(Bar.class);
+
+    // This test fails with an exception, because OuterTest.this.foo
+    // cannot be injected by the inner Weld container.
+    //
+    // @Test
+    // void testAnything() {
+    //   Assertions.assertTrue(true);
+    // }
+  }
 }
 ```
 
