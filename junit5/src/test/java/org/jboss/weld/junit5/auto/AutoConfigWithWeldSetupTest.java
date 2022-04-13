@@ -17,6 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
+ * NOTE - this test is one massive hack because JUnit, at the time of writing, doesn't allow to assert that an
+ * exception was throws inside an extension. The test is fragile and can break because of internal JUnit 5 changes
+ * in which case we might want to revisit if we want to keep it or whether there is a better way.
+ *
  * @author bkautler
  */
 @EnableAutoWeld
