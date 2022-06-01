@@ -16,7 +16,20 @@
  */
 package org.jboss.weld.junit5;
 
+import static org.jboss.weld.junit5.ExtensionContextUtils.getContainerFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getEnrichersFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.getInitiatorFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setContainerToStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setEnrichersToStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setExplicitInjectionInfoToStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.setInitiatorToStore;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
+
+import jakarta.enterprise.inject.spi.BeanManager;
 import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.inject.WeldInstance;
 import org.jboss.weld.util.collections.ImmutableList;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -28,31 +41,18 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-import jakarta.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
-
-import static org.jboss.weld.junit5.ExtensionContextUtils.getContainerFromStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.getEnrichersFromStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.getInitiatorFromStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.setContainerToStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.setEnrichersToStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.setExplicitInjectionInfoToStore;
-import static org.jboss.weld.junit5.ExtensionContextUtils.setInitiatorToStore;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 
 /**
  * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method (or once per test class
@@ -165,8 +165,17 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if ((getExplicitInjectionInfoFromStore(extensionContext) || (methodRequiresExplicitParamInjection(parameterContext))) && qualifiers.isEmpty()) {
             return false;
         } else {
-            return getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]))
-                    .isResolvable();
+            // attempt to resolve the bean; at this point we know it should be a CDI bean since it has CDI qualifiers
+            // if resolution fails, throw an exception
+            WeldInstance<?> select = getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]));
+            if (!select.isResolvable()) {
+                throw new ParameterResolutionException(String.format("Weld has failed to resolve test parameter [%s] in method [%s].%n" +
+                                "%s dependency has type %s and qualifiers %s.",
+                        parameterContext.getParameter(), parameterContext.getDeclaringExecutable().toGenericString(),
+                        select.isAmbiguous() ? "Ambiguous" : "Unsatisfied",
+                        parameterContext.getParameter().getType().getName(), qualifiers));
+            }
+            return true;
         }
     }
 
