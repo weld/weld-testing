@@ -149,7 +149,8 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (getContainerFromStore(extensionContext) != null) {
             List<Annotation> qualifiers = resolveQualifiers(parameterContext, getContainerFromStore(extensionContext).getBeanManager());
             return getContainerFromStore(extensionContext)
-                    .select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).get();
+                    .select(parameterContext.getParameter().getParameterizedType(),
+                            qualifiers.toArray(new Annotation[qualifiers.size()])).get();
         }
         return null;
     }
@@ -165,7 +166,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if ((getExplicitInjectionInfoFromStore(extensionContext) || (methodRequiresExplicitParamInjection(parameterContext))) && qualifiers.isEmpty()) {
             return false;
         } else {
-            return getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]))
+            return getContainerFromStore(extensionContext).select(parameterContext.getParameter().getParameterizedType(), qualifiers.toArray(new Annotation[qualifiers.size()]))
                     .isResolvable();
         }
     }
