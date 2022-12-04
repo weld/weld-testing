@@ -16,12 +16,16 @@
  */
 package org.jboss.weld.junit5.extensionInjection;
 
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.Map;
 
 /**
  * Basic test for JUnit 5 injection into parameter/field handled by Weld
@@ -53,5 +57,27 @@ public class JUnit5ExtensionTest {
         // assert param injection with qualifier works
         Assertions.assertNotNull(bar);
         bar.ping();
+    }
+    @Nested
+    class TestParameterInjectionWithParametrizedTypes {
+
+        @Test
+        public void testparamInjectionWithEvent(Event<String> stringEvent) {
+            // assert param injection with built-in Event bean works
+            Assertions.assertNotNull(stringEvent);
+        }
+
+        @Test
+        public void testparamInjectionWithInstance(Instance<String> stringInstance) {
+            // assert param injection with built-in Instance works
+            Assertions.assertNotNull(stringInstance);
+        }
+
+        @Test
+        public void testparamInjectionWithOtherParametrizedType(Map<String, Integer> map) {
+            // assert param injection with ordinary bean with parametrized type works
+            Assertions.assertNotNull(map);
+            Assertions.assertTrue(map.containsKey("java.util.Map<java.lang.String, java.lang.Integer>"));
+        }
     }
 }

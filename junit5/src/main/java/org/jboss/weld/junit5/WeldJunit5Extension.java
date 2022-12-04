@@ -149,7 +149,8 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (getContainerFromStore(extensionContext) != null) {
             List<Annotation> qualifiers = resolveQualifiers(parameterContext, getContainerFromStore(extensionContext).getBeanManager());
             return getContainerFromStore(extensionContext)
-                    .select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()])).get();
+                    .select(parameterContext.getParameter().getParameterizedType(),
+                            qualifiers.toArray(new Annotation[qualifiers.size()])).get();
         }
         return null;
     }
@@ -167,7 +168,9 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         } else {
             // attempt to resolve the bean; at this point we know it should be a CDI bean since it has CDI qualifiers
             // if resolution fails, throw an exception
-            WeldInstance<?> select = getContainerFromStore(extensionContext).select(parameterContext.getParameter().getType(), qualifiers.toArray(new Annotation[qualifiers.size()]));
+            WeldInstance<?> select = getContainerFromStore(extensionContext).select(
+                    parameterContext.getParameter().getParameterizedType(),
+                    qualifiers.toArray(new Annotation[qualifiers.size()]));
             if (!select.isResolvable()) {
                 throw new ParameterResolutionException(String.format("Weld has failed to resolve test parameter [%s] in method [%s].%n" +
                                 "%s dependency has type %s and qualifiers %s.",
