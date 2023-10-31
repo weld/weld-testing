@@ -73,6 +73,7 @@ class ClassScanning {
         Set<Class<?>> foundClasses = new HashSet<>();
         Set<Type> excludedBeanTypes = new HashSet<>();
         Set<Class<?>> excludedBeanClasses = new HashSet<>();
+        boolean syntheticArchiveDiscoverySet = false;
 
         while (!classesToProcess.isEmpty()) {
 
@@ -197,6 +198,15 @@ class ClassScanning {
                     .flatMap(ann -> stream(ann.value()))
                     .distinct()
                     .forEach(excludedBeanClasses::add);
+
+            // discovery mode can only be set once; we use the first annotation we find
+            if (!syntheticArchiveDiscoverySet) {
+                Optional<SetBeanDiscoveryMode> annotation = AnnotationSupport.findAnnotation(currClass, SetBeanDiscoveryMode.class);
+                if (annotation.isPresent()) {
+                    syntheticArchiveDiscoverySet = true;
+                    weld.setBeanDiscoveryMode(annotation.get().value());
+                }
+            }
 
         }
 
