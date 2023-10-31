@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
  * @see ExcludeBean
  * @see ExcludeBeanClasses
  * @see EnableAutoWeld
+ * @see SetBeanDiscoveryMode
  * @see WeldJunitEnricher
  */
 public class WeldJunit5AutoExtension extends WeldJunit5Extension {
