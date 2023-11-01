@@ -20,11 +20,12 @@ jobs:
             java-version: 17,
           }
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up JDK @{}
-      uses: actions/setup-java@v1.4.3
+      uses: actions/setup-java@v3.12.0
       with:
         java-version: ${{ matrix.java.java-version }}
+        distribution: 'temurin'
     - name: Get Date
       id: get-date
       run: |
@@ -32,14 +33,14 @@ jobs:
       shell: bash
     - name: Cache Maven Repository
       id: cache-maven
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.m2/repository
         # Caching is an automated pre/post action that installs the cache if the key exists and exports the cache
         # after the job is done. In this case we refresh the cache monthly (by changing key) to avoid unlimited growth.
         key: q2maven-master-${{ steps.get-date.outputs.date }}
     - name: Build with Maven
-      run: WELD_JUNIT_DEBUG=spotbugs mvn clean install -Dspotbugs.failOnError=true
+      run: WELD_JUNIT_DEBUG=spotbugs mvn clean install -Dno-format -Dspotbugs.failOnError=true
     - name: Delete Local Artifacts From Cache
       shell: bash
       run: rm -r ~/.m2/repository/org/jboss/weld/weld-junit*
@@ -48,7 +49,7 @@ jobs:
       shell: bash
       run: find . -name '*-reports' -type d | tar -czf test-reports.tgz -T -
     - name: Upload failure Archive (if maven failed)
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       if: failure()
       with:
         name: test-reports-jdk${{matrix.java.name}}
