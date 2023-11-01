@@ -41,7 +41,7 @@
       <maven.compiler.target>11</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.13.2</version.junit4>
-      <version.junit.jupiter>5.8.2</version.junit.jupiter>
+      <version.junit.jupiter>5.10.0</version.junit.jupiter>
       <version.spock>2.1-groovy-3.0</version.spock>
       <version.junit.platform>1.8.2</version.junit.platform>
       <version.groovy>3.0.10</version.groovy>
