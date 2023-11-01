@@ -23,11 +23,11 @@ import jakarta.enterprise.context.Dependent;
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @Dependent
-public class DecoratedBean implements DecoratedBeanInterface{
+public class DecoratedBean implements DecoratedBeanInterface {
 
     @Override
     public String ping() {
         return DecoratedBean.class.toString();
     }
-    
+
 }

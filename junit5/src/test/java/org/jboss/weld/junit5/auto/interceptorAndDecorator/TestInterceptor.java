@@ -27,7 +27,7 @@ import jakarta.interceptor.InvocationContext;
 @Interceptor
 @TestInterceptorBinding
 public class TestInterceptor {
-    
+
     @AroundInvoke
     public Object intercept(InvocationContext ctx) throws Exception {
         return TestInterceptor.class.toString() + ctx.proceed();

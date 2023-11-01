@@ -204,16 +204,21 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
         }
 
         @Override
-        protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(), getPersistenceUnitFactory(), getPersistenceContextFactory());
+        protected WeldInitiator build(Weld weld, List<Object> instancesToInject,
+                Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(),
+                    getPersistenceUnitFactory(), getPersistenceContextFactory());
         }
 
     }
 
-    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
-        Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
-        Function<InjectionPoint, Object> persistenceContextFactory) {
-        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
+    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate,
+            Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory,
+            Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
+        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
+                persistenceContextFactory);
     }
 
     /**
@@ -223,7 +228,9 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
      * {@link ClassRule}, there is no {@code this} reference available. In that case this method can be used
      * as {@code Rule} to do the test class injection part.
      *
-     * <p><b>Example:</b>
+     * <p>
+     * <b>Example:</b>
+     *
      * <pre>{@code
      * }&#64;{@code ClassRule
      * public static WeldInitiator weld = WeldInitiator.from(Foo.class).build();

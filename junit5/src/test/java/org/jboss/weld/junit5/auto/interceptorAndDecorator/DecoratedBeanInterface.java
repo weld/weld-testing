@@ -21,6 +21,6 @@ package org.jboss.weld.junit5.auto.interceptorAndDecorator;
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 public interface DecoratedBeanInterface {
-    
+
     public String ping();
 }

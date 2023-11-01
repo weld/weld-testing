@@ -20,7 +20,6 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
 import jakarta.enterprise.inject.spi.Extension;
 
-
 public class AddedExtension implements Extension {
 
     private static boolean enabled = false;

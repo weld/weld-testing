@@ -61,27 +61,27 @@ public class AddBeanTest {
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
         return MockBean.builder()
-            .types(new TypeLiteral<List<String>>() {
-            }.getType())
-            .qualifiers(Meaty.Literal.INSTANCE)
-            .creating(
-                // Mock object provided by Mockito
-                Mockito.when(Mockito.mock(List.class).get(0)).thenReturn("42").getMock())
-            .build();
+                .types(new TypeLiteral<List<String>>() {
+                }.getType())
+                .qualifiers(Meaty.Literal.INSTANCE)
+                .creating(
+                        // Mock object provided by Mockito
+                        Mockito.when(Mockito.mock(List.class).get(0)).thenReturn("42").getMock())
+                .build();
     }
 
     static Bean<?> createSequenceBean() {
-        return MockBean.<Integer>builder()
-            .types(Integer.class)
-            .qualifiers(Meaty.Literal.INSTANCE)
-            .create((ctx) -> SEQUENCE.incrementAndGet()).build();
+        return MockBean.<Integer> builder()
+                .types(Integer.class)
+                .qualifiers(Meaty.Literal.INSTANCE)
+                .create((ctx) -> SEQUENCE.incrementAndGet()).build();
     }
 
     static Bean<?> createIdSupplierBean() {
-        return MockBean.<IdSupplier>builder()
-            .types(IdSupplier.class)
-            .scope(ApplicationScoped.class)
-            .create(ctx -> new IdSupplier(UUID.randomUUID().toString())).build();
+        return MockBean.<IdSupplier> builder()
+                .types(IdSupplier.class)
+                .scope(ApplicationScoped.class)
+                .create(ctx -> new IdSupplier(UUID.randomUUID().toString())).build();
     }
 
     @Test
@@ -93,7 +93,7 @@ public class AddBeanTest {
         SEQUENCE.set(0);
         for (int i = 1; i < 11; i++) {
             assertEquals(Integer.valueOf(i),
-                weld.select(Integer.class, Meaty.Literal.INSTANCE).get());
+                    weld.select(Integer.class, Meaty.Literal.INSTANCE).get());
         }
 
         // Mock with default settings

@@ -17,29 +17,32 @@
 
 package org.jboss.weld.spock;
 
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import spock.lang.Shared;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 /**
  * An annotation with which Weld can be disabled on specification or feature level if it was
  * enabled globally or on specification level.
  *
- * <p>If Weld is enabled for a specification globally or by annotation with specification scope,
+ * <p>
+ * If Weld is enabled for a specification globally or by annotation with specification scope,
  * and disabled for a feature, there will still be the specification scoped Weld running during the
  * test and {@link Shared @Shared} fields injected from that instance, but the non-{@code @Shared}
  * fields, and parameters of {@code setup}, feature, and {@code cleanup} methods will not be injected.
  *
- * <p>On any class that is not a specification and on any method that is not a feature, this annotation
+ * <p>
+ * On any class that is not a specification and on any method that is not a feature, this annotation
  * is simply ignored and has no effect.
  *
- * <p>If this annotation is applied on the same element as {@link EnableWeld @EnableWeld}, an exception
+ * <p>
+ * If this annotation is applied on the same element as {@link EnableWeld @EnableWeld}, an exception
  * is thrown as it is unclear which should have precedence.
  *
  * @author Björn Kautler

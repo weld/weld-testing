@@ -42,7 +42,8 @@ public class InheritedInjectedTest {
         SubClass inheritsInjected;
 
         /**
-         * Injection of {@link #inheritsInjected} requires {@link InheritedInjectedTest.Foo} having been identified and added as a bean class to Weld.
+         * Injection of {@link #inheritsInjected} requires {@link InheritedInjectedTest.Foo} having been identified and added as
+         * a bean class to Weld.
          */
         @Test
         @DisplayName("Test inherited injected fields")

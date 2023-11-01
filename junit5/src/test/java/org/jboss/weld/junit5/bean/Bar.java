@@ -1,8 +1,9 @@
 package org.jboss.weld.junit5.bean;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.List;
 
 @ApplicationScoped
 public class Bar {

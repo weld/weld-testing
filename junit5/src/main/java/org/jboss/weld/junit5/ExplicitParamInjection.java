@@ -25,7 +25,7 @@ import jakarta.enterprise.inject.Default;
  * An annotation used to enforce explicit parameter annotation. When applied, Weld will only attempt to resolve method
  * parameters which have qualifiers. In case no qualifier is required for your bean, add the {@link Default} qualifier, see CDI
  * specification for in depth explanation on qualifiers.
- * 
+ *
  * This annotation can be applied either on test class, in which case it affects parameter injection in all methods, or on
  * a method.
  *

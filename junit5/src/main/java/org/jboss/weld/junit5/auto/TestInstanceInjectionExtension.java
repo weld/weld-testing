@@ -18,7 +18,6 @@ package org.jboss.weld.junit5.auto;
 
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.Extension;
 import jakarta.enterprise.inject.spi.InjectionTarget;
 import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
@@ -30,12 +29,15 @@ import org.jboss.weld.injection.ForwardingInjectionTarget;
 
 /**
  * Extension that makes a test instance appear like a regular bean even though instantiated by JUnit.
- * Injection into all test instances, also {@link org.junit.jupiter.api.Nested &#064;Nested} ones, is handled in {@link org.jboss.weld.junit5.WeldInitiator#addObjectsToInjectInto} and related.
- * Proper handling of all other CDI annotations such as {@link jakarta.enterprise.inject.Produces &#064;Produces} is supported only on top level test classes.
+ * Injection into all test instances, also {@link org.junit.jupiter.api.Nested &#064;Nested} ones, is handled in
+ * {@link org.jboss.weld.junit5.WeldInitiator#addObjectsToInjectInto} and related.
+ * Proper handling of all other CDI annotations such as {@link jakarta.enterprise.inject.Produces &#064;Produces} is supported
+ * only on top level test classes.
  */
 public class TestInstanceInjectionExtension<T> implements Extension {
 
-    private static final AnnotationLiteral<Singleton> SINGLETON_LITERAL = new AnnotationLiteral<Singleton>() {};
+    private static final AnnotationLiteral<Singleton> SINGLETON_LITERAL = new AnnotationLiteral<Singleton>() {
+    };
 
     private final Class<?> testClass;
     private final T testInstance;

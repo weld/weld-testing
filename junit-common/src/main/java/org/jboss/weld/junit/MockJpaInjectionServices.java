@@ -39,7 +39,8 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
 
     private final Function<InjectionPoint, Object> persistenceContextFactory;
 
-    public MockJpaInjectionServices(Function<InjectionPoint, Object> persistenceUnitFactory, Function<InjectionPoint, Object> persistenceContextFactory) {
+    public MockJpaInjectionServices(Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
         this.persistenceUnitFactory = persistenceUnitFactory;
         this.persistenceContextFactory = persistenceContextFactory;
     }
@@ -50,7 +51,8 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
             @Override
             public ResourceReference<EntityManager> createResource() {
                 if (persistenceContextFactory == null) {
-                    throw new IllegalStateException("Persistent context factory not set, cannot resolve injection point: " + injectionPoint);
+                    throw new IllegalStateException(
+                            "Persistent context factory not set, cannot resolve injection point: " + injectionPoint);
                 }
                 Object context = persistenceContextFactory.apply(injectionPoint);
                 if (context == null || context instanceof EntityManager) {
@@ -67,7 +69,8 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
             @Override
             public ResourceReference<EntityManagerFactory> createResource() {
                 if (persistenceUnitFactory == null) {
-                    throw new IllegalStateException("Persistent unit factory not set, cannot resolve injection point: " + injectionPoint);
+                    throw new IllegalStateException(
+                            "Persistent unit factory not set, cannot resolve injection point: " + injectionPoint);
                 }
                 Object unit = persistenceUnitFactory.apply(injectionPoint);
                 if (unit == null || unit instanceof EntityManagerFactory) {

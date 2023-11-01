@@ -31,7 +31,7 @@ public class MyExtension implements Extension {
     public void observePAT(@Observes ProcessAnnotatedType<GoodOldBean> event) {
         beanObserved = true;
     }
-    
+
     public boolean beanObserved() {
         return beanObserved;
     }

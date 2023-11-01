@@ -19,8 +19,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests that outer test classes don't get instantiated again for CDI annotations.
  * <p>
- * Classes with CDI annotations are usually treated as beans by Weld and, hence, instantiated as and when required. Test classes, however, are instantiated by JUnit.
- * Weld should pick up the test instances instantiated by JUnit instead of instantiating another instance and continue to operate on them as usual with beans.
+ * Classes with CDI annotations are usually treated as beans by Weld and, hence, instantiated as and when required. Test
+ * classes, however, are instantiated by JUnit.
+ * Weld should pick up the test instances instantiated by JUnit instead of instantiating another instance and continue to
+ * operate on them as usual with beans.
  * <br>
  * This test asserts that the same instance as the {@link org.junit.jupiter.api.Test &#064;Test} methods are invoked on
  * <ul>
@@ -32,17 +34,26 @@ import org.junit.jupiter.api.Test;
  * <ul>
  * <li>{@link Observes &#064;Observes} or</li>
  * <li>{@link Disposes &#064;Disposes}</li>
- * </ul></li></ul></li></ul>
+ * </ul>
+ * </li>
+ * </ul>
+ * </li>
+ * </ul>
  * and assumes if that were not true that there would have been another instance of the test class.
  * <p>
- * In order to understand how the test works (or failed earlier), consider to with particular test instance each outer test class member variable would refer to
- * if Weld instantiated another, second, and undesired instance of the outer test class besides the obviously wanted one already instantiated by JUnit.
+ * In order to understand how the test works (or failed earlier), consider to with particular test instance each outer test
+ * class member variable would refer to
+ * if Weld instantiated another, second, and undesired instance of the outer test class besides the obviously wanted one already
+ * instantiated by JUnit.
  * <p>
- * Besides all that, Weld ignores classes that don't meet valid bean requirements which affects all {@link org.junit.jupiter.api.Nested &#064;Nested} test classes due to a lack of a no-arg constructor and
- * Weld is reluctant to handle {@link Produces &#064;Produces}, {@link Observes &#064;Observes}, or {@link Disposes &#064;Disposes} annotations on them or
+ * Besides all that, Weld ignores classes that don't meet valid bean requirements which affects all
+ * {@link org.junit.jupiter.api.Nested &#064;Nested} test classes due to a lack of a no-arg constructor and
+ * Weld is reluctant to handle {@link Produces &#064;Produces}, {@link Observes &#064;Observes}, or {@link Disposes
+ * &#064;Disposes} annotations on them or
  * instances of {@link Inject &#064;Inject}ing nested test classes into other beans
- * but {@link Inject &#064;Inject}ing into test instances works on all test classes whether {@link org.junit.jupiter.api.Nested &#064;Nested} or not.
- * 
+ * but {@link Inject &#064;Inject}ing into test instances works on all test classes whether {@link org.junit.jupiter.api.Nested
+ * &#064;Nested} or not.
+ *
  * @see <a href="https://github.com/weld/weld-junit/issues/103">https://github.com/weld/weld-junit/issues/103</a>
  */
 @EnableAutoWeld
@@ -115,7 +126,8 @@ public class OuterTestClassAndBeanSameInstanceTest {
         assertEquals(theBean.ping(), bean.ping());
     }
 
-    @Inject @Any
+    @Inject
+    @Any
     Event<Bean> event;
 
     Bean observedBean;

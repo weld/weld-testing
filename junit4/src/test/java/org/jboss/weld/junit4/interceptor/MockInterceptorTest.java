@@ -50,12 +50,14 @@ public class MockInterceptorTest {
             MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).aroundInvoke((ctx, b) -> {
                 aroundInvokes.add(b.getBeanClass().getName());
                 return ctx.proceed();
-                }),
+            }),
             // This interceptor is disabled
             MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).beanClass(String.class).aroundInvoke((ctx, b) -> {
                 return false;
-                }),
-            MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).postConstruct((ctx, b) -> postConstructs.add(b.getBeanClass().getName()))).build();
+            }),
+            MockInterceptor.withBindings(FooBinding.Literal.INSTANCE)
+                    .postConstruct((ctx, b) -> postConstructs.add(b.getBeanClass().getName())))
+            .build();
 
     @Before
     public void setup() {
@@ -76,7 +78,8 @@ public class MockInterceptorTest {
 
     @Test
     public void testDisabledInterceptor() {
-        List<Interceptor<?>> interceptors = weld.getBeanManager().resolveInterceptors(InterceptionType.AROUND_INVOKE, FooBinding.Literal.INSTANCE);
+        List<Interceptor<?>> interceptors = weld.getBeanManager().resolveInterceptors(InterceptionType.AROUND_INVOKE,
+                FooBinding.Literal.INSTANCE);
         assertEquals(1, interceptors.size());
         assertEquals(MockInterceptor.class, interceptors.get(0).getBeanClass());
     }

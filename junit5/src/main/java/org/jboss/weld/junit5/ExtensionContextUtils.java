@@ -120,7 +120,8 @@ public class ExtensionContextUtils {
      */
     public static List<WeldJunitEnricher> getEnrichersFromStore(ExtensionContext context) {
         @SuppressWarnings("unchecked")
-        List<WeldJunitEnricher> enrichers = (List<WeldJunitEnricher>) getRootExtensionStore(context).get(WELD_ENRICHERS, List.class);
+        List<WeldJunitEnricher> enrichers = (List<WeldJunitEnricher>) getRootExtensionStore(context).get(WELD_ENRICHERS,
+                List.class);
         return enrichers;
     }
 

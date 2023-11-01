@@ -25,7 +25,7 @@ import jakarta.enterprise.context.Dependent;
 @TestInterceptorBinding
 @Dependent
 public class InterceptedBean {
-    
+
     public String ping() {
         return InterceptedBean.class.toString();
     }

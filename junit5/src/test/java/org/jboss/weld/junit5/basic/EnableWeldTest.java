@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 @EnableWeld
 public class EnableWeldTest {
 
-	@Inject
-	BeanManager beanManager;
-	
-	@Test
-	@DisplayName("@EnableWeld initializes the Weld CDI container")
-	void enableWeldAnnotationInitializesTheWeldContainer() {
-		assertNotNull(beanManager);
-	}
-	
+    @Inject
+    BeanManager beanManager;
+
+    @Test
+    @DisplayName("@EnableWeld initializes the Weld CDI container")
+    void enableWeldAnnotationInitializesTheWeldContainer() {
+        assertNotNull(beanManager);
+    }
+
 }

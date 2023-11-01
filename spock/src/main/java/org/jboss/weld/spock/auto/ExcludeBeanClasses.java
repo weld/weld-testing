@@ -17,6 +17,9 @@
 
 package org.jboss.weld.spock.auto;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -24,21 +27,22 @@ import java.lang.annotation.Target;
 
 import jakarta.enterprise.inject.Produces;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 /**
  * {@code @ExcludeBeanClasses} excludes a set of classes with bean defining annotations (e.g. scopes) from automatic
  * discovery. This can be helpful to allow replacing bean classes with a different implementation, typically a mock
  * or stub.
  *
- * <p>This annotation works as an inverse of {@link AddBeanClasses} hence usually requires actual bean implementation
+ * <p>
+ * This annotation works as an inverse of {@link AddBeanClasses} hence usually requires actual bean implementation
  * classes as parameters.
  *
- * <p>NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
+ * <p>
+ * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
  * specified type that are defined by {@link Produces} producer methods / fields or synthetic beans.
  *
- * <p><b>Example:</b>
+ * <p>
+ * <b>Example:</b>
+ *
  * <pre>
  * &#64;EnableWeld(automagic = true)
  * &#64;ExcludeBeanClasses(Foo)   // Excludes Foo bean class from automatic discovery

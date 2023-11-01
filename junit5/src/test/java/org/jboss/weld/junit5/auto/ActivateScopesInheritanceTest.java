@@ -1,10 +1,8 @@
 package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.junit5.auto.beans.Engine;
-import org.jboss.weld.junit5.auto.beans.V6;
-import org.jboss.weld.junit5.auto.beans.V8;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.enterprise.context.ContextNotActiveException;
 import jakarta.enterprise.context.ConversationScoped;
@@ -14,9 +12,11 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.inject.Named;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.jboss.weld.junit5.auto.beans.Engine;
+import org.jboss.weld.junit5.auto.beans.V6;
+import org.jboss.weld.junit5.auto.beans.V8;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class ActivateScopesInheritanceTest extends BaseActivateScopesInheritanceTest {
 

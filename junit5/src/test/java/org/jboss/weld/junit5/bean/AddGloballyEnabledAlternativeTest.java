@@ -1,5 +1,11 @@
 package org.jboss.weld.junit5.bean;
 
+import java.util.List;
+import java.util.Set;
+
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.util.TypeLiteral;
+
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
@@ -9,12 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.mockito.Mockito;
-
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.enterprise.util.TypeLiteral;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Tests {@link org.jboss.weld.junit.MockBean} adding a bean that is a globally enabled alternative.
@@ -30,7 +30,7 @@ public class AddGloballyEnabledAlternativeTest {
             .addBeans(createFooAlternativeBean(), createListBean())
             .build();
 
-    public static Bean<?> createFooAlternativeBean(){
+    public static Bean<?> createFooAlternativeBean() {
         return MockBean.read(Foo.class)
                 .priority(3)
                 .alternative(true)
@@ -61,7 +61,8 @@ public class AddGloballyEnabledAlternativeTest {
         Assertions.assertEquals(1, beans.size());
         Assertions.assertTrue(beans.iterator().next().isAlternative());
 
-        beans = weld.getBeanManager().getBeans(new TypeLiteral<List<String>>(){}.getType());
+        beans = weld.getBeanManager().getBeans(new TypeLiteral<List<String>>() {
+        }.getType());
         Assertions.assertEquals(1, beans.size());
         Assertions.assertTrue(beans.iterator().next().isAlternative());
     }

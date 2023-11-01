@@ -25,8 +25,8 @@ import jakarta.inject.Inject;
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @Decorator
-public class TestDecorator implements DecoratedBeanInterface{
-    
+public class TestDecorator implements DecoratedBeanInterface {
+
     @Inject
     @Delegate
     DecoratedBeanInterface delegate;

@@ -42,17 +42,20 @@ import org.jboss.weld.util.collections.ImmutableSet;
 /**
  * This custom {@link Interceptor} implementation is useful for mocking.
  * <p>
- * A new instance is usually created through a {@link Builder} (see also {@link #withBindings(Annotation...)} method) and then passed to the
+ * A new instance is usually created through a {@link Builder} (see also {@link #withBindings(Annotation...)} method) and then
+ * passed to the
  * {@code WeldInitiator.Builder#addBeans(Bean...)} method.
  * </p>
  * <p>
- * Note that by default all mock interceptors are automatically enabled for the synthetic bean archive. If needed a custom bean class can be set through the
- * {@link Builder#beanClass(Class)} method - the bean class can be used to enable the interceptor for a bean archive. It's not possible to enable a mock
+ * Note that by default all mock interceptors are automatically enabled for the synthetic bean archive. If needed a custom bean
+ * class can be set through the
+ * {@link Builder#beanClass(Class)} method - the bean class can be used to enable the interceptor for a bean archive. It's not
+ * possible to enable a mock
  * interceptor globally (per application).
  * </p>
  *
  * @author Martin Kouba
- * See also {code WeldInitiator.Builder#addBean(Bean)} method.
+ *         See also {code WeldInitiator.Builder#addBean(Bean)} method.
  * @since 1.2.1
  */
 public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
@@ -81,7 +84,8 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
      * @param callback
      * @param interceptorBindings
      */
-    private MockInterceptor(Class<?> beanClass, InterceptionType type, InterceptionCallback callback, Set<Annotation> interceptorBindings) {
+    private MockInterceptor(Class<?> beanClass, InterceptionType type, InterceptionCallback callback,
+            Set<Annotation> interceptorBindings) {
         this.beanClass = beanClass;
         this.type = type;
         this.callback = callback;
@@ -105,7 +109,8 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
 
     @Override
     public MockInterceptorInstance create(CreationalContext<MockInterceptorInstance> creationalContext) {
-        return new MockInterceptorInstance(getInterceptedBean(creationalContext), BeanManagerProxy.unwrap(CDI.current().getBeanManager()).getContextId());
+        return new MockInterceptorInstance(getInterceptedBean(creationalContext),
+                BeanManagerProxy.unwrap(CDI.current().getBeanManager()).getContextId());
     }
 
     @Override
@@ -167,19 +172,22 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
             Class<?> ctxImplClazz;
             if (ctx.getClass().getName().startsWith("org.jboss.weld.contexts")) {
                 // 3.x
-                ctxImplClazz = MockInterceptor.class.getClassLoader().loadClass("org.jboss.weld.contexts.CreationalContextImpl");
+                ctxImplClazz = MockInterceptor.class.getClassLoader()
+                        .loadClass("org.jboss.weld.contexts.CreationalContextImpl");
             } else {
                 // 2.x
                 ctxImplClazz = MockInterceptor.class.getClassLoader().loadClass("org.jboss.weld.context.CreationalContextImpl");
             }
             Object parentContext = ctxImplClazz.getMethod("getParentCreationalContext").invoke(ctx);
             if (parentContext != null) {
-                Contextual<?> interceptedContextual = (Contextual<?>) ctxImplClazz.getMethod("getContextual").invoke(parentContext);
+                Contextual<?> interceptedContextual = (Contextual<?>) ctxImplClazz.getMethod("getContextual")
+                        .invoke(parentContext);
                 if (interceptedContextual instanceof Bean<?>) {
                     interceptedBean = (Bean<?>) interceptedContextual;
                 }
             }
-        } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException
+                | SecurityException | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
         return interceptedBean;
@@ -233,8 +241,10 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
         }
 
         /**
-         * Allows to specify a bean class of an interceptor. This is only required if you later on need to enforce interceptor ordering via
-         * <code>Weld.enableInterceptors()</code>. Note that such ordering corresponds to enabling interceptors via beans.xml (e.g. per bean archive).
+         * Allows to specify a bean class of an interceptor. This is only required if you later on need to enforce interceptor
+         * ordering via
+         * <code>Weld.enableInterceptors()</code>. Note that such ordering corresponds to enabling interceptors via beans.xml
+         * (e.g. per bean archive).
          *
          * @param beanClass
          * @return self

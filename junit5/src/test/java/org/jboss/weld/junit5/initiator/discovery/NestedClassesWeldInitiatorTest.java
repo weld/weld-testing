@@ -1,6 +1,7 @@
 package org.jboss.weld.junit5.initiator.discovery;
 
 import jakarta.inject.Inject;
+
 import org.jboss.weld.exceptions.UnsatisfiedResolutionException;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldInitiator;

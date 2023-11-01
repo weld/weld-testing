@@ -16,8 +16,6 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -25,11 +23,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+
 /**
  * Meta-annotation that allows test classes to be extended with {@code @EnableAutoWeld}
  * instead of {@code @ExtendWith(WeldJunit5AutoExtension.class)}.
  *
- * <pre><br>
+ * <pre>
+ * <br>
  * &#64;EnableAutoWeld
  * public class SimpleTest {
  *

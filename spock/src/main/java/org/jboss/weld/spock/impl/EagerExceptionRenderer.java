@@ -29,7 +29,8 @@ import org.spockframework.runtime.model.SpecInfo;
  * A global Spock extension that eagerly renders exceptions, otherwise {@code toString()} might be called
  * on a CDI proxy when the container is shut down already and the call cannot be done.
  *
- * <p>If in a power assertion output you see something like
+ * <p>
+ * If in a power assertion output you see something like
  * {@code Something$Proxy$_$$_WeldClientProxy@4303056f (renderer threw IllegalStateException)},
  * this extension might miss some places where to eagerly render the exception, and you should
  * open an issue with a reproducer.
@@ -43,14 +44,13 @@ public class EagerExceptionRenderer implements IGlobalExtension {
                 .concat(
                         StreamSupport.stream(spec.getAllFixtureMethods().spliterator(), false),
                         spec.getAllFeatures().stream().map(FeatureInfo::getFeatureMethod))
-                .forEach(method ->
-                        method.addInterceptor(invocation -> {
-                            try {
-                                invocation.proceed();
-                            } catch (SpockAssertionError spockAssertionError) {
-                                spockAssertionError.toString();
-                                throw spockAssertionError;
-                            }
-                        }));
+                .forEach(method -> method.addInterceptor(invocation -> {
+                    try {
+                        invocation.proceed();
+                    } catch (SpockAssertionError spockAssertionError) {
+                        spockAssertionError.toString();
+                        throw spockAssertionError;
+                    }
+                }));
     }
 }

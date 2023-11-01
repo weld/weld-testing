@@ -17,16 +17,19 @@
 
 package org.jboss.weld.spock;
 
+import static org.jboss.weld.spock.EnableWeld.Scope.ITERATION;
+
 import org.jboss.weld.spock.EnableWeld.Scope;
 import org.jboss.weld.spock.impl.EnableWeldExtension;
-import spock.config.ConfigurationObject;
 
-import static org.jboss.weld.spock.EnableWeld.Scope.ITERATION;
+import spock.config.ConfigurationObject;
 
 /**
  * Configuration settings for the weld-spock extensions.
  *
- * <p><b>Example:</b>
+ * <p>
+ * <b>Example:</b>
+ *
  * <pre>{@code
  * import static org.jboss.weld.spock.EnableWeld.Scope.SPECIFICATION
  *

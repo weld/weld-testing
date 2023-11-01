@@ -1,5 +1,11 @@
 package org.jboss.weld.junit4.bean;
 
+import java.util.List;
+import java.util.Set;
+
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.util.TypeLiteral;
+
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Assert;
@@ -7,18 +13,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.enterprise.util.TypeLiteral;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Tests {@link org.jboss.weld.junit.MockBean} adding a bean that is a globally enabled alternative.
  *
  * @author Matej Novotny
  */
 public class AddGloballyEnabledAlternativeTest {
-    
+
     @Rule
     public WeldInitiator weld = WeldInitiator.from(Bar.class)
             .addBeans(createFooAlternativeBean(), createListBean())

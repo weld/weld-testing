@@ -19,14 +19,14 @@ package org.jboss.weld.junit5.basic.unsatisfied;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-
 @ApplicationScoped
 public class FooDeps {
 
     @Inject
     Baz baz;
 
-    public FooDeps() {}
+    public FooDeps() {
+    }
 
     public String getBar() {
         return baz.getBar();

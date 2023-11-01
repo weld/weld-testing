@@ -31,7 +31,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class CustomWeldTest {
 
     @WeldSetup
-    public WeldInitiator weld = WeldInitiator.of(WeldInitiator.createWeld().alternatives(FooAlternative.class).beanClasses(Foo.class, FooAlternative.class));
+    public WeldInitiator weld = WeldInitiator
+            .of(WeldInitiator.createWeld().alternatives(FooAlternative.class).beanClasses(Foo.class, FooAlternative.class));
 
     @Test
     public void testFooAlternative() {

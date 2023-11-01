@@ -31,5 +31,5 @@ import jakarta.interceptor.InterceptorBinding;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface TestInterceptorBinding {
-    
+
 }

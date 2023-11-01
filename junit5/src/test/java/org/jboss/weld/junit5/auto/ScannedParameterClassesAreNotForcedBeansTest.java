@@ -1,15 +1,13 @@
 package org.jboss.weld.junit5.auto;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import jakarta.enterprise.inject.Produces;
 
 import org.jboss.weld.junit5.auto.beans.unsatisfied.ConstructedV8NoAnnotation;
 import org.jboss.weld.junit5.auto.beans.unsatisfied.V8NoAnnotation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import jakarta.enterprise.inject.Produces;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 
 @EnableAutoWeld
 @AddBeanClasses(ConstructedV8NoAnnotation.class)

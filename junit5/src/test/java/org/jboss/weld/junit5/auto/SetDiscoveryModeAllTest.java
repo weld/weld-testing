@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
 import org.jboss.weld.bootstrap.spi.BeanDiscoveryMode;
 import org.jboss.weld.junit5.auto.discovery.WithBeanDefiningAnnotation;
 import org.jboss.weld.junit5.auto.discovery.WithoutBeanDefiningAnnotation;

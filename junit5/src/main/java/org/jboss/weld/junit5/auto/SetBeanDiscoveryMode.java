@@ -1,12 +1,12 @@
 package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.bootstrap.spi.BeanDiscoveryMode;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.jboss.weld.bootstrap.spi.BeanDiscoveryMode;
 
 /**
  * Sets discovery mode for Weld SE synthetic bean archive. Valid options are {@link BeanDiscoveryMode#ALL} and

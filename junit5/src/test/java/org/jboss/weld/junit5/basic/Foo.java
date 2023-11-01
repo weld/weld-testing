@@ -19,14 +19,13 @@ package org.jboss.weld.junit5.basic;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 
-
-
 @ApplicationScoped
 public class Foo implements IFoo {
 
     private String bar;
 
-    public Foo() {}
+    public Foo() {
+    }
 
     public Foo(String bar) {
         this.bar = bar;

@@ -18,14 +18,18 @@
 package org.jboss.weld.spock;
 
 import org.jboss.weld.environment.se.Weld;
+
 import spock.lang.Specification;
 
 /**
- * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, or if the automagic mode is used,
+ * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, or if the automagic mode is
+ * used,
  * all service providers of this interface are used to enrich the default test environment. The initial {@link Weld} instance is
  * created using {@link WeldInitiator#createWeld()}.
  *
- * <p>A system property with key equal to FQCN of a customizer class may be used to disable an enricher completely. E.g. for a class
+ * <p>
+ * A system property with key equal to FQCN of a customizer class may be used to disable an enricher completely. E.g. for a
+ * class
  * {@code org.weld.FooEnricher} use {@code -Dorg.weld.FooEnricher=false} to disable the enricher.
  *
  * @author Björn Kautler
@@ -34,12 +38,13 @@ public interface WeldSpockEnricher {
     /**
      * Enrich the default test environment.
      *
-     * <p>{@link Weld#initialize()} and {@link WeldInitiator.Builder#build()} methods must never be invoked in an enricher!
+     * <p>
+     * {@link Weld#initialize()} and {@link WeldInitiator.Builder#build()} methods must never be invoked in an enricher!
      *
-     * @param testInstance         the test instance for which the enricher is called; this is {@code null}
-     *                             if the enricher is called from a {@code SPECIFICATION} scoped interceptor of from a
-     *                             {@code FEATURE} scoped interceptor of a data-driven feature
-     * @param weld                 the weld instance to be customized
+     * @param testInstance the test instance for which the enricher is called; this is {@code null}
+     *        if the enricher is called from a {@code SPECIFICATION} scoped interceptor of from a
+     *        {@code FEATURE} scoped interceptor of a data-driven feature
+     * @param weld the weld instance to be customized
      * @param weldInitiatorBuilder the weld initiator builder to be customized
      */
     void enrich(Specification testInstance, Weld weld, WeldInitiator.Builder weldInitiatorBuilder);

@@ -35,8 +35,8 @@ public class PrivateWeldInitiatorTest {
 
     @WeldSetup
     private WeldInitiator weld = WeldInitiator
-        .of(new Weld()
-            .addBeanClass(Foo.class));
+            .of(new Weld()
+                    .addBeanClass(Foo.class));
 
     @Test
     public void testPrivateWeldInit() {
