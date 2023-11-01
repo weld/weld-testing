@@ -17,29 +17,33 @@
 
 package org.jboss.weld.spock;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import org.jboss.weld.spock.impl.EnableWeldExtension;
-import spock.lang.Shared;
-
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.jboss.weld.spock.EnableWeld.Scope.ITERATION;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.jboss.weld.spock.impl.EnableWeldExtension;
+
+import spock.lang.Shared;
+
 /**
  * An annotation with which Weld can be enabled on specification or feature level if it was
  * disabled globally or on specification level.
  *
- * <p>The exact effect of this annotation depends on the further properties set on it as described
+ * <p>
+ * The exact effect of this annotation depends on the further properties set on it as described
  * in the documentation of the individual properties.
  *
- * <p>On any class that is not a specification and on any method that is not a feature, this annotation
+ * <p>
+ * On any class that is not a specification and on any method that is not a feature, this annotation
  * is simply ignored and has no effect.
  *
- * <p>If this annotation is applied on the same element as {@link DisableWeld @DisableWeld}, an exception
+ * <p>
+ * If this annotation is applied on the same element as {@link DisableWeld @DisableWeld}, an exception
  * is thrown as it is unclear which should have precedence.
  *
  * @author Björn Kautler
@@ -56,7 +60,8 @@ public @interface EnableWeld {
      * Whether to use the {@link org.jboss.weld.spock.impl.EnableWeldManualInterceptor} ({@code false}) with which you mostly
      * manually configure Weld and have full control over which beans make it into the container, or the
      * {@link org.jboss.weld.spock.impl.EnableWeldAutoInterceptor} with which most things should happen automagically
-     * but can be adjusted using annotations. See those classes' documentation and also {@link EnableWeldExtension} for further information.
+     * but can be adjusted using annotations. See those classes' documentation and also {@link EnableWeldExtension} for further
+     * information.
      *
      * @return whether to use automagic or manual logic
      */
@@ -77,7 +82,8 @@ public @interface EnableWeld {
      * running Spock extension. Using this parameter, this automatic behavior can be disabled and instead require
      * that each parameter that should be injected has a qualifier annotation, like for example {@code @Default}.
      *
-     * <p>If explicit parameter injection is enabled and a parameter that is not yet injected by another Spock extension
+     * <p>
+     * If explicit parameter injection is enabled and a parameter that is not yet injected by another Spock extension
      * but has a qualifier annotation cannot be resolved using the Weld container, an exception will be thrown.
      *
      * @return whether to require explicit parameter injection
@@ -93,31 +99,40 @@ public @interface EnableWeld {
          * exclusively used for this iteration and after the iteration (after the {@code cleanup} method is called)
          * shut down again.
          *
-         * <p>The {@link Shared @Shared} fields will be injected, but only at the time the iteration starts running.
+         * <p>
+         * The {@link Shared @Shared} fields will be injected, but only at the time the iteration starts running.
          * If you have multiple such Weld instances in one specification and use the parallel execution feature of Spock,
-         * those Weld containers might overwrite each other's values, so be careful what you configure to not get unexpected results.
+         * those Weld containers might overwrite each other's values, so be careful what you configure to not get unexpected
+         * results.
          *
-         * <p>The non-{@code @Shared} fields will also be injected, as well as method parameters of {@code setup},
+         * <p>
+         * The non-{@code @Shared} fields will also be injected, as well as method parameters of {@code setup},
          * feature, and {@code cleanup} methods.
          *
-         * <p>{@code setupSpec} and {@code cleanupSpec} method parameters will not be injected as at the time those
+         * <p>
+         * {@code setupSpec} and {@code cleanupSpec} method parameters will not be injected as at the time those
          * methods are executed, the Weld container is either not yet running or already shut down.
          */
         ITERATION,
 
         /**
-         * Before a feature (before the {@code setup} method of the first iteration is called) a new Weld container will be started,
+         * Before a feature (before the {@code setup} method of the first iteration is called) a new Weld container will be
+         * started,
          * exclusively used for all iterations of this feature and after the feature (after the {@code cleanup} method of
          * the last iteration is called) shut down again.
          *
-         * <p>The {@link Shared @Shared} fields will be injected, but only at the time the first iteration starts running.
+         * <p>
+         * The {@link Shared @Shared} fields will be injected, but only at the time the first iteration starts running.
          * If you have multiple such Weld instances in one specification and use the parallel execution feature of Spock,
-         * those Weld containers might overwrite each other's values, so be careful what you configure to not get unexpected results.
+         * those Weld containers might overwrite each other's values, so be careful what you configure to not get unexpected
+         * results.
          *
-         * <p>The non-{@code @Shared} fields will also be injected, as well as method parameters of {@code setup},
+         * <p>
+         * The non-{@code @Shared} fields will also be injected, as well as method parameters of {@code setup},
          * feature, and {@code cleanup} methods.
          *
-         * <p>{@code setupSpec} and {@code cleanupSpec} method parameters will not be injected as at the time those
+         * <p>
+         * {@code setupSpec} and {@code cleanupSpec} method parameters will not be injected as at the time those
          * methods are executed, the Weld container is either not yet running or already shut down.
          */
         FEATURE,
@@ -127,12 +142,15 @@ public @interface EnableWeld {
          * exclusively used for all iterations of all features of this specification and after the specification
          * (after the {@code cleanupSpec} method is called) shut down again.
          *
-         * <p>The {@link Shared @Shared} fields will be injected once after the container was booted successfully.
+         * <p>
+         * The {@link Shared @Shared} fields will be injected once after the container was booted successfully.
          *
-         * <p>The non-{@code @Shared} fields will also be injected, as well as method parameters of feature,
+         * <p>
+         * The non-{@code @Shared} fields will also be injected, as well as method parameters of feature,
          * and all fixture methods.
          *
-         * <p>This scope can only be selected on a specification or in the Spock configuration file. If it is used
+         * <p>
+         * This scope can only be selected on a specification or in the Spock configuration file. If it is used
          * for a feature annotation, an exception will be thrown.
          */
         SPECIFICATION

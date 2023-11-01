@@ -17,29 +17,33 @@
 
 package org.jboss.weld.spock.auto;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import jakarta.enterprise.inject.Produces;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 /**
  * {@code @ExcludeBean} excludes a bean, or multiple beans, that include a bean defining annotation
  * (e.g. scope) from automatic discovery. This can be helpful to allow replacing a bean class with a different
  * implementation, typically a mock or stub.
  *
- * <p>The type of bean to exclude is implied by the annotated fields' type or annotated methods' return type. If the type
+ * <p>
+ * The type of bean to exclude is implied by the annotated fields' type or annotated methods' return type. If the type
  * is a base class or interface all beans extending / implementing that type will be excluded.
  *
- * <p>NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
+ * <p>
+ * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
  * implied type that are defined by {@link Produces} producer methods / fields or synthetic
  * beans. Also, current implementation excludes beans based on type, disregarding any qualifiers that are specified.
  *
- * <p><b>Example:</b>
+ * <p>
+ * <b>Example:</b>
+ *
  * <pre>
  * &#64;EnableWeld(automagic = true)
  * class TestSomeFoo extends Specification {

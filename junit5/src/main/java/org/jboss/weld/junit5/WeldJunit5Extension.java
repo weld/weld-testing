@@ -27,20 +27,6 @@ import static org.jboss.weld.junit5.ExtensionContextUtils.setInitiatorToStore;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 
-import jakarta.enterprise.inject.spi.BeanManager;
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.inject.WeldInstance;
-import org.jboss.weld.util.collections.ImmutableList;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,6 +39,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
+
+import jakarta.enterprise.inject.spi.BeanManager;
+
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.inject.WeldInstance;
+import org.jboss.weld.util.collections.ImmutableList;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
 
 /**
  * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method (or once per test class
@@ -144,26 +145,33 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+            throws ParameterResolutionException {
         // we did our checks in supportsParameter() method, now we can do simple resolution
         if (getContainerFromStore(extensionContext) != null) {
-            List<Annotation> qualifiers = resolveQualifiers(parameterContext, getContainerFromStore(extensionContext).getBeanManager());
+            List<Annotation> qualifiers = resolveQualifiers(parameterContext,
+                    getContainerFromStore(extensionContext).getBeanManager());
             return getContainerFromStore(extensionContext)
                     .select(parameterContext.getParameter().getParameterizedType(),
-                            qualifiers.toArray(new Annotation[qualifiers.size()])).get();
+                            qualifiers.toArray(new Annotation[qualifiers.size()]))
+                    .get();
         }
         return null;
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+            throws ParameterResolutionException {
         // if weld container isn't up yet or if it's not Method, we don't resolve it
-        if (getContainerFromStore(extensionContext) == null || (!(parameterContext.getDeclaringExecutable() instanceof Method))) {
+        if (getContainerFromStore(extensionContext) == null
+                || (!(parameterContext.getDeclaringExecutable() instanceof Method))) {
             return false;
         }
-        List<Annotation> qualifiers = resolveQualifiers(parameterContext, getContainerFromStore(extensionContext).getBeanManager());
+        List<Annotation> qualifiers = resolveQualifiers(parameterContext,
+                getContainerFromStore(extensionContext).getBeanManager());
         // if we require explicit parameter injection (via global settings or annotation) and there are no qualifiers we don't resolve it
-        if ((getExplicitInjectionInfoFromStore(extensionContext) || (methodRequiresExplicitParamInjection(parameterContext))) && qualifiers.isEmpty()) {
+        if ((getExplicitInjectionInfoFromStore(extensionContext) || (methodRequiresExplicitParamInjection(parameterContext)))
+                && qualifiers.isEmpty()) {
             return false;
         } else {
             // attempt to resolve the bean; at this point we know it should be a CDI bean since it has CDI qualifiers
@@ -172,7 +180,8 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
                     parameterContext.getParameter().getParameterizedType(),
                     qualifiers.toArray(new Annotation[qualifiers.size()]));
             if (!select.isResolvable()) {
-                throw new ParameterResolutionException(String.format("Weld has failed to resolve test parameter [%s] in method [%s].%n" +
+                throw new ParameterResolutionException(String.format(
+                        "Weld has failed to resolve test parameter [%s] in method [%s].%n" +
                                 "%s dependency has type %s and qualifiers %s.",
                         parameterContext.getParameter(), parameterContext.getDeclaringExecutable().toGenericString(),
                         select.isAmbiguous() ? "Ambiguous" : "Unsatisfied",
@@ -296,9 +305,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         // Multiple occurrences of @WeldSetup in the hierarchy will lead to an exception
         if (foundInitiatorFields.size() > 1) {
             final String msg = foundInitiatorFields.stream()
-                    .map(f -> "Field '" + f.getName() + "' with type " + f.getType() + " which is declared in " + f.getDeclaringClass())
+                    .map(f -> "Field '" + f.getName() + "' with type " + f.getType() + " which is declared in "
+                            + f.getDeclaringClass())
                     .collect(Collectors.joining("\n", "Multiple @WeldSetup annotated fields found, "
-                                                      + "only one is allowed! Fields found:\n", ""));
+                            + "only one is allowed! Fields found:\n", ""));
             throw new IllegalStateException(msg);
         }
 

@@ -59,7 +59,7 @@ import org.jboss.weld.util.reflection.HierarchyDiscovery;
  * @author Martin Kouba
  *
  * @param <T>
- * See also {@code WeldInitiator.Builder#addBean(Bean)} method.
+ *        See also {@code WeldInitiator.Builder#addBean(Bean)} method.
  * @since 1.1
  */
 public class MockBean<T> implements Bean<T>, PassivationCapable {
@@ -76,7 +76,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
      * </ul>
      *
      * <p>
-     * Note that {@link Builder#creating(Object)} or {@link Builder#create(CreateFunction)} must be always set. Otherwise, an {@link IllegalStateException} is
+     * Note that {@link Builder#creating(Object)} or {@link Builder#create(CreateFunction)} must be always set. Otherwise, an
+     * {@link IllegalStateException} is
      * thrown during {@link Builder#build()} invocation.
      * <p>
      *
@@ -87,7 +88,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     }
 
     /**
-     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the specified bean types are added to the
+     * A convenient method to create a {@link Bean} with default values (see also {@link #builder()}). Additionaly, the
+     * specified bean types are added to the
      * set of bean types and {@link Bean#create(CreationalContext)} will always return the specified bean instance.
      *
      * @param beanInstance
@@ -101,10 +103,12 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     /**
      * A convenient method to create a {@link Builder} initialized from the specified bean class.
      * <p>
-     * Note that the container may not be started yet and so it is not possible to use CDI SPI. Instead, we try to simulate the default bean discovery.
+     * Note that the container may not be started yet and so it is not possible to use CDI SPI. Instead, we try to simulate the
+     * default bean discovery.
      * </p>
      * <p>
-     * By default, {@link Unmanaged} is used to create/destroy the bean instance. However, it is possible to override this behavior.
+     * By default, {@link Unmanaged} is used to create/destroy the bean instance. However, it is possible to override this
+     * behavior.
      * </p>
      *
      * @param beanClass
@@ -138,7 +142,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     private final Class<?> beanClass;
 
-    protected MockBean(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative, boolean selectForSyntheticBeanArchive, String name,
+    protected MockBean(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative,
+            boolean selectForSyntheticBeanArchive, String name,
             Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope, CreateFunction<T> createCallback,
             DestroyFunction<T> destroyCallback) {
         this.beanClass = beanClass;
@@ -151,7 +156,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         this.scope = scope;
         this.createCallback = createCallback;
         this.destroyCallback = destroyCallback;
-        this.id = new StringBuilder().append(MockBean.class.getName()).append("_").append(SEQUENCE.incrementAndGet()).toString();
+        this.id = new StringBuilder().append(MockBean.class.getName()).append("_").append(SEQUENCE.incrementAndGet())
+                .toString();
     }
 
     @Override
@@ -207,7 +213,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     }
 
     /**
-     * Initiator should use {@link #getBeanClass()} to select the alternative. Also the alternative should only be selected if {@link #isAlternative()} also
+     * Initiator should use {@link #getBeanClass()} to select the alternative. Also the alternative should only be selected if
+     * {@link #isAlternative()} also
      * returns <code>true</code>.
      *
      * @return <code>true</code> if the initiator should select the bean for the synthetic bean archive
@@ -252,7 +259,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         }
         if (!scopes.isEmpty()) {
             if (scopes.size() > 1) {
-                throw new IllegalStateException("At most one scope may be specifie [beanClass: " + beanClass + ", scopes: " + scopes + "]");
+                throw new IllegalStateException(
+                        "At most one scope may be specifie [beanClass: " + beanClass + ", scopes: " + scopes + "]");
             }
             builder.scope(scopes.iterator().next().annotationType());
         }
@@ -292,7 +300,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     private static Set<Annotation> getScopes(AnnotatedElement element) {
         Set<Annotation> scopes = new HashSet<>();
         for (Annotation annotation : element.getAnnotations()) {
-            if (annotation.annotationType().isAnnotationPresent(Scope.class) || annotation.annotationType().isAnnotationPresent(NormalScope.class)) {
+            if (annotation.annotationType().isAnnotationPresent(Scope.class)
+                    || annotation.annotationType().isAnnotationPresent(NormalScope.class)) {
                 scopes.add(annotation);
             }
         }
@@ -477,8 +486,10 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * The bean is an alternative and should be automatically selected for the synthetic bean archive.
          *
          * <p>
-         * Users are encouraged to specify {@link #beanClass(Class)} when using this method. The bean class is used to determine which alternative beans are
-         * selected for a bean archive. By default, all mock beans share the same bean class - {@code org.jboss.weld.junit.WeldCDIExtension}.
+         * Users are encouraged to specify {@link #beanClass(Class)} when using this method. The bean class is used to determine
+         * which alternative beans are
+         * selected for a bean archive. By default, all mock beans share the same bean class -
+         * {@code org.jboss.weld.junit.WeldCDIExtension}.
          * </p>
          *
          * @return self
@@ -493,7 +504,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         }
 
         /**
-         * The bean has the given bean class, is an alternative and should be automatically selected for the synthetic bean archive.
+         * The bean has the given bean class, is an alternative and should be automatically selected for the synthetic bean
+         * archive.
          *
          * @param beanClass
          * @return self
@@ -544,7 +556,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * Use {@link Unmanaged} to create/destroy the bean instance.
          *
          * <p>
-         * NOTE: {@link CreationalContext#toString()} is used as a key in a map and therefore must be unique for the lifetime of a bean instance. Weld
+         * NOTE: {@link CreationalContext#toString()} is used as a key in a map and therefore must be unique for the lifetime of
+         * a bean instance. Weld
          * implementation fulfills this requirement.
          * </p>
          *
@@ -565,7 +578,8 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
                 if (unmanagedInstance != null) {
                     if (!unmanagedInstance.get().equals(o)) {
                         throw new IllegalStateException(
-                                "Unmanaged instance [" + unmanagedInstance.get() + "] is not equal to the bean instance to be destroyed: " + o);
+                                "Unmanaged instance [" + unmanagedInstance.get()
+                                        + "] is not equal to the bean instance to be destroyed: " + o);
                     }
                     unmanagedInstance.preDestroy().dispose();
                 }
@@ -622,10 +636,12 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             }
             // if given any priority, we will instead initialize MockBeanWithPriority
             if (priority != null) {
-                return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, priority, name, normalizedQualfiers, types, scope, createCallback,
+                return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, priority,
+                        name, normalizedQualfiers, types, scope, createCallback,
                         destroyCallback);
             } else {
-                return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, normalizedQualfiers, types, scope, createCallback,
+                return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name,
+                        normalizedQualfiers, types, scope, createCallback,
                         destroyCallback);
             }
         }

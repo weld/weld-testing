@@ -56,11 +56,11 @@ public class InjectResourcesTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.fromTestPackage()
-                                                .bindResource("bar", "hello1")
-                                                .bindResource("java:comp/env/baz", "hello2")
-                                                .setEjbFactory(ip -> new DummySessionBean("ping"))
-                                                .setPersistenceUnitFactory(getPUFactory())
-                                                .setPersistenceContextFactory(getPCFactory()).build();
+            .bindResource("bar", "hello1")
+            .bindResource("java:comp/env/baz", "hello2")
+            .setEjbFactory(ip -> new DummySessionBean("ping"))
+            .setPersistenceUnitFactory(getPUFactory())
+            .setPersistenceContextFactory(getPCFactory()).build();
 
     @Test
     public void testResourceInjection() {

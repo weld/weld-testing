@@ -58,7 +58,8 @@ public class AddBeanTest {
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
         return MockBean.builder()
-                .types(new TypeLiteral<List<String>>() {}.getType())
+                .types(new TypeLiteral<List<String>>() {
+                }.getType())
                 .qualifiers(Meaty.Literal.INSTANCE)
                 .creating(
                         // Mock object provided by Mockito

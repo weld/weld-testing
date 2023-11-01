@@ -1,14 +1,13 @@
 package org.jboss.weld.junit5.auto;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import jakarta.enterprise.inject.Produces;
+
 import org.jboss.weld.junit5.basic.unsatisfied.FooDeps;
 import org.jboss.weld.junit5.basic.unsatisfied.SomeFooDeps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import jakarta.enterprise.inject.Produces;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 
 @EnableAutoWeld
 @AddBeanClasses(SomeFooDeps.class)

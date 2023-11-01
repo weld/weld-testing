@@ -23,19 +23,22 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 /**
  * Custom extension just to verify a case where we declare we cannot handle some types.
+ *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 public class CustomExtension implements ParameterResolver {
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+            throws ParameterResolutionException {
         // dumb approach but we only ever resolve Bar anyway :)
         return new Bar(CustomExtension.class.getSimpleName());
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+            throws ParameterResolutionException {
         return parameterContext.getParameter().getType().equals(Bar.class);
     }
-    
+
 }

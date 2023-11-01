@@ -33,7 +33,9 @@ import org.jboss.weld.junit.AbstractWeldInitiator;
 /**
  * JUnit 5 initiator - can be used to customize the Weld SE container started by {@link WeldJunit5Extension}.
  *
- * <p><b>Example:</b>
+ * <p>
+ * <b>Example:</b>
+ *
  * <pre>
  * &#64;ExtendWith(WeldJunit5Extension.class)
  * public class SimpleTest {
@@ -167,16 +169,21 @@ public class WeldInitiator extends AbstractWeldInitiator {
         }
 
         @Override
-        protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(), getPersistenceUnitFactory(), getPersistenceContextFactory());
+        protected WeldInitiator build(Weld weld, List<Object> instancesToInject,
+                Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(),
+                    getPersistenceUnitFactory(), getPersistenceContextFactory());
         }
 
     }
 
-    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
-        Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
-        Function<InjectionPoint, Object> persistenceContextFactory) {
-        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
+    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate,
+            Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory,
+            Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
+        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
+                persistenceContextFactory);
     }
 
     void shutdownWeld() {

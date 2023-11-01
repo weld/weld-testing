@@ -25,6 +25,7 @@ import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
 import jakarta.enterprise.inject.spi.ProcessInjectionTarget;
 import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Singleton;
+
 import org.jboss.weld.injection.ForwardingInjectionTarget;
 
 /**

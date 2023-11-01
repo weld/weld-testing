@@ -4,4 +4,5 @@
 /.settings/
 /.idea
 *.iml
+.cache
 

@@ -54,9 +54,11 @@ public class MockResourceInjectionServices implements ResourceInjectionServices 
         if (resource == null) {
             throw new IllegalArgumentException("No @Resource annotation found on " + injectionPoint);
         }
-        if (injectionPoint.getMember() instanceof Method && ((Method) injectionPoint.getMember()).getParameterTypes().length != 1) {
+        if (injectionPoint.getMember() instanceof Method
+                && ((Method) injectionPoint.getMember()).getParameterTypes().length != 1) {
             throw new IllegalArgumentException(
-                    "Injection point represents a method which doesn't follow JavaBean conventions (must have exactly one parameter) " + injectionPoint);
+                    "Injection point represents a method which doesn't follow JavaBean conventions (must have exactly one parameter) "
+                            + injectionPoint);
         }
         String name;
         if (!resource.lookup().equals("")) {

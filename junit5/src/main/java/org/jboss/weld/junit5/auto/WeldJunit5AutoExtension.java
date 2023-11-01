@@ -16,13 +16,6 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.junit5.WeldInitiator;
-import org.jboss.weld.junit5.WeldJunit5Extension;
-import org.jboss.weld.junit5.WeldJunitEnricher;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.platform.commons.support.AnnotationSupport;
-
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
@@ -31,16 +24,26 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit5.WeldJunitEnricher;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.commons.support.AnnotationSupport;
+
 /**
  * An alternative to {@link WeldJunit5Extension} allowing to fully leverage an annotation based configuration approach.
  * When used, the extension will attempt to resolve all beans used in your test class and automatically adds them to
  * the Weld container while bootstrapping it.
  *
- * <p>There are quite some annotations which can be used to configure it further.
+ * <p>
+ * There are quite some annotations which can be used to configure it further.
  *
- * <p>Furthermore, all discovered {@link WeldJunitEnricher}s are invoked after the annotations are processed.
+ * <p>
+ * Furthermore, all discovered {@link WeldJunitEnricher}s are invoked after the annotations are processed.
  *
- * <p>Note that this approach cannot be combined with {@link WeldJunit5Extension}, choose one or the other approach, not both.
+ * <p>
+ * Note that this approach cannot be combined with {@link WeldJunit5Extension}, choose one or the other approach, not both.
  *
  * @see ActivateScopes
  * @see AddBeanClasses
@@ -63,7 +66,9 @@ public class WeldJunit5AutoExtension extends WeldJunit5Extension {
             throw new IllegalStateException(foundInitiatorFields
                     .stream()
                     .map(f -> format("Field '%s' with type %s which is in %s", f.getName(), f.getType(), f.getDeclaringClass()))
-                    .collect(joining("\n", "When using automagic mode, no @WeldSetup annotated field should be present! Fields found:\n", "")));
+                    .collect(joining("\n",
+                            "When using automagic mode, no @WeldSetup annotated field should be present! Fields found:\n",
+                            "")));
         }
     }
 

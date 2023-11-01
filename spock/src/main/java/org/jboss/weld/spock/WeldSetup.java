@@ -17,11 +17,11 @@
 
 package org.jboss.weld.spock;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * An annotation used to denote a field holding a {@link WeldInitiator}. This is then picked up by

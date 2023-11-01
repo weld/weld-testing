@@ -26,6 +26,7 @@ import java.util.function.Function;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.Extension;
 import jakarta.enterprise.inject.spi.InjectionPoint;
+
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.AbstractWeldInitiator;
@@ -34,7 +35,9 @@ import org.jboss.weld.junit.AbstractWeldInitiator;
  * Weld initiator - can be used to customize the Weld SE container started by
  * {@link org.jboss.weld.spock.impl.EnableWeldInterceptor}.
  *
- * <p><b>Example:</b>
+ * <p>
+ * <b>Example:</b>
+ *
  * <pre>
  * &#64;EnableWeld
  * public class SimpleTest extends Specification {
@@ -166,15 +169,20 @@ public class WeldInitiator extends AbstractWeldInitiator {
         }
 
         @Override
-        protected WeldInitiator build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
-            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(), getPersistenceUnitFactory(), getPersistenceContextFactory());
+        protected WeldInitiator build(Weld weld, List<Object> instancesToInject,
+                Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
+            return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(),
+                    getPersistenceUnitFactory(), getPersistenceContextFactory());
         }
     }
 
-    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
-                          Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
-                          Function<InjectionPoint, Object> persistenceContextFactory) {
-        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory, persistenceContextFactory);
+    private WeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate,
+            Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory,
+            Function<InjectionPoint, Object> persistenceUnitFactory,
+            Function<InjectionPoint, Object> persistenceContextFactory) {
+        super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
+                persistenceContextFactory);
     }
 
     public void addObjectToInjectInto(Object instanceToInjectInto) {

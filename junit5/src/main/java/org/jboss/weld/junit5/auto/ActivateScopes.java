@@ -16,7 +16,6 @@
  */
 package org.jboss.weld.junit5.auto;
 
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -27,7 +26,6 @@ import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.TestInstance;
 
-
 /**
  * Activates the listed scopes for the duration of the test.
  *
@@ -35,7 +33,7 @@ import org.junit.jupiter.api.TestInstance;
  * {@link TestInstance.Lifecycle}.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Inherited
 @Repeatable(ActivateScopes.All.class)
 public @interface ActivateScopes {
@@ -46,7 +44,7 @@ public @interface ActivateScopes {
      * Container annotation for repeatable {@link ActivateScopes}.
      */
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
+    @Target({ ElementType.TYPE })
     @Inherited
     @interface All {
         ActivateScopes[] value();

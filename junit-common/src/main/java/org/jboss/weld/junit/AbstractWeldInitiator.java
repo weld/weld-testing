@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -49,6 +48,8 @@ import org.jboss.weld.environment.ContainerInstance;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.inject.WeldInstance;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  *
@@ -89,8 +90,10 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
     protected volatile WeldContainer container;
 
-    protected AbstractWeldInitiator(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
-            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory, Function<InjectionPoint, Object> persistenceUnitFactory,
+    protected AbstractWeldInitiator(Weld weld, List<Object> instancesToInject,
+            Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
+            Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory,
+            Function<InjectionPoint, Object> persistenceUnitFactory,
             Function<InjectionPoint, Object> persistenceContextFactory) {
         this.instancesToInject = new ArrayList<>();
         for (Object instance : instancesToInject) {
@@ -141,7 +144,9 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
      * Injects the given non-contextual instance immediately. The returned {@link AutoCloseable} should be used
      * to release the creational context once the injected beans are no longer needed.
      *
-     * <p>Example:
+     * <p>
+     * Example:
+     *
      * <pre>{@code
      * try (AutoCloseable contextReleaser = injectNonContextual(this)) {
      *     // do some things with the injected instances
@@ -229,7 +234,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
             // We need to use reflection due to some compatibility issues
             Method eventMethod = container.getClass().getMethod("event");
             return (Event<Object>) eventMethod.invoke(container);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
             throw new IllegalStateException("Cannot invoke WeldContainer.event() method using reflection", e);
         }
     }
@@ -255,7 +261,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
     /**
      *
-     * @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code> otherwise
+     * @return <code>true</code> if the container was initialized completely and is not shut down yet, <code>false</code>
+     *         otherwise
      */
     public boolean isRunning() {
         return (container != null) && container.isRunning();
@@ -316,7 +323,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
             CreationalContext<Object> ctx = beanManager.createCreationalContext(null);
             @SuppressWarnings("unchecked")
             InjectionTarget<Object> injectionTarget = (InjectionTarget<Object>) beanManager
-                    .getInjectionTargetFactory(beanManager.createAnnotatedType(instance.getClass())).createInjectionTarget(null);
+                    .getInjectionTargetFactory(beanManager.createAnnotatedType(instance.getClass()))
+                    .createInjectionTarget(null);
             injectionTarget.inject(instance, ctx);
             creationalContext = ctx;
         }
@@ -357,7 +365,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         }
 
         /**
-         * Activate and deactivate contexts for the given normal scopes for the lifetime of the initialized Weld container, by default for each test method
+         * Activate and deactivate contexts for the given normal scopes for the lifetime of the initialized Weld container, by
+         * default for each test method
          * execution.
          * <p>
          * {@link ApplicationScoped} is ignored as it is always active.
@@ -393,7 +402,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         }
 
         /**
-         * Instructs the initiator to inject the given non-contextual instance once the container is started, i.e. during test execution.
+         * Instructs the initiator to inject the given non-contextual instance once the container is started, i.e. during test
+         * execution.
          *
          * <p>
          * This method could be used e.g. to inject a test class instance:
@@ -416,7 +426,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
          * </pre>
          *
          * <p>
-         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the lifecycle of the non-contextual instance is not
+         * Injected {@link Dependent} bean instances are destroyed after the test execution. However, the lifecycle of the
+         * non-contextual instance is not
          * managed by the container and all injected references will be invalid after the test execution.
          * </p>
          *
@@ -507,7 +518,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
         protected abstract T self();
 
-        protected abstract I build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans);
+        protected abstract I build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate,
+                Set<Bean<?>> beans);
 
         /**
          *
@@ -515,7 +527,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
          */
         public I build() {
             return build(weld, instancesToInject.isEmpty() ? Collections.emptyList() : new ArrayList<>(instancesToInject),
-                    scopesToActivate.isEmpty() ? Collections.<Class<? extends Annotation>> emptySet() : new HashSet<>(scopesToActivate),
+                    scopesToActivate.isEmpty() ? Collections.<Class<? extends Annotation>> emptySet()
+                            : new HashSet<>(scopesToActivate),
                     beans.isEmpty() ? Collections.<Bean<?>> emptySet() : new HashSet<>(beans));
         }
 

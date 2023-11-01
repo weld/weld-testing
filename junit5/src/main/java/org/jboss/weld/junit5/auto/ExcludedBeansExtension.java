@@ -16,15 +16,15 @@
  */
 package org.jboss.weld.junit5.auto;
 
+import java.lang.reflect.Type;
+import java.util.Set;
+
 import jakarta.enterprise.context.NormalScope;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.spi.Extension;
 import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
 import jakarta.enterprise.inject.spi.WithAnnotations;
 import jakarta.inject.Scope;
-import java.lang.reflect.Type;
-import java.util.Set;
-
 
 /**
  * Extension class that ensures selected classes are excluded as
@@ -40,7 +40,7 @@ public class ExcludedBeansExtension implements Extension {
         this.excludedBeanClasses = excludedBeanClasses;
     }
 
-    <T> void excludeBeans(@Observes @WithAnnotations({Scope.class, NormalScope.class}) ProcessAnnotatedType<T> pat) {
+    <T> void excludeBeans(@Observes @WithAnnotations({ Scope.class, NormalScope.class }) ProcessAnnotatedType<T> pat) {
 
         if (excludedBeanClasses.contains(pat.getAnnotatedType().getJavaClass())) {
             pat.veto();

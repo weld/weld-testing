@@ -31,10 +31,10 @@ import org.junit.jupiter.api.Test;
 @EnableAutoWeld
 @AddEnabledInterceptors(TestInterceptor.class)
 public class AddInterceptorTest {
-    
+
     @Inject
     InterceptedBean bean;
-    
+
     @Test
     public void testBeanIsIntercepted() {
         Assertions.assertNotNull(bean);

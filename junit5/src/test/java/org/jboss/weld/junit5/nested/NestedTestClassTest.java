@@ -1,5 +1,7 @@
 package org.jboss.weld.junit5.nested;
 
+import jakarta.inject.Inject;
+
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.jboss.weld.junit5.WeldSetup;
@@ -8,8 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import jakarta.inject.Inject;
 
 /**
  * Tests a {@code @BeforeEach} method in superclass when actual test is in the inner class.

@@ -41,15 +41,18 @@ public class MockInterceptorOrderingTest {
     private static AtomicBoolean guard = new AtomicBoolean();
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.from(WeldInitiator.createWeld().addBeanClass(Foo.class).enableInterceptors(Integer.class, String.class)).addBeans(
-            MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).beanClass(Integer.class).aroundInvoke((ctx, b) -> {
-                return 5;
-                }),
-            MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).beanClass(String.class).aroundInvoke((ctx, b) -> {
-                // Should be never invoked
-                guard.set(true);
-                return -5;
-                })).build();
+    public WeldInitiator weld = WeldInitiator
+            .from(WeldInitiator.createWeld().addBeanClass(Foo.class).enableInterceptors(Integer.class, String.class)).addBeans(
+                    MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).beanClass(Integer.class)
+                            .aroundInvoke((ctx, b) -> {
+                                return 5;
+                            }),
+                    MockInterceptor.withBindings(FooBinding.Literal.INSTANCE).beanClass(String.class).aroundInvoke((ctx, b) -> {
+                        // Should be never invoked
+                        guard.set(true);
+                        return -5;
+                    }))
+            .build();
 
     @Before
     public void setup() {

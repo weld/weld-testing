@@ -1,15 +1,15 @@
 package org.jboss.weld.junit5.alternative;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.inject.Inject;
+
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.inject.Inject;
 
 /**
  * Tests that synthetic archive with only enabled alternative in it still works.
@@ -18,11 +18,9 @@ import jakarta.inject.Inject;
 @EnableWeld
 public class AlternativeAsSoleBeanInSyntheticArchiveTest {
 
-
     @WeldSetup
     public WeldInitiator weld = WeldInitiator.from(WeldInitiator.createWeld())
             .addBeans(createSelectedAlternativeBean()).build();
-
 
     static Bean<?> createSelectedAlternativeBean() {
         return MockBean.builder().types(Fish.class).scope(ApplicationScoped.class).selectedAlternative(Fish.class)

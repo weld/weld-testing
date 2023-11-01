@@ -16,14 +16,14 @@
  */
 package org.jboss.weld.junit5.initiator.discovery;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldSetup;
 import org.jboss.weld.junit5.initiator.bean.Foo;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Tests a case where WeldInitiator is an Object typed field
@@ -35,8 +35,8 @@ public class ObjectWeldInitiatorTest {
 
     @WeldSetup
     public Object weld = WeldInitiator
-        .of(new Weld()
-            .addBeanClass(Foo.class));
+            .of(new Weld()
+                    .addBeanClass(Foo.class));
 
     @Test
     public void testObjectWeldInit() {

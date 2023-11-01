@@ -19,7 +19,6 @@ package org.jboss.weld.junit4;
 import static org.jboss.weld.junit4.WeldInitiator.createWeld;
 import static org.junit.Assert.assertEquals;
 
-import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,7 +29,8 @@ import org.junit.Test;
 public class CustomWeldTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(createWeld().alternatives(FooAlternative.class).beanClasses(Foo.class, FooAlternative.class));
+    public WeldInitiator weld = WeldInitiator
+            .of(createWeld().alternatives(FooAlternative.class).beanClasses(Foo.class, FooAlternative.class));
 
     @Test
     public void testFooAlternative() {

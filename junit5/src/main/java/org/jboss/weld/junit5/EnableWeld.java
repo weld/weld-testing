@@ -29,7 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * Meta-annotation that allows test classes to be extended with {@code @EnableWeld}
  * instead of {@code @ExtendWith(WeldJunit5Extension.class)}.
  *
- * <pre><br>
+ * <pre>
+ * <br>
  * &#64;EnableWeld
  * public class SimpleTest {
  *

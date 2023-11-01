@@ -43,7 +43,8 @@ public class AddPassivatingBeanTest {
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
         return MockBean.builder()
-                .types(new TypeLiteral<List<String>>() {}.getType())
+                .types(new TypeLiteral<List<String>>() {
+                }.getType())
                 .scope(SessionScoped.class)
                 .creating(
                         // Mock object provided by Mockito
@@ -54,7 +55,8 @@ public class AddPassivatingBeanTest {
     @SuppressWarnings("serial")
     @Test
     public void testPassivatingBeanAdded() {
-        assertEquals("42", weld.select(new TypeLiteral<List<String>>() {}).get().get(0));
+        assertEquals("42", weld.select(new TypeLiteral<List<String>>() {
+        }).get().get(0));
     }
 
 }

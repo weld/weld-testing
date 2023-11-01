@@ -29,6 +29,6 @@ public class SuperclassWithProtectedWeldInitiator {
 
     @WeldSetup
     protected WeldInitiator weld = WeldInitiator
-        .of(new Weld()
-            .addBeanClass(Foo.class));
+            .of(new Weld()
+                    .addBeanClass(Foo.class));
 }

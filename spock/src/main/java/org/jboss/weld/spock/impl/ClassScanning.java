@@ -17,6 +17,18 @@
 
 package org.jboss.weld.spock.impl;
 
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedFields;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedMethods;
+import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.BOTTOM_UP;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
+import static org.spockframework.util.Identifiers.CLEANUP_METHOD;
+import static org.spockframework.util.Identifiers.CLEANUP_SPEC_METHOD;
+import static org.spockframework.util.Identifiers.SETUP_METHOD;
+import static org.spockframework.util.Identifiers.SETUP_SPEC_METHOD;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -44,6 +56,7 @@ import jakarta.enterprise.inject.spi.Extension;
 import jakarta.inject.Inject;
 import jakarta.inject.Qualifier;
 import jakarta.interceptor.Interceptor;
+
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.spock.auto.AddBeanClasses;
 import org.jboss.weld.spock.auto.AddEnabledDecorators;
@@ -58,18 +71,6 @@ import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.util.CollectionUtils;
 import org.junit.platform.commons.util.Preconditions;
 import org.spockframework.runtime.model.FeatureMetadata;
-
-import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
-import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedFields;
-import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedMethods;
-import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
-import static org.junit.platform.commons.support.HierarchyTraversalMode.BOTTOM_UP;
-import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
-import static org.spockframework.util.Identifiers.CLEANUP_METHOD;
-import static org.spockframework.util.Identifiers.CLEANUP_SPEC_METHOD;
-import static org.spockframework.util.Identifiers.SETUP_METHOD;
-import static org.spockframework.util.Identifiers.SETUP_SPEC_METHOD;
 
 /**
  * Provides <b>automagic</b> bean class discovery for a test class instance.
@@ -89,9 +90,9 @@ class ClassScanning {
             Class<?> currClass = classesToProcess.remove(0);
 
             if (foundClasses.contains(currClass) ||
-                excludedBeanTypes.contains(currClass) || excludedBeanClasses.contains(currClass) ||
-                currClass.isPrimitive() || currClass.isSynthetic() ||
-                currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
+                    excludedBeanTypes.contains(currClass) || excludedBeanClasses.contains(currClass) ||
+                    currClass.isPrimitive() || currClass.isSynthetic() ||
+                    currClass.getName().startsWith("java") || currClass.getName().startsWith("sun")) {
                 continue;
             }
 
@@ -123,12 +124,9 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             findAnnotatedDeclaredMethods(currClass, Produces.class).stream()
-                    .flatMap(method ->
-                            Stream.concat(
-                                    getExecutableParameterTypes(method, explicitInjection).stream(),
-                                    Stream.of(method.getReturnType())
-                            )
-                    )
+                    .flatMap(method -> Stream.concat(
+                            getExecutableParameterTypes(method, explicitInjection).stream(),
+                            Stream.of(method.getReturnType())))
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             findAnnotatedMethods(currClass, FeatureMetadata.class, BOTTOM_UP).stream()
@@ -152,10 +150,9 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddPackages.class)
-                    .forEach(ann ->
-                            stream(ann.value())
-                                    .distinct()
-                                    .forEach(cls -> weld.addPackage(ann.recursively(), cls)));
+                    .forEach(ann -> stream(ann.value())
+                            .distinct()
+                            .forEach(cls -> weld.addPackage(ann.recursively(), cls)));
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddBeanClasses.class).stream()
                     .flatMap(ann -> stream(ann.value()))
@@ -260,14 +257,13 @@ class ClassScanning {
 
     private static boolean hasBeanDefiningAnnotation(Class<?> clazz) {
         return isAnnotated(clazz, NormalScope.class) || isAnnotated(clazz, Dependent.class) ||
-               isAnnotated(clazz, Interceptor.class) || isAnnotated(clazz, Decorator.class) ||
-               isAnnotated(clazz, Stereotype.class);
+                isAnnotated(clazz, Interceptor.class) || isAnnotated(clazz, Decorator.class) ||
+                isAnnotated(clazz, Stereotype.class);
     }
 
     private static List<Field> findAllFieldsInHierarchy(Class<?> clazz) {
         Preconditions.notNull(clazz, "Class must not be null");
-        List<Field> localFields = getDeclaredFields(clazz).stream().
-                filter((field) -> !field.isSynthetic())
+        List<Field> localFields = getDeclaredFields(clazz).stream().filter((field) -> !field.isSynthetic())
                 .collect(Collectors.toList());
         List<Field> superclassFields = getSuperclassFields(clazz).stream()
                 .filter((field) -> !isMethodShadowedByLocalFields(field, localFields))
@@ -281,7 +277,8 @@ class ClassScanning {
 
     private static List<Field> getSuperclassFields(Class<?> clazz) {
         Class<?> superclass = clazz.getSuperclass();
-        return superclass != null && superclass != Object.class ? findAllFieldsInHierarchy(superclass) : Collections.emptyList();
+        return superclass != null && superclass != Object.class ? findAllFieldsInHierarchy(superclass)
+                : Collections.emptyList();
     }
 
     private static List<Field> getDeclaredFields(Class<?> clazz) {
@@ -317,7 +314,8 @@ class ClassScanning {
         return asList(clazz.getDeclaredConstructors());
     }
 
-    private static Optional<Constructor<?>> findFirstAnnotatedConstructor(Class<?> clazz, Class<? extends Annotation> annotationType) {
+    private static Optional<Constructor<?>> findFirstAnnotatedConstructor(Class<?> clazz,
+            Class<? extends Annotation> annotationType) {
         Optional<Constructor<?>> found = getDeclaredConstructors(clazz).stream()
                 .filter((cons) -> isAnnotated(cons, annotationType))
                 .findFirst();

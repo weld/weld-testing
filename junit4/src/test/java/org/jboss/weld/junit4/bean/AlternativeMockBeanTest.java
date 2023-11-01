@@ -33,7 +33,9 @@ public class AlternativeMockBeanTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.from(SimpleService.class)
-            .addBeans(MockBean.builder().types(MyService.class).selectedAlternative(CoolService.class).create(c -> new CoolService()).build()).build();
+            .addBeans(MockBean.builder().types(MyService.class).selectedAlternative(CoolService.class)
+                    .create(c -> new CoolService()).build())
+            .build();
 
     @Test
     public void testAlternativeBeanSelected() {

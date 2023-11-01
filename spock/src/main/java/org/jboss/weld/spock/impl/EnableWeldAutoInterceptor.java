@@ -17,6 +17,11 @@
 
 package org.jboss.weld.spock.impl;
 
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static org.jboss.weld.spock.impl.ClassScanning.scanForRequiredBeanClasses;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,25 +44,24 @@ import org.spockframework.runtime.InvalidSpecException;
 import org.spockframework.runtime.extension.IMethodInvocation;
 import org.spockframework.runtime.model.FieldInfo;
 import org.spockframework.runtime.model.SpecInfo;
-import spock.lang.Specification;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static org.jboss.weld.spock.impl.ClassScanning.scanForRequiredBeanClasses;
+import spock.lang.Specification;
 
 /**
  * An alternative to {@link EnableWeldManualInterceptor} allowing to fully leverage an annotation based configuration approach.
  * When selected by {@link EnableWeld#automagic()}, this interceptor will attempt to resolve all beans used in the test class
  * and automatically adds them to the Weld container while bootstrapping it.
  *
- * <p>There are quite some annotations which can be used on the test class and on any discovered bean to configure it further.
+ * <p>
+ * There are quite some annotations which can be used on the test class and on any discovered bean to configure it further.
  *
- * <p>Having a {@link WeldSetup @WeldSetup} annotated field in the specification or a super specification results in an
+ * <p>
+ * Having a {@link WeldSetup @WeldSetup} annotated field in the specification or a super specification results in an
  * exception, because it would not be considered and thus is a sign that the manual interceptor should be used, or that
  * the field is a left-over from switching and should be removed.
  *
- * <p>Furthermore, all discovered {@link WeldSpockEnricher}s are invoked after the annotations are processed.
+ * <p>
+ * Furthermore, all discovered {@link WeldSpockEnricher}s are invoked after the annotations are processed.
  *
  * @author Björn Kautler
  * @see ActivateScopes
@@ -95,8 +99,11 @@ class EnableWeldAutoInterceptor extends EnableWeldInterceptor {
         if (weldSetupFields.size() > 0) {
             throw new InvalidSpecException(weldSetupFields
                     .stream()
-                    .map(f -> format("Field '%s' with type %s which is in %s", f.getName(), f.getType(), f.getParent().getDisplayName()))
-                    .collect(joining("\n", "When using automagic mode, no @WeldSetup annotated field should be present! Fields found:\n", "")));
+                    .map(f -> format("Field '%s' with type %s which is in %s", f.getName(), f.getType(),
+                            f.getParent().getDisplayName()))
+                    .collect(joining("\n",
+                            "When using automagic mode, no @WeldSetup annotated field should be present! Fields found:\n",
+                            "")));
         }
 
         Weld weld = WeldInitiator.createWeld();

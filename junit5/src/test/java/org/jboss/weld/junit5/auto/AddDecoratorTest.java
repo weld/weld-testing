@@ -35,10 +35,10 @@ import org.junit.jupiter.api.Test;
 @EnableAutoWeld
 @AddEnabledDecorators(TestDecorator.class)
 public class AddDecoratorTest {
-    
+
     @Inject
     DecoratedBean bean;
-    
+
     @Test
     public void testBeanIsDecorated() {
         Assertions.assertNotNull(bean);

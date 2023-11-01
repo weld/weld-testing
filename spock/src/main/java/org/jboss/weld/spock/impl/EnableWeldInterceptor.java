@@ -17,6 +17,10 @@
 
 package org.jboss.weld.spock.impl;
 
+import static java.util.Collections.synchronizedMap;
+import static java.util.stream.Collectors.toList;
+import static org.spockframework.runtime.model.MethodInfo.MISSING_ARGUMENT;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -26,17 +30,13 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import jakarta.enterprise.inject.spi.BeanManager;
+
 import org.jboss.weld.inject.WeldInstance;
 import org.jboss.weld.spock.WeldInitiator;
 import org.jboss.weld.spock.WeldSpockEnricher;
 import org.spockframework.runtime.extension.IMethodInterceptor;
 import org.spockframework.runtime.extension.IMethodInvocation;
 import org.spockframework.runtime.model.FeatureInfo;
-
-import static java.util.Collections.singleton;
-import static java.util.Collections.synchronizedMap;
-import static java.util.stream.Collectors.toList;
-import static org.spockframework.runtime.model.MethodInfo.MISSING_ARGUMENT;
 
 /**
  * A Spock interceptor, that serves as base for the manual and automatic interceptors and has the common logic.

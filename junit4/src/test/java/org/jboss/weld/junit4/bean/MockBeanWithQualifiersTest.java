@@ -1,12 +1,12 @@
 package org.jboss.weld.junit4.bean;
 
+import jakarta.enterprise.inject.Any;
+
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-
-import jakarta.enterprise.inject.Any;
 
 /**
  * Tests that {@link MockBean} with custom qualifiers has {@link Any} qualifier automatically added.

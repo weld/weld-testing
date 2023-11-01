@@ -16,28 +16,10 @@
  */
 package org.jboss.weld.junit5.auto;
 
-import org.jboss.weld.environment.se.Weld;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.support.AnnotationSupport;
-import org.junit.platform.commons.support.HierarchyTraversalMode;
-import org.junit.platform.commons.util.CollectionUtils;
-import org.junit.platform.commons.util.Preconditions;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
 
-import jakarta.decorator.Decorator;
-import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.context.NormalScope;
-import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.inject.Produces;
-import jakarta.enterprise.inject.Stereotype;
-import jakarta.enterprise.inject.spi.Extension;
-import jakarta.inject.Inject;
-import jakarta.inject.Qualifier;
-import jakarta.interceptor.Interceptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -55,10 +37,28 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
-import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
+import jakarta.decorator.Decorator;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.NormalScope;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Stereotype;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.inject.Inject;
+import jakarta.inject.Qualifier;
+import jakarta.interceptor.Interceptor;
 
+import org.jboss.weld.environment.se.Weld;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.support.AnnotationSupport;
+import org.junit.platform.commons.support.HierarchyTraversalMode;
+import org.junit.platform.commons.util.CollectionUtils;
+import org.junit.platform.commons.util.Preconditions;
 
 /**
  * Provides <b>automagic</b> bean class discovery for a test class instance.
@@ -114,12 +114,9 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             findAnnotatedDeclaredMethods(currClass, Produces.class).stream()
-                    .flatMap(method ->
-                        Stream.concat(
-                                getExecutableParameterTypes(method, explicitInjection).stream(),
-                                Stream.of(method.getReturnType())
-                        )
-                    )
+                    .flatMap(method -> Stream.concat(
+                            getExecutableParameterTypes(method, explicitInjection).stream(),
+                            Stream.of(method.getReturnType())))
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Test.class, HierarchyTraversalMode.BOTTOM_UP).stream()
@@ -147,10 +144,9 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddPackages.class)
-                    .forEach(ann ->
-                            stream(ann.value())
-                                    .distinct()
-                                    .forEach(cls -> weld.addPackage(ann.recursively(), cls)));
+                    .forEach(ann -> stream(ann.value())
+                            .distinct()
+                            .forEach(cls -> weld.addPackage(ann.recursively(), cls)));
 
             AnnotationSupport.findRepeatableAnnotations(currClass, AddBeanClasses.class).stream()
                     .flatMap(ann -> stream(ann.value()))
@@ -201,7 +197,8 @@ class ClassScanning {
 
             // discovery mode can only be set once; we use the first annotation we find
             if (!syntheticArchiveDiscoverySet) {
-                Optional<SetBeanDiscoveryMode> annotation = AnnotationSupport.findAnnotation(currClass, SetBeanDiscoveryMode.class);
+                Optional<SetBeanDiscoveryMode> annotation = AnnotationSupport.findAnnotation(currClass,
+                        SetBeanDiscoveryMode.class);
                 if (annotation.isPresent()) {
                     syntheticArchiveDiscoverySet = true;
                     weld.setBeanDiscoveryMode(annotation.get().value());
@@ -277,8 +274,7 @@ class ClassScanning {
 
     private static List<Field> findAllFieldsInHierarchy(Class<?> clazz) {
         Preconditions.notNull(clazz, "Class must not be null");
-        List<Field> localFields = getDeclaredFields(clazz).stream().
-                filter((field) -> !field.isSynthetic())
+        List<Field> localFields = getDeclaredFields(clazz).stream().filter((field) -> !field.isSynthetic())
                 .collect(Collectors.toList());
         List<Field> superclassFields = getSuperclassFields(clazz).stream()
                 .filter((field) -> !isMethodShadowedByLocalFields(field, localFields))
@@ -292,7 +288,8 @@ class ClassScanning {
 
     private static List<Field> getSuperclassFields(Class<?> clazz) {
         Class<?> superclass = clazz.getSuperclass();
-        return superclass != null && superclass != Object.class ? findAllFieldsInHierarchy(superclass) : Collections.emptyList();
+        return superclass != null && superclass != Object.class ? findAllFieldsInHierarchy(superclass)
+                : Collections.emptyList();
     }
 
     private static List<Field> getDeclaredFields(Class<?> clazz) {
@@ -328,7 +325,8 @@ class ClassScanning {
         return asList(clazz.getDeclaredConstructors());
     }
 
-    private static Optional<Constructor<?>> findFirstAnnotatedConstructor(Class<?> clazz, Class<? extends Annotation> annotationType) {
+    private static Optional<Constructor<?>> findFirstAnnotatedConstructor(Class<?> clazz,
+            Class<? extends Annotation> annotationType) {
 
         Optional<Constructor<?>> found = getDeclaredConstructors(clazz).stream()
                 .filter((cons) -> isAnnotated(cons, annotationType))

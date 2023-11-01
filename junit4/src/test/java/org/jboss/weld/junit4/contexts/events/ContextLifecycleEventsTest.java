@@ -35,7 +35,8 @@ import org.junit.Test;
 public class ContextLifecycleEventsTest {
 
     @Rule
-    public WeldInitiator initiator = WeldInitiator.from(ContextLifecycleEventsObserver.class).activate(RequestScoped.class, SessionScoped.class).build();
+    public WeldInitiator initiator = WeldInitiator.from(ContextLifecycleEventsObserver.class)
+            .activate(RequestScoped.class, SessionScoped.class).build();
 
     @Test
     public void testInitFired() {

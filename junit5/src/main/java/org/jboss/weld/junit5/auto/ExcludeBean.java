@@ -13,37 +13,41 @@ import jakarta.enterprise.inject.Produces;
  * (e.g. scope) from automatic discovery. This can be helpful to allow replacing a bean class with a different
  * implementation, typically a mock.
  *
- * <p>The type of bean to exclude is implied by the annotated fields' type or annotated methods' return type. If the type
+ * <p>
+ * The type of bean to exclude is implied by the annotated fields' type or annotated methods' return type. If the type
  * is a base class or interface all beans extending / implementing that type will be excluded.
  *
- * <p>NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
+ * <p>
+ * NOTE: This annotation will only exclude beans defined by class annotations. It will not exclude beans of the
  * implied type that are defined by {@link Produces} producer methods / fields or synthetic
  * beans. Also, current implementation excludes beans based on type, disregarding any qualifiers that are specified.
  *
- * <p><b>Example:</b>
+ * <p>
+ * <b>Example:</b>
+ *
  * <pre>
  * &#64;EnableAutoWeld
  * class TestSomeFoo {
  *
- *   &#64;Inject
- *   SomeFoo someFoo;   // SomeFoo depends upon application scoped bean Foo
+ *     &#64;Inject
+ *     SomeFoo someFoo; // SomeFoo depends upon application scoped bean Foo
  *
- *   &#64;Produces
- *   &#64;ExcludeBean   // Excludes beans with type Foo from automatic discovery
- *   Foo mockFoo = mock(Foo.class);  // mockFoo is now produced in place of original Foo impl
+ *     &#64;Produces
+ *     &#64;ExcludeBean // Excludes beans with type Foo from automatic discovery
+ *     Foo mockFoo = mock(Foo.class); // mockFoo is now produced in place of original Foo impl
  *
- *   &#64;Test
- *   void test(Foo myFoo) {
- *     assertNotNull(myFoo);
- *     assertEquals(myFoo.getBar(), "mock-foo");
- *   }
+ *     &#64;Test
+ *     void test(Foo myFoo) {
+ *         assertNotNull(myFoo);
+ *         assertEquals(myFoo.getBar(), "mock-foo");
+ *     }
  * }
  * </pre>
  *
  * @see ExcludeBeanClasses
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Inherited
 public @interface ExcludeBean {
 }

@@ -46,13 +46,13 @@ public class AddPassivatingBeanTest {
     @SuppressWarnings("serial")
     static Bean<?> createListBean() {
         return MockBean.builder()
-            .types(new TypeLiteral<List<String>>() {
-            }.getType())
-            .scope(SessionScoped.class)
-            .creating(
-                // Mock object provided by Mockito
-                when(mock(List.class).get(0)).thenReturn("42").getMock())
-            .build();
+                .types(new TypeLiteral<List<String>>() {
+                }.getType())
+                .scope(SessionScoped.class)
+                .creating(
+                        // Mock object provided by Mockito
+                        when(mock(List.class).get(0)).thenReturn("42").getMock())
+                .build();
     }
 
     @SuppressWarnings("serial")

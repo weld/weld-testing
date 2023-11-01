@@ -16,19 +16,21 @@
  */
 package org.jboss.weld.junit5.extensionInjection;
 
+import java.util.Map;
+
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Map;
-
 /**
  * Basic test for JUnit 5 injection into parameter/field handled by Weld
+ *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @ExtendWith(WeldJunit5Extension.class)
@@ -58,6 +60,7 @@ public class JUnit5ExtensionTest {
         Assertions.assertNotNull(bar);
         bar.ping();
     }
+
     @Nested
     class TestParameterInjectionWithParametrizedTypes {
 

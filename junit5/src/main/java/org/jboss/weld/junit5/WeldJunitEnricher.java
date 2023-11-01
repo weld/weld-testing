@@ -20,14 +20,14 @@ import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit5.WeldInitiator.Builder;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-
-
 /**
- * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of this interface are used to enrich the
+ * If no {@link WeldInitiator} field annotated with {@link WeldSetup} is present on a test class, all service providers of this
+ * interface are used to enrich the
  * default test environment. The initial {@link Weld} instance is created using {@link WeldInitiator#createWeld()}.
  *
  * <p>
- * A system property with key equal to FQCN of a customizer class may be used to disable an enricher completely. E.g. for a class
+ * A system property with key equal to FQCN of a customizer class may be used to disable an enricher completely. E.g. for a
+ * class
  * {@code org.weld.FooEnricher} use {@code -Dorg.weld.FooEnricher=false} to disable the enricher.
  * </p>
  *
