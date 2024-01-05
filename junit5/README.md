@@ -645,7 +645,7 @@ This section describes any additional configuration options this extension offer
 ### Explicit Parameter Injection
 
 As mentioned above, Weld is greedy when it comes to parameter injection.
-It will claim the ability to resolve any parameter which is known as a bean type inside the running CDI container.
+It will claim the ability to resolve any parameter which is known as a bean type inside the running CDI container except the ones built into JUnit itself.
 This is mainly for usability, as it would be annoying to constantly type additional annotations to mark which parameter should be injected and which should be left alone.
 
 However, we are aware that this might cause trouble if more extensions are competing for parameter resolution.

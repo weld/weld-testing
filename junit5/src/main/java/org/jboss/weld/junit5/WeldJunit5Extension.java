@@ -45,7 +45,10 @@ import jakarta.enterprise.inject.spi.BeanManager;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.inject.WeldInstance;
 import org.jboss.weld.util.collections.ImmutableList;
+import org.junit.jupiter.api.RepetitionInfo;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -54,6 +57,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method (or once per test class
@@ -109,16 +113,6 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     @Override
-    public void afterAll(ExtensionContext context) {
-        if (determineTestLifecycle(context).equals(PER_CLASS)) {
-            WeldInitiator initiator = getInitiatorFromStore(context);
-            if (initiator != null) {
-                initiator.shutdownWeld();
-            }
-        }
-    }
-
-    @Override
     public void beforeAll(ExtensionContext context) {
         // we are storing them into root context, hence only needs to be done once per test suite
         if (getEnrichersFromStore(context) == null) {
@@ -131,8 +125,23 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     @Override
+    public void beforeEach(ExtensionContext extensionContext) {
+        startWeldContainerIfAppropriate(PER_METHOD, extensionContext);
+    }
+
+    @Override
     public void afterEach(ExtensionContext context) {
         if (determineTestLifecycle(context).equals(PER_METHOD)) {
+            WeldInitiator initiator = getInitiatorFromStore(context);
+            if (initiator != null) {
+                initiator.shutdownWeld();
+            }
+        }
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) {
+        if (determineTestLifecycle(context).equals(PER_CLASS)) {
             WeldInitiator initiator = getInitiatorFromStore(context);
             if (initiator != null) {
                 initiator.shutdownWeld();
@@ -162,6 +171,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
+        // do not attempt to resolve JUnit 5 built-in parameters
+        if (isJUnitResolvedParameter(parameterContext)) {
+            return false;
+        }
         // if weld container isn't up yet or if it's not Method, we don't resolve it
         if (getContainerFromStore(extensionContext) == null
                 || (!(parameterContext.getDeclaringExecutable() instanceof Method))) {
@@ -189,6 +202,23 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
             }
             return true;
         }
+    }
+
+    /**
+     * @see {@code org.junit.jupiter.engine.extension.TestInfoParameterResolver.supportsParameter}
+     * @see {@code org.junit.jupiter.engine.extension.RepetitionExtension.supportsParameter}
+     * @see {@code org.junit.jupiter.engine.extension.TestReporterParameterResolver.supportsParameter}
+     * @see {@code org.junit.jupiter.engine.extension.TempDirectory.supportsParameter}
+     */
+    private boolean isJUnitResolvedParameter(ParameterContext parameterContext) {
+        Class<?> type = parameterContext.getParameter().getType();
+        if (type == TestInfo.class || type == RepetitionInfo.class || type == TestReporter.class) {
+            return true;
+        }
+        if (parameterContext.isAnnotated(TempDir.class)) {
+            return true;
+        }
+        return false;
     }
 
     private List<Annotation> resolveQualifiers(ParameterContext pc, BeanManager bm) {
@@ -223,11 +253,6 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         } else {
             return TestInstance.Lifecycle.PER_METHOD;
         }
-    }
-
-    @Override
-    public void beforeEach(ExtensionContext extensionContext) {
-        startWeldContainerIfAppropriate(PER_METHOD, extensionContext);
     }
 
     private void startWeldContainerIfAppropriate(TestInstance.Lifecycle expectedLifecycle, ExtensionContext context) {
