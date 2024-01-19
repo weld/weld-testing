@@ -22,16 +22,26 @@ import java.lang.annotation.RetentionPolicy;
 import jakarta.enterprise.inject.Default;
 
 /**
- * An annotation used to enforce explicit parameter annotation. When applied, Weld will only attempt to resolve method
- * parameters which have qualifiers. In case no qualifier is required for your bean, add the {@link Default} qualifier, see CDI
- * specification for in depth explanation on qualifiers.
+ * An annotation used to enforce explicit parameter annotation. When applied and set to {@code true}, Weld will only attempt to
+ * resolve method parameters which have qualifiers. In case no qualifier is required for your bean, add the {@link Default}
+ * qualifier, see CDI specification for in depth explanation on qualifiers.
  *
- * This annotation can be applied either on test class, in which case it affects parameter injection in all methods, or on
- * a method.
+ * This annotation can be applied either on a test class, in which case it affects parameter injection in all methods, or on
+ * a test method.
+ *
+ * Nested classes inherit the behavior declared by their enclosing class but can re-declare this annotation along with the
+ * {@link #value()} parameter to override the behavior.
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExplicitParamInjection {
+
+    /**
+     * If set to {@code true}, Weld will only attempt to resolve parameters which have CDI qualifier annotations.
+     *
+     * @return {@code true} by default; can be explicitly set to {@code false} to make Weld attempt to resolve all parameters
+     */
+    boolean value() default true;
 
 }

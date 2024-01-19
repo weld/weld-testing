@@ -45,4 +45,18 @@ public class ExplicitParameterInjectionViaMethodAnnotationTest {
         Assertions.assertNotNull(bean);
         Assertions.assertEquals(BeanWithQualifier.class.getSimpleName(), bean.ping());
     }
+
+    @Test
+    @ExplicitParamInjection(false) // this is pretty useless but technically possible
+    public void testParametersDoNotNeedExtraAnnotation(Foo foo, Bar bar, @MyQualifier BeanWithQualifier bean) {
+        // Bar should be resolved by Weld
+        Assertions.assertNotNull(bar);
+        Assertions.assertEquals(Bar.class.getSimpleName(), bar.ping());
+        // Foo should be resolved as usual
+        Assertions.assertNotNull(foo);
+        Assertions.assertEquals(Foo.class.getSimpleName(), foo.ping());
+        // BeanWithQualifier should be resolved
+        Assertions.assertNotNull(bean);
+        Assertions.assertEquals(BeanWithQualifier.class.getSimpleName(), bean.ping());
+    }
 }

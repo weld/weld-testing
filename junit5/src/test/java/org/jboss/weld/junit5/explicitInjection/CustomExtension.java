@@ -31,8 +31,11 @@ public class CustomExtension implements ParameterResolver {
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
-        // dumb approach but we only ever resolve Bar anyway :)
-        return new Bar(CustomExtension.class.getSimpleName());
+        if (parameterContext.getParameter().getType().equals(Bar.class)) {
+            return new Bar(CustomExtension.class.getSimpleName());
+        } else {
+            throw new IllegalStateException(getClass().getName() + " can only resolve parameter Bar!");
+        }
     }
 
     @Override

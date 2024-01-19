@@ -103,13 +103,22 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
             return;
         }
         // check class-level annotation
-        for (Annotation annotation : ec.getRequiredTestClass().getAnnotations()) {
-            if (annotation.annotationType().equals(ExplicitParamInjection.class)) {
-                setExplicitInjectionInfoToStore(ec, true);
-                break;
+        Class<?> inspectedTestClass = ec.getRequiredTestClass();
+        ExplicitParamInjection explicitParamInjection = inspectedTestClass.getAnnotation(ExplicitParamInjection.class);
+        if (explicitParamInjection != null) {
+            setExplicitInjectionInfoToStore(ec, explicitParamInjection.value());
+        } else {
+            // if not found, it can still be a nested class
+            // inspect enclosing classes until first annotation is found or until we hit top-level class
+            inspectedTestClass = inspectedTestClass.getEnclosingClass();
+            while (inspectedTestClass != null && explicitParamInjection == null) {
+                explicitParamInjection = inspectedTestClass.getAnnotation(ExplicitParamInjection.class);
+                if (explicitParamInjection != null) {
+                    setExplicitInjectionInfoToStore(ec, explicitParamInjection.value());
+                }
+                inspectedTestClass = inspectedTestClass.getEnclosingClass();
             }
         }
-
     }
 
     @Override
@@ -237,10 +246,9 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     private boolean methodRequiresExplicitParamInjection(ParameterContext pc) {
-        for (Annotation annotation : pc.getDeclaringExecutable().getAnnotations()) {
-            if (annotation.annotationType().equals(ExplicitParamInjection.class)) {
-                return true;
-            }
+        ExplicitParamInjection ann = pc.getDeclaringExecutable().getAnnotation(ExplicitParamInjection.class);
+        if (ann != null) {
+            return ann.value();
         }
         return false;
     }

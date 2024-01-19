@@ -28,6 +28,7 @@ public class Bar {
     private String someText = null;
 
     public Bar() {
+        this.someText = Bar.class.getSimpleName();
     }
 
     public Bar(String someText) {
