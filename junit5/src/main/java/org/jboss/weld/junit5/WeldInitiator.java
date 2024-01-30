@@ -70,8 +70,13 @@ public class WeldInitiator extends AbstractWeldInitiator {
 
     /**
      * The container is configured through a provided {@link Weld} instance.
+     * <p>
+     * Provided instance of {@link Weld} should be kept in the same scope as the resulting {@link WeldInitiator}.
+     * I.e. if {@link Weld} instance is kept in a static field, so should be the resulting {@link WeldInitiator}.
+     * Failing to uphold this can lead to repetitive configuration of the same {@link Weld} instance which in turn results in
+     * unexpected container setup/behavior.
      *
-     * @param weld
+     * @param weld instance of {@link Weld} used to create {@link WeldInitiator}
      * @return a new WeldInitiator instance
      */
     public static WeldInitiator of(Weld weld) {
@@ -120,8 +125,13 @@ public class WeldInitiator extends AbstractWeldInitiator {
 
     /**
      * Create a builder instance.
+     * <p>
+     * Provided instance of {@link Weld} should be kept in the same scope as the resulting {@link WeldInitiator}.
+     * I.e. if {@link Weld} instance is kept in a static field, so should be the resulting {@link WeldInitiator}.
+     * Failing to uphold this can lead to repetitive configuration of the same {@link Weld} instance which in turn results in
+     * unexpected container setup/behavior.
      *
-     * @param weld
+     * @param weld instance of {@link Weld} used as a basis for this {@link WeldInitiator.Builder}
      * @return a builder instance
      * @see #of(Weld)
      */
