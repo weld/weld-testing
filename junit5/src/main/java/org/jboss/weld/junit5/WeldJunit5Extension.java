@@ -58,6 +58,7 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
 
 /**
  * JUnit 5 extension allowing to bootstrap Weld SE container for each @Test method (or once per test class
@@ -192,7 +193,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         List<Annotation> qualifiers = resolveQualifiers(parameterContext,
                 getContainerFromStore(extensionContext).getBeanManager());
         // if we require explicit parameter injection (via global settings or annotation) and there are no qualifiers we don't resolve it
-        if ((getExplicitInjectionInfoFromStore(extensionContext) || (methodRequiresExplicitParamInjection(parameterContext)))
+        // if the method is annotated @ParameterizedTest, we treat it as explicit param injection and require qualifiers
+        if ((getExplicitInjectionInfoFromStore(extensionContext)
+                || methodRequiresExplicitParamInjection(parameterContext)
+                || methodIsParameterizedTest(parameterContext))
                 && qualifiers.isEmpty()) {
             return false;
         } else {
@@ -251,6 +255,10 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
             return ann.value();
         }
         return false;
+    }
+
+    private boolean methodIsParameterizedTest(ParameterContext pc) {
+        return pc.getDeclaringExecutable().getAnnotation(ParameterizedTest.class) != null ? true : false;
     }
 
     private TestInstance.Lifecycle determineTestLifecycle(ExtensionContext ec) {
