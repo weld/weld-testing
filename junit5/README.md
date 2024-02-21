@@ -89,6 +89,7 @@ This default behaviour includes:
 * Inject into method parameters of your test methods
   * If the type of the parameter matches a known and resolvable bean
   * By default, Weld is greedy and will try to resolve all parameters which are known as bean types in the container
+    * An exception to this rule is `@ParameterizedTest` where Weld requires explicitly stating CDI qualifiers for each method parameter which should be injected
   * If this behaviour should be different, refer to [additional configuration section](#explicit-parameter-injection)
 * Shut down the container after test is done
 
