@@ -101,7 +101,7 @@ class ClassScanning {
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             AnnotationSupport.findAnnotatedMethods(currClass, Inject.class, HierarchyTraversalMode.BOTTOM_UP).stream()
-                    .map(Method::getReturnType)
+                    .flatMap(method -> getExecutableParameterTypes(method, explicitInjection).stream())
                     .forEach(cls -> addClassesToProcess(classesToProcess, cls));
 
             findFirstAnnotatedConstructor(currClass, Inject.class)
