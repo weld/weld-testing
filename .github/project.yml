@@ -1,0 +1,4 @@
+name: Weld Parent
+release:
+  current-version: 4.0.2.Final
+  next-version: 4.0.3-SNAPSHOT
