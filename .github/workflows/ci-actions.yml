@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-weld-junit:
-    name: "Weld-JUnit build, JDK ${{matrix.java.name}}"
+    name: "Weld Testing build, JDK ${{matrix.java.name}}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
