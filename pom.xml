@@ -211,8 +211,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <!--Minimal version with Junit 5 engine support-->
-                    <version>2.22.1</version>
                     <configuration>
                         <systemPropertyVariables>
                             <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
@@ -222,7 +220,6 @@
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
-                    <version>1.13.1</version>
                     <executions>
                         <execution>
                             <goals>
