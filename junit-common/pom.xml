@@ -4,7 +4,7 @@
    <parent>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit-parent</artifactId>
-      <version>4.0.3-SNAPSHOT</version>
+      <version>4.0.3.Final</version>
    </parent>
 
    <artifactId>weld-junit-common</artifactId>
