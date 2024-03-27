@@ -46,7 +46,7 @@
       <version.junit.platform>1.8.2</version.junit.platform>
       <version.groovy>3.0.21</version.groovy>
       <version.weld>5.1.2.Final</version.weld>
-      <version.mockito>4.4.0</version.mockito>
+      <version.mockito>5.11.0</version.mockito>
       <version.jakarta.ejb.api>4.0.1</version.jakarta.ejb.api>
       <version.jakarta.inject>2.0.1</version.jakarta.inject>
       <version.jakarta.cdi>4.0.1</version.jakarta.cdi>
