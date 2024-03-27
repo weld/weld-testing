@@ -6,6 +6,8 @@ import java.util.Set;
 
 import jakarta.enterprise.inject.spi.Prioritized;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A subclass of {@link MockBean} implementing {@link Prioritized} hence allowing for globally enabled alternatives.
  * Used instead of {@link MockBean} if user specified {@link MockBean.Builder#priority(int)}.
@@ -16,6 +18,7 @@ class MockBeanWithPriority<T> extends MockBean<T> implements Prioritized {
 
     private final int priority;
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "This is just a helper class for testing. Plus finalizer pattern is pretty much dead since deprecation in Java 9.")
     MockBeanWithPriority(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative,
             boolean selectForSyntheticBeanArchive, int priority, String name,
             Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope,
