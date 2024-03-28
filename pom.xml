@@ -42,8 +42,10 @@
       <!-- Versions -->
       <version.junit4>4.13.2</version.junit4>
       <version.junit.jupiter>5.10.2</version.junit.jupiter>
+      <!-- version.spock and version.junit.platform should be upgraded together -->
+      <!-- see https://github.com/weld/weld-testing/pull/184#issuecomment-2024300488 -->
       <version.spock>2.3-groovy-3.0</version.spock>
-      <version.junit.platform>1.10.2</version.junit.platform>
+      <version.junit.platform>1.9.0</version.junit.platform>
       <version.groovy>3.0.21</version.groovy>
       <version.weld>5.1.2.Final</version.weld>
       <version.mockito>5.11.0</version.mockito>
