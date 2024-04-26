@@ -42,7 +42,7 @@
       <!-- Versions -->
       <version.junit4>4.13.1</version.junit4>
       <version.junit.jupiter>5.4.1</version.junit.jupiter>
-      <version.weld>3.1.6.Final</version.weld>
+      <version.weld>3.1.9.Final</version.weld>
       <version.mockito>2.25.1</version.mockito>
       <version.jboss-ejb-api>1.0.0.Final</version.jboss-ejb-api>
       <version.hibernate-jpa-api>1.0.0.Final</version.hibernate-jpa-api>
