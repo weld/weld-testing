@@ -6,7 +6,7 @@
 The primary goal of this project is to provide simple and fast tools for CDI *unit/component* testing.
 The tools are implemented as JUnit 4, JUnit 5 and Spock extensions.
 
-:warning: **Version 4.x of this extension supports Weld 5.0 (CDI 4.0) along with `jakarta` namespace**
+:warning: **Version 5.x of this extension supports Weld 6.0 (CDI 4.1) along with `jakarta` namespace**
 
 ## The What
 
