@@ -32,20 +32,26 @@ jobs:
       with:
         distribution: temurin
         java-version: 17
+        server-id: 'sonatype-nexus-staging'
+        server-username: 'MAVEN_DEPLOY_USERNAME'
+        server-password: 'MAVEN_DEPLOY_TOKEN'
+        gpg-private-key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
+        gpg-passphrase: 'MAVEN_GPG_PASSPHRASE'
 
     - name: Maven release ${{steps.metadata.outputs.current-version}}
+      env:
+        MAVEN_DEPLOY_USERNAME: ${{secrets.MAVEN_DEPLOY_USERNAME}}
+        MAVEN_DEPLOY_TOKEN: ${{secrets.MAVEN_DEPLOY_TOKEN}}
+        MAVEN_GPG_PASSPHRASE: ${{secrets.MAVEN_GPG_PASSPHRASE}}
       run: |
         export MAVEN_OPTS="--add-opens=java.base/java.util=ALL-UNNAMED"
         java -version
-        gpg --quiet --batch --yes --decrypt --passphrase="${{secrets.SECRET_PASSPHRASE}}" --output weld-sign.asc .github/release/weld-sign.asc.gpg
-        gpg --quiet --batch --yes --decrypt --passphrase="${{secrets.SECRET_PASSPHRASE}}" --output maven-settings.xml .github/release/maven-settings.xml.gpg
-        gpg --fast-import --no-tty --batch --yes weld-sign.asc
         git config --global user.name "Weld CI"
         git config --global user.email "weld-dev@lists.jboss.org"
         git checkout -b release
-        mvn release:prepare --batch-mode -Drelease -DreleaseVersion=${{steps.metadata.outputs.current-version}} -Dtag=${{steps.metadata.outputs.current-version}} -DdevelopmentVersion=${{steps.metadata.outputs.next-version}} -s maven-settings.xml
+        mvn release:prepare --batch-mode -Drelease -DreleaseVersion=${{steps.metadata.outputs.current-version}} -Dtag=${{steps.metadata.outputs.current-version}} -DdevelopmentVersion=${{steps.metadata.outputs.next-version}}
         git checkout ${{github.base_ref}}
         git rebase release
-        mvn -B release:perform -Drelease -s maven-settings.xml
+        mvn -B release:perform -Drelease
         git push
         git push --tags
