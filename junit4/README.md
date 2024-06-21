@@ -1,7 +1,7 @@
 # Weld JUnit 4 Extension
 
 Weld JUnit 4 extension uses the original JUnit extension system via `@Rule` or `@ClassRule` annotation.
-It requires JUnit 4.9+ and Java 8.
+It requires JUnit 4.9+ and Java 17.
 
 ## Table of contents
 

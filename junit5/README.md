@@ -14,7 +14,7 @@ internally, as soon as the according beans are resolved and thus created. If eit
 get a `WELD-ENV-002016` error if another container is running at the same time, so you should use `@Isolated`
 for these features to make sure they are running individually.
 
-Requirements are JUnit 5 and Java 11.
+Requirements are JUnit 5 and Java 17.
 
 ## Table of contents
 
