@@ -2,7 +2,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>weld-junit-parent</artifactId>
    <packaging>pom</packaging>
-   <version>4.0.4-SNAPSHOT</version>
+   <version>5.0.0-SNAPSHOT</version>
 
    <name>Weld JUnit Extensions</name>
    <description>Set of JUnit extensions to enhance the testing of CDI components.</description>
@@ -47,7 +47,7 @@
       <version.spock>2.3-groovy-3.0</version.spock>
       <version.junit.platform>1.9.0</version.junit.platform>
       <version.groovy>3.0.21</version.groovy>
-      <version.weld>5.1.2.Final</version.weld>
+      <version.weld>6.0.0.Beta1</version.weld>
       <version.mockito>5.12.0</version.mockito>
       <version.jakarta.ejb.api>4.0.1</version.jakarta.ejb.api>
       <version.jakarta.inject>2.0.1</version.jakarta.inject>
