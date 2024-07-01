@@ -46,7 +46,7 @@
       <!-- see https://github.com/weld/weld-testing/pull/184#issuecomment-2024300488 -->
       <version.spock>2.3-groovy-3.0</version.spock>
       <version.junit.platform>1.9.0</version.junit.platform>
-      <version.groovy>3.0.21</version.groovy>
+      <version.groovy>3.0.22</version.groovy>
       <version.weld>6.0.0.Beta1</version.weld>
       <version.mockito>5.12.0</version.mockito>
       <version.jakarta.ejb.api>4.0.1</version.jakarta.ejb.api>
