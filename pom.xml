@@ -56,7 +56,7 @@
       <version.log4j>2.23.1</version.log4j>
       <!-- SpotBugs properties -->
       <version.spotbugs>4.8.6</version.spotbugs>
-      <version.spotbugs.plugin>4.8.6.2</version.spotbugs.plugin>
+      <version.spotbugs.plugin>4.8.6.4</version.spotbugs.plugin>
       <spotbugs.failOnError>false</spotbugs.failOnError>
       <spotbugs.threshold>Low</spotbugs.threshold>
    </properties>
