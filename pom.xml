@@ -53,7 +53,7 @@
       <version.jakarta.inject>2.0.1</version.jakarta.inject>
       <version.jakarta.cdi>4.0.1</version.jakarta.cdi>
       <version.jpa-api>3.1.0</version.jpa-api>
-      <version.log4j>2.23.1</version.log4j>
+      <version.log4j>2.24.1</version.log4j>
       <!-- SpotBugs properties -->
       <version.spotbugs>4.8.6</version.spotbugs>
       <version.spotbugs.plugin>4.8.6.2</version.spotbugs.plugin>
