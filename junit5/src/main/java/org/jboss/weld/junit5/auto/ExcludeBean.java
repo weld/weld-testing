@@ -47,7 +47,7 @@ import jakarta.enterprise.inject.Produces;
  * @see ExcludeBeanClasses
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.METHOD })
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Inherited
 public @interface ExcludeBean {
 }
