@@ -147,10 +147,10 @@ public class WeldInitiator extends AbstractWeldInitiator {
      * </ul>
      *
      * @return a new {@link Weld} instance suitable for testing
-     * @see AbstractWeldInitiator#createWeld()
+     * @see AbstractWeldInitiator#createDefaultWeld()
      */
     public static Weld createWeld() {
-        return AbstractWeldInitiator.createWeld();
+        return AbstractWeldInitiator.createDefaultWeld();
     }
 
     /**
