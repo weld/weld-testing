@@ -2,7 +2,7 @@ name: Weld Testing CI
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ 4.0 ]
 
 jobs:
   build-weld-junit:
