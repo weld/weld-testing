@@ -37,8 +37,8 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <maven.compiler.source>11</maven.compiler.source>
-      <maven.compiler.target>11</maven.compiler.target>
+      <maven.compiler.source>17</maven.compiler.source>
+      <maven.compiler.target>17</maven.compiler.target>
       <!-- Versions -->
       <version.junit4>4.13.2</version.junit4>
       <version.junit.jupiter>5.12.0</version.junit.jupiter>
@@ -47,7 +47,7 @@
       <version.spock>2.4-M5-groovy-4.0</version.spock>
       <version.junit.platform>1.11.3</version.junit.platform>
       <version.groovy>3.0.24</version.groovy>
-      <version.weld>6.0.0.Beta4</version.weld>
+      <version.weld>6.0.1.Final</version.weld>
       <version.mockito>5.15.2</version.mockito>
       <version.jakarta.ejb.api>4.0.1</version.jakarta.ejb.api>
       <version.jakarta.inject>2.0.1</version.jakarta.inject>
