@@ -63,10 +63,13 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
      * <li>automatic discovery disabled</li>
      * <li>concurrent deployment disabled</li>
      * </ul>
+     * <p>
+     * This method is not meant to be invoked directly!
+     * Use the {@code WeldInitiator#createWeld()} of the given impl (JUnit 4/5, Spock).
      *
      * @return a new {@link Weld} instance suitable for testing
      */
-    public static Weld createWeld() {
+    public static Weld createDefaultWeld() {
         return new Weld().disableDiscovery().property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false);
     }
 

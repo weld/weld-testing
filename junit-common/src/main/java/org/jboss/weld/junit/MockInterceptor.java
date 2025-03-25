@@ -39,6 +39,8 @@ import org.jboss.weld.junit.MockInterceptor.MockInterceptorInstance;
 import org.jboss.weld.util.bean.SerializableForwardingBean;
 import org.jboss.weld.util.collections.ImmutableSet;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * This custom {@link Interceptor} implementation is useful for mocking.
  * <p>
@@ -304,6 +306,7 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
          * @param interceptedBean May be <code>null</code>
          * @return the result
          */
+        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION", justification = "Method follows expectations from interceptors specs")
         Object invoke(InvocationContext invocationContext, Bean<?> interceptedBean) throws Exception;
 
     }

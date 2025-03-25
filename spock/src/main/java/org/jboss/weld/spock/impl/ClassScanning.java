@@ -72,6 +72,8 @@ import org.junit.platform.commons.util.CollectionUtils;
 import org.junit.platform.commons.util.Preconditions;
 import org.spockframework.runtime.model.FeatureMetadata;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Provides <b>automagic</b> bean class discovery for a test class instance.
  *
@@ -243,6 +245,7 @@ class ClassScanning {
         return types;
     }
 
+    @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION")
     private static Extension createExtension(Class<? extends Extension> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
