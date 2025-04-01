@@ -55,7 +55,7 @@
       <version.jpa-api>3.1.0</version.jpa-api>
       <version.log4j>2.24.3</version.log4j>
       <!-- SpotBugs properties -->
-      <version.spotbugs>4.9.1</version.spotbugs>
+      <version.spotbugs>4.9.3</version.spotbugs>
       <version.spotbugs.plugin>4.9.3.0</version.spotbugs.plugin>
       <spotbugs.failOnError>false</spotbugs.failOnError>
       <spotbugs.threshold>Low</spotbugs.threshold>
