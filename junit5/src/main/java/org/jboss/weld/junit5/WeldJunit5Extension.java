@@ -20,6 +20,7 @@ import static org.jboss.weld.junit5.ExtensionContextUtils.getContainerFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getEnrichersFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getExplicitInjectionInfoFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.getInitiatorFromStore;
+import static org.jboss.weld.junit5.ExtensionContextUtils.removeContainerFromStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setContainerToStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setEnrichersToStore;
 import static org.jboss.weld.junit5.ExtensionContextUtils.setExplicitInjectionInfoToStore;
@@ -144,6 +145,9 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (determineTestLifecycle(context).equals(PER_METHOD)) {
             WeldInitiator initiator = getInitiatorFromStore(context);
             if (initiator != null) {
+                // Clean up all auto-closeable sources in the Store
+                removeContainerFromStore(context);
+                // Perform Weld container shut down
                 initiator.shutdownWeld();
             }
         }
@@ -154,6 +158,9 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         if (determineTestLifecycle(context).equals(PER_CLASS)) {
             WeldInitiator initiator = getInitiatorFromStore(context);
             if (initiator != null) {
+                // Clean up all auto-closeable sources in the Store
+                removeContainerFromStore(context);
+                // Perform Weld container shut down
                 initiator.shutdownWeld();
             }
         }
