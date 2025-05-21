@@ -556,7 +556,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * Use {@link Unmanaged} to create/destroy the bean instance.
          *
          * <p>
-         * NOTE: {@link CreationalContext#toString()} is used as a key in a map and therefore must be unique for the lifetime of
+         * NOTE: {@code CreationalContext#toString()} is used as a key in a map and therefore must be unique for the lifetime of
          * a bean instance. Weld
          * implementation fulfills this requirement.
          * </p>
