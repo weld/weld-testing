@@ -106,6 +106,16 @@ public class ExtensionContextUtils {
     }
 
     /**
+     * Removes {@link WeldContainer} from {@link ExtensionContext.Store}.
+     * <p>
+     * This needs to be invoked before we complete shutdown otherwise JUnit (5.13+) attempts to close all autocloseable
+     * resources which results in it trying to shut down Weld SE container that is no longer running.
+     */
+    public static void removeContainerFromStore(ExtensionContext context) {
+        getTestStore(context).remove(CONTAINER);
+    }
+
+    /**
      * Store {@link WeldContainer} to {@link ExtensionContext.Store}
      */
     public static void setContainerToStore(ExtensionContext context, WeldContainer container) {
