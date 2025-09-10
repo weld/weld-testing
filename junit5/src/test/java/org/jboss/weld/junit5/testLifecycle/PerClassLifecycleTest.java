@@ -41,23 +41,31 @@ public class PerClassLifecycleTest {
     public WeldInitiator initiator = WeldInitiator.of(new Weld(String.valueOf(System.nanoTime()))
             .disableDiscovery().addBeanClass(PlainBean.class));
 
-    String containerId = null;
+    static String containerId = null;
+
+    String getContainerId() {
+        return containerId;
+    }
+
+    void setContainerId(String id) {
+        containerId = id;
+    }
 
     @Test
     public void first() {
-        if (containerId == null) {
-            containerId = WeldContainer.current().getId();
+        if (getContainerId() == null) {
+            setContainerId(WeldContainer.current().getId());
         } else {
-            Assertions.assertEquals(containerId, WeldContainer.current().getId());
+            Assertions.assertEquals(getContainerId(), WeldContainer.current().getId());
         }
     }
 
     @Test
     public void second() {
-        if (containerId == null) {
-            containerId = WeldContainer.current().getId();
+        if (getContainerId() == null) {
+            setContainerId(WeldContainer.current().getId());
         } else {
-            Assertions.assertEquals(containerId, WeldContainer.current().getId());
+            Assertions.assertEquals(getContainerId(), WeldContainer.current().getId());
         }
     }
 }
