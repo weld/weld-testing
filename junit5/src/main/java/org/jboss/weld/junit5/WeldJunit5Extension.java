@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
@@ -269,12 +270,12 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
     }
 
     private TestInstance.Lifecycle determineTestLifecycle(ExtensionContext ec) {
-        // check the test for org.junit.jupiter.api.TestInstance annotation
-        TestInstance annotation = ec.getRequiredTestClass().getAnnotation(TestInstance.class);
-        if (annotation != null) {
-            return annotation.value();
+        Optional<TestInstance.Lifecycle> testInstanceLifecycle = ec.getTestInstanceLifecycle();
+        if (testInstanceLifecycle.isEmpty()) {
+            // this should never happen, but if so, we assume default
+            return PER_METHOD;
         } else {
-            return TestInstance.Lifecycle.PER_METHOD;
+            return testInstanceLifecycle.get();
         }
     }
 
