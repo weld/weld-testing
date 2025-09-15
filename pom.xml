@@ -4,8 +4,8 @@
    <packaging>pom</packaging>
    <version>5.0.2-SNAPSHOT</version>
 
-   <name>Weld JUnit Extensions</name>
-   <description>Set of JUnit extensions to enhance the testing of CDI components.</description>
+   <name>Weld Extensions for JUnit and Spock</name>
+   <description>Set of JUnit/Spock extensions to enhance the testing of CDI components.</description>
 
    <parent>
       <groupId>org.jboss.weld</groupId>
