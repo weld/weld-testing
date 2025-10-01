@@ -1,7 +1,7 @@
-# Weld JUnit 5 (Jupiter) Extensions
+# Weld JUnit Jupiter Extensions
 
-There are two extension here, both of which follow the extension mechanism introduced in JUnit 5.
-Therefore, in order to use this extension in your test, you have to annotate your test class with `@ExtendWith(WeldJunit5Extension.class)` or `@ExtendWith(WeldJunit5AutoExtension.class)` respectively.
+There are two extensions here, both of which follow the extension mechanism introduced in JUnit 5 (Jupiter).
+Therefore, in order to use this extension in your test, you have to annotate your test class with `@ExtendWith(WeldJUnitJupiterExtension.class)` or `@ExtendWith(WeldJUnitJupiterAutoExtension.class)` respectively.
 In their default behaviour, the extensions will automatically start/stop Weld SE container and inject into all your `@Inject` fields and method parameters in the given test instance.
 Furthermore, you can provide configuration and modify Weld bootstrapping process in various ways - extensions, scope activation, interception, ...
 
@@ -20,7 +20,7 @@ Requirements are JUnit 5 and Java 17.
 
 * [Maven Artifact](#maven-artifact)
 * [Configuration Versus Automagic](#configuration-versus-automagic)
-* [WeldJunit5Extension](#weldjunit5extension)
+* [WeldJUnitJupiterExtension](#weldjunitjupiterextension)
   * [WeldInitiator](#weldinitiator)
     * [Convenient Starting Points](#convenient-starting-points)
       * [Test Class Injection](#test-class-injection)
@@ -30,7 +30,7 @@ Requirements are JUnit 5 and Java 17.
       * [Mock injection services](#mock-injection-services)
     * [Inheritance](#inheritance-of-test-classes)
     * [Nested test classes](#nested-test-classes)
-* [WeldJunit5AutoExtension](#weldjunit5autoextension)
+* [WeldJUnitJupiterAutoExtension](#weldjunitjupiterautoextension)
   * [`@ActivateScopes`](#activatescopes)
   * [`@AddBeanClasses`](#addbeanclasses)
   * [`@AddEnabledDecorators`](#addenableddecorators)
@@ -50,7 +50,7 @@ Requirements are JUnit 5 and Java 17.
 ```xml
 <dependency>
   <groupId>org.jboss.weld</groupId>
-  <artifactId>weld-junit5</artifactId>
+  <artifactId>weld-junit-jupiter</artifactId>
   <version>${version.weld-junit}</version>
 </dependency>
 ```
@@ -60,12 +60,12 @@ Requirements are JUnit 5 and Java 17.
 There are two extensions you can choose from.
 While both are ultimately achieving the same thing, each opts for a different approach.
 
-`WeldJunit5Extension.class` is the original one where you declaratively configure the container, much like booting Weld SE itself.
+`WeldJUnitJupiterExtension.class` is the original one where you declaratively configure the container, much like booting Weld SE itself.
 There are some additional builder patterns on top of that allowing for easy addition of mocked beans and such.
 The advantage of this approach is that you have complete control over what gets into the Weld container and can easily change that.
 On the other hand, it may be rather verbose and requires you to add a specifically annotated field to every test (described below).
 
-`WeldJunit5AutoExtension.class` is more of an annotation based approach where you don't need any special field in your test class.
+`WeldJUnitJupiterAutoExtension.class` is more of an annotation based approach where you don't need any special field in your test class.
 In fact, you don't need anything except the JUnit `@ExtendWith` and our extension will try its best to find out what classes should be added to the Weld container as beans.
 This of course makes some assumptions on your tests which may not always be met, hence there is a bunch of annotations which allow you to configure the container further.
 Advantages of this approach are quick setup for basic cases, less verbose code and that eerie feeling that things are happening automagically.
@@ -74,9 +74,9 @@ Last but not least, overly complex test scenarios may mean loads of annotations,
 
 No matter what extension you choose, do not mix them together!
 
-## WeldJunit5Extension
+## WeldJUnitJupiterExtension
 
-The simplest way to use this extension is to annotate your test class with `@ExtendWith(WeldJunit5Extension.class)`.
+The simplest way to use this extension is to annotate your test class with `@ExtendWith(WeldJUnitJupiterExtension.class)`.
 If you are in for shorter annotations, you can also use `@EnableWeld`.
 With just these annotations, the Weld container will be started before each test is run and stopped afterwards.
 
@@ -94,11 +94,11 @@ This default behaviour includes:
 * Shut down the container after test is done
 
 ```java
-import org.jboss.weld.junit5.WeldJunit5Extension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class BasicUsageTest {
 
   @Inject
@@ -113,23 +113,23 @@ class BasicUsageTest {
 
 ### WeldInitiator
 
-`org.jboss.weld.junit5.WeldInitiator` is an entry point you will want to define if you wish to customize how we bootstrap Weld.
+`org.jboss.weld.junit.jupiter.WeldInitiator` is an entry point you will want to define if you wish to customize how we bootstrap Weld.
 The container is configured through a provided `org.jboss.weld.environment.se.Weld` instance.
 By default, the container is optimized for testing purposes, i.e. with automatic discovery and concurrent deployment disabled (see also `WeldInitiator.createWeld()`).
 However, it is possible to provide a customized `Weld` instance  - see also `WeldInitiator.of(Weld)` and `WeldInitiator.from(Weld)` methods.
 `WeldInitiator` also implements `jakarta.enterprise.inject.Instance` and therefore might be used to perform programmatic lookup of bean instances.
 
-`WeldInitiator` should be available in a field annotated with `@org.jboss.weld.junit5.WeldSetup`.
+`WeldInitiator` should be available in a field annotated with `@org.jboss.weld.junit.jupiter.WeldSetup`.
 From there you can use static methods:
 
 ```java
-import org.jboss.weld.junit5.WeldInitiator;
-import org.jboss.weld.junit5.WeldJunit5Extension;
-import org.jboss.weld.junit5.WeldSetup;
+import org.jboss.weld.junit.jupiter.WeldInitiator;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldSetup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class MyNewTest {
 
     @WeldSetup
@@ -146,7 +146,7 @@ A convenient static method `WeldInitiator.of(Class<?>...)` is also provided - in
 
 ```java
 
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class SimpleTest {
 
     @WeldSetup
@@ -170,7 +170,7 @@ It's also possible to use `WeldInitiator.ofTestPackage()` - the container is opt
 
 ```java
 
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class AnotherSimpleTest {
 
     @WeldSetup
@@ -189,10 +189,10 @@ Furthermore, `WeldInitiator.Builder` can be used to customize the final `WeldIni
 
 ##### Test Class Injection
 
-Everytime `WeldJunit5Extension` processes your test instance, it will automatically resolve all `@Inject` fields as well as attempt to resolve any test method parameters, should they be injectable beans.
+Everytime `WeldJUnitJupiterExtension` processes your test instance, it will automatically resolve all `@Inject` fields as well as attempt to resolve any test method parameters, should they be injectable beans.
 
 ```java
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class InjectTest {
 
     @WeldSetup
@@ -216,7 +216,7 @@ class InjectTest {
 `WeldInitiator.Builder.activate(Class<? extends Annotation>...)` makes it possible to activate and deactivate contexts for the specified normal scopes for each test method execution:
 
 ```java
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class ContextsActivatedTest {
 
     @WeldSetup
@@ -256,7 +256,7 @@ class Foo {
   }
 }
 
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class TestClassProducerTest {
 
     @WeldSetup
@@ -278,8 +278,8 @@ class TestClassProducerTest {
 
 This should work in most of the cases (assuming the test class [meets some conditions](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
-You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or, for most use cases, a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
-Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
+You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or, for most use cases, a convenient `org.jboss.weld.testing.MockBean` should be sufficient.
+Use `org.jboss.weld.testing.MockBean.builder()` to obtain a new builder instance.
 
 ```java
 interface Bar {
@@ -295,7 +295,7 @@ class Foo {
   }
 }
 
-@ExtendWith(WeldJunit5Extension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 class AddBeanTest {
 
     @WeldSetup
@@ -321,7 +321,7 @@ class AddBeanTest {
 ##### Adding mock interceptors
 
 Sometimes it might be useful to add a mock interceptor, e.g. if an interceptor implementation requires some environment-specific features.
-For this use case the `org.jboss.weld.junit.MockInterceptor` is a perfect match:
+For this use case the `org.jboss.weld.testing.MockInterceptor` is a perfect match:
 
 ```java
 
@@ -488,9 +488,9 @@ class OuterTest {
 }
 ```
 
-## WeldJunit5AutoExtension
+## WeldJUnitJupiterAutoExtension
 
-To use this approach, annotate your test class with `@ExtendWith(WeldJunit5AutoExtension.class)` or just `@EnableAutoWeld`.
+To use this approach, annotate your test class with `@ExtendWith(WeldJUnitJupiterAutoExtension.class)` or just `@EnableAutoWeld`.
 By default, the extension will:
 
 * Inspect your test class and try to figure out what bean classes it needs based on injection points (field and parameter injection both work)
@@ -513,8 +513,8 @@ By default, the extension will:
 Here is a simple example using the default plus one additional annotation (`@AddPackages`):
 
 ```java
-import org.jboss.weld.junit5.auto.beans.Engine;
-import org.jboss.weld.junit5.auto.beans.V8;
+import org.jboss.weld.junit.jupiter.auto.beans.Engine;
+import org.jboss.weld.junit.jupiter.auto.beans.V8;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -600,8 +600,8 @@ It will not exclude beans of the implied type that are defined by `@Produces` pr
 Also, the current implementation excludes beans based on type, disregarding any qualifiers that are specified.
 
 ```java
-import org.jboss.weld.junit5.auto.ExcludeBean;
-import org.jboss.weld.junit5.auto.WeldJunit5AutoExtension;
+import org.jboss.weld.junit.jupiter.auto.ExcludeBean;
+import org.jboss.weld.junit.jupiter.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Test;
 
 import jakarta.enterprise.inject.Produces;
@@ -652,8 +652,8 @@ This is mainly for usability, as it would be annoying to constantly type additio
 However, we are aware that this might cause trouble if more extensions are competing for parameter resolution.
 In such case, you can turn on explicit parameter resolution and Weld will only resolve parameters which have at least one `jakarta.inject.Qualifier` annotation on them.
 There are two ways to enable it:
-* First option is enabling this globally through a system property - `org.jboss.weld.junit5.explicitParamInjection=true`
-This property is also available as a constant in our extension class; you can therefore refer to it via `org.jboss.weld.junit5.WeldJunit5Extension.GLOBAL_EXPLICIT_PARAM_INJECTION`.
+* First option is enabling this globally through a system property - `org.jboss.weld.junit.jupiter.explicitParamInjection=true`
+This property is also available as a constant in our extension class; you can therefore refer to it via `org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension.GLOBAL_EXPLICIT_PARAM_INJECTION`.
 * The other approach is to use `@ExplicitParamInjection(boolean)` on either test method, or test class.
 In case of test class this annotation will enforce the presence on qualifiers on all methods.
 
