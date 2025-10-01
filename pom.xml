@@ -48,6 +48,8 @@
        <javadoc.source>17</javadoc.source>
        
        <!-- Versions -->
+      <!-- JUnit Jupiter: v6 is the primary test version, but weld-junit-jupiter supports 5.x and 6.x -->
+      <!-- Users can use JUnit Jupiter 5.0+ through 6.x by declaring their own version -->
       <version.junit.jupiter>6.0.0</version.junit.jupiter>
       <!-- version.spock and version.junit.platform should be upgraded together -->
       <!-- see https://github.com/weld/weld-testing/pull/184#issuecomment-2024300488 -->
@@ -210,6 +212,30 @@
                    </plugin>
                </plugins>
            </build>
+       </profile>
+
+       <!-- Profile for testing with JUnit 5.x (backward compatibility) -->
+       <profile>
+           <id>junit5</id>
+           <activation>
+               <activeByDefault>false</activeByDefault>
+           </activation>
+           <properties>
+               <version.junit.jupiter>5.13.4</version.junit.jupiter>
+               <version.junit.platform>1.12.2</version.junit.platform>
+           </properties>
+       </profile>
+
+       <!-- Profile for testing with JUnit 6.x (default) -->
+       <profile>
+           <id>junit6</id>
+           <activation>
+               <activeByDefault>true</activeByDefault>
+           </activation>
+           <properties>
+               <version.junit.jupiter>6.0.0</version.junit.jupiter>
+               <version.junit.platform>6.0.0</version.junit.platform>
+           </properties>
        </profile>
    </profiles>
 

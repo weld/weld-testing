@@ -24,18 +24,22 @@
          <artifactId>weld-common</artifactId>
       </dependency>
 
-      <!--JUnit 5 dependencies -->
+      <!-- JUnit Jupiter dependencies -->
+      <!-- Marked as 'provided' scope so users bring their own JUnit version (5.x or 6.x) -->
       <dependency>
          <groupId>org.junit.jupiter</groupId>
          <artifactId>junit-jupiter-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.junit.jupiter</groupId>
          <artifactId>junit-jupiter-params</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <scope>test</scope>
       </dependency>
 
       <!-- Test dependencies -->
