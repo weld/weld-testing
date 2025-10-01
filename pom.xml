@@ -2,7 +2,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>weld-junit-parent</artifactId>
    <packaging>pom</packaging>
-   <version>5.0.3-SNAPSHOT</version>
+   <version>6.0.0-SNAPSHOT</version>
 
    <name>Weld Extensions for JUnit and Spock</name>
    <description>Set of JUnit/Spock extensions to enhance the testing of CDI components.</description>
@@ -48,12 +48,11 @@
        <javadoc.source>17</javadoc.source>
        
        <!-- Versions -->
-      <version.junit4>4.13.2</version.junit4>
-      <version.junit.jupiter>5.13.4</version.junit.jupiter>
+      <version.junit.jupiter>6.0.0</version.junit.jupiter>
       <!-- version.spock and version.junit.platform should be upgraded together -->
       <!-- see https://github.com/weld/weld-testing/pull/184#issuecomment-2024300488 -->
       <version.spock>2.4-M6-groovy-4.0</version.spock>
-      <version.junit.platform>1.12.2</version.junit.platform>
+      <version.junit.platform>6.0.0</version.junit.platform>
       <version.groovy>3.0.25</version.groovy>
       <version.weld>6.0.3.Final</version.weld>
       <version.mockito>5.20.0</version.mockito>
@@ -70,10 +69,9 @@
    </properties>
 
    <modules>
-      <module>junit4</module>
-      <module>junit5</module>
+      <module>weld-common</module>
+      <module>junit-jupiter</module>
       <module>spock</module>
-      <module>junit-common</module>
    </modules>
 
    <dependencyManagement>
@@ -84,12 +82,6 @@
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-core</artifactId>
             <version>${version.weld}</version>
-         </dependency>
-
-         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version.junit4}</version>
          </dependency>
 
          <dependency>
@@ -138,7 +130,13 @@
 
          <dependency>
             <groupId>org.jboss.weld</groupId>
-            <artifactId>weld-junit-common</artifactId>
+            <artifactId>weld-common</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-junit-jupiter</artifactId>
             <version>${project.version}</version>
          </dependency>
 

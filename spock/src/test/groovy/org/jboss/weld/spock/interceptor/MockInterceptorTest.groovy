@@ -23,7 +23,7 @@ import java.lang.annotation.Target
 
 import jakarta.enterprise.util.AnnotationLiteral
 import jakarta.interceptor.InterceptorBinding
-import org.jboss.weld.junit.MockInterceptor
+import org.jboss.weld.testing.MockInterceptor
 import org.jboss.weld.spock.EnableWeld
 import org.jboss.weld.spock.WeldInitiator
 import org.jboss.weld.spock.WeldSetup
