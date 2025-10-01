@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.junit.jupiter.WeldInitiator;
 import org.jboss.weld.junit.jupiter.WeldJunitEnricher;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 /**
- * An alternative to {@link WeldJupiterExtension} allowing to fully leverage an annotation based configuration approach.
+ * An alternative to {@link WeldJUnitJupiterExtension} allowing to fully leverage an annotation based configuration approach.
  * When used, the extension will attempt to resolve all beans used in your test class and automatically adds them to
  * the Weld container while bootstrapping it.
  *
@@ -43,7 +43,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
  * Furthermore, all discovered {@link WeldJunitEnricher}s are invoked after the annotations are processed.
  *
  * <p>
- * Note that this approach cannot be combined with {@link WeldJupiterExtension}, choose one or the other approach, not both.
+ * Note that this approach cannot be combined with {@link WeldJUnitJupiterExtension}, choose one or the other approach, not both.
  *
  * @see ActivateScopes
  * @see AddBeanClasses
@@ -59,7 +59,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
  * @see SetBeanDiscoveryMode
  * @see WeldJunitEnricher
  */
-public class WeldJupiterAutoExtension extends WeldJupiterExtension {
+public class WeldJUnitJupiterAutoExtension extends WeldJUnitJupiterExtension {
     @Override
     protected void validateInitiator(List<Field> foundInitiatorFields) {
         if (foundInitiatorFields.size() > 0) {

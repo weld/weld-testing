@@ -19,7 +19,7 @@ package org.jboss.weld.junit.jupiter.testLifecycle;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.jupiter.WeldInitiator;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.jboss.weld.junit.jupiter.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.parallel.Isolated;
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
 @Isolated
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PerClassLifecycleTest {
 

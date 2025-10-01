@@ -3,13 +3,13 @@ package org.jboss.weld.junit.jupiter.explicitInjection;
 import jakarta.enterprise.inject.Default;
 
 import org.jboss.weld.junit.jupiter.ExplicitParamInjection;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 @ExplicitParamInjection(false)
 public class ExplicitParameterInjectionNestedClass2Test {
 

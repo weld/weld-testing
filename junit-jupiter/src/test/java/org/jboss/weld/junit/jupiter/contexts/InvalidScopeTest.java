@@ -17,7 +17,7 @@
 package org.jboss.weld.junit.jupiter.contexts;
 
 import org.jboss.weld.junit.jupiter.WeldInitiator;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  *
  * @author Matej Novotny
  */
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 public class InvalidScopeTest {
 
     @Test

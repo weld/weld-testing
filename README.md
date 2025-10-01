@@ -24,7 +24,7 @@ Simulating field injection to start with, then interceptors and/or decorators - 
 There are frameworks to make this easier such as [Mockito](http://site.mockito.org/); but use too many mocks and things get tangled real quick.
 So we came with JUnit/Spock extensions which allow you to use actual CDI container instead of complex simulations.
 There is no need to change the way you develop your CDI components if you have a real container to test it with.
-Besides, it's easy to combine this approach with mocking frameworks (see for instance [Adding mock beans](junit5/README.md#adding-mock-beans)).
+Besides, it's easy to combine this approach with mocking frameworks (see for instance [Adding mock beans](junit-jupiter/README.md#adding-mock-beans)).
 
 ## How To Use Each Extension
 
@@ -34,7 +34,7 @@ Below is a list with links to detailed README of each extension:
 * JUnit 4 extension
   * [JUnit 4 extension using `@Rule` and `@ClassRule` mechanism](junit4/README.md)
 * JUnit 5
-  * [JUnit 5 extension using the `@ExtendWith` mechanism](junit5/README.md)
+  * [JUnit 5 extension using the `@ExtendWith` mechanism](junit-jupiter/README.md)
 * JUnit-common
   * Houses the parts of code shared by both Junit extensions
 * Spock

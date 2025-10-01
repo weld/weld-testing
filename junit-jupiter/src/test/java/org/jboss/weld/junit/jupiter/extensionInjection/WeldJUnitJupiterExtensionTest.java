@@ -22,19 +22,19 @@ import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Basic test for JUnit 5 injection into parameter/field handled by Weld
+ * Basic test for JUnit Jupiter injection into parameter/field handled by Weld
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>
  */
-@ExtendWith(WeldJupiterExtension.class)
-public class JUnit5ExtensionTest {
+@ExtendWith(WeldJUnitJupiterExtension.class)
+public class WeldJUnitJupiterExtensionTest {
 
     @Inject
     SomeBean bean;

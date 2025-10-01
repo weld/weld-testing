@@ -73,7 +73,7 @@ import org.junit.jupiter.params.ParameterizedTest;
  * </p>
  *
  * <pre>
- * &#64;ExtendWith(WeldJupiterExtension.class)
+ * &#64;ExtendWith(WeldJUnitJupiterExtension.class)
  * public class SimpleTest {
  *
  *     // Injected automatically
@@ -92,11 +92,11 @@ import org.junit.jupiter.params.ParameterizedTest;
  * @see EnableWeld
  * @see WeldJunitEnricher
  */
-public class WeldJupiterExtension implements AfterAllCallback, BeforeAllCallback,
+public class WeldJUnitJupiterExtension implements AfterAllCallback, BeforeAllCallback,
         BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     // global system property
-    public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit5.explicitParamInjection";
+    public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit.jupiter.explicitParamInjection";
 
     private static void storeExplicitParamResolutionInformation(ExtensionContext ec) {
         // check system property which may have set the global explicit param injection

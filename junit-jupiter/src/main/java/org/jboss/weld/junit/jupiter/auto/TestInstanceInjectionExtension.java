@@ -30,7 +30,7 @@ import org.jboss.weld.injection.ForwardingInjectionTarget;
 /**
  * Extension that makes a test instance appear like a regular bean even though instantiated by JUnit.
  * Injection into all test instances, also {@link org.junit.jupiter.api.Nested &#064;Nested} ones, is handled in
- * {@link org.jboss.weld.junit5.WeldInitiator#addObjectsToInjectInto} and related.
+ * {@link org.jboss.weld.junit.jupiter.WeldInitiator#addObjectsToInjectInto} and related.
  * Proper handling of all other CDI annotations such as {@link jakarta.enterprise.inject.Produces &#064;Produces} is supported
  * only on top level test classes.
  */

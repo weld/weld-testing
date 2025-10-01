@@ -4,13 +4,13 @@ import java.util.Set;
 
 import jakarta.enterprise.inject.Default;
 
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 public class ParameterizedTestExplicitInjectionTest {
 
     public static final Set<String> strings = Set.of("one", "two", "three");

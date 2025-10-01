@@ -3,7 +3,7 @@ package org.jboss.weld.junit.jupiter.explicitInjection;
 import jakarta.enterprise.inject.Default;
 
 import org.jboss.weld.junit.jupiter.ExplicitParamInjection;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 // Note that @ExtendWith(CustomExtension.class) has to be on each method separately. The inheritance of this would
 // otherwise cause failures for TwiceNestedTestClass2 and ThriceNestedClass where Weld claims all parameters.
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 @ExplicitParamInjection(true)
 public class ExplicitParameterInjectionNestedClassTest {
 

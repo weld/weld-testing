@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.jupiter.WeldInitiator;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.jboss.weld.junit.jupiter.WeldSetup;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.parallel.Isolated;
  * @author Matej Novotny
  */
 @Isolated
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 @TestMethodOrder(value = MethodOrderer.MethodName.class) // enforces ordering of methods, required!
 public class DisabledMethodsTest {
 

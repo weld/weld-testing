@@ -20,7 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * An annotation used to denote a WeldInitiator field. This is then picked up by {@link WeldJupiterExtension} and used for
+ * An annotation used to denote a WeldInitiator field. This is then picked up by {@link WeldJUnitJupiterExtension} and used for
  * configuration.
  *
  * @author <a href="mailto:manovotn@redhat.com">Matej Novotny</a>

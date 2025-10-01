@@ -32,7 +32,7 @@ import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.util.TypeLiteral;
 
 import org.jboss.weld.junit.jupiter.WeldInitiator;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.jboss.weld.junit.jupiter.WeldSetup;
 import org.jboss.weld.testing.MockBean;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ import org.mockito.Mockito;
  * @author Matej Novotny
  */
 @Isolated
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 public class AddBeanTest {
 
     private static final AtomicInteger SEQUENCE = new AtomicInteger(0);

@@ -31,13 +31,13 @@ import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.testing.AbstractWeldInitiator;
 
 /**
- * JUnit 5 initiator - can be used to customize the Weld SE container started by {@link WeldJupiterExtension}.
+ * JUnit 5 initiator - can be used to customize the Weld SE container started by {@link WeldJUnitJupiterExtension}.
  *
  * <p>
  * <b>Example:</b>
  *
  * <pre>
- * &#64;ExtendWith(WeldJupiterExtension.class)
+ * &#64;ExtendWith(WeldJUnitJupiterExtension.class)
  * public class SimpleTest {
  *
  *     &#64;WeldSetup

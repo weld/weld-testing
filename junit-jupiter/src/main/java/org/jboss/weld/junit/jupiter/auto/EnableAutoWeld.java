@@ -27,7 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Meta-annotation that allows test classes to be extended with {@code @EnableAutoWeld}
- * instead of {@code @ExtendWith(WeldJupiterAutoExtension.class)}.
+ * instead of {@code @ExtendWith(WeldJUnitJupiterAutoExtension.class)}.
  *
  * <pre>
  * <br>
@@ -46,13 +46,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * }
  * </pre>
  *
- * @see WeldJupiterAutoExtension
+ * @see WeldJUnitJupiterAutoExtension
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @Inherited
-@ExtendWith(WeldJupiterAutoExtension.class)
+@ExtendWith(WeldJUnitJupiterAutoExtension.class)
 public @interface EnableAutoWeld {
 
 }

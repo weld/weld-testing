@@ -19,7 +19,7 @@ package org.jboss.weld.junit.jupiter.explicitInjection;
 import jakarta.enterprise.inject.Default;
 
 import org.jboss.weld.junit.jupiter.EnableWeld;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,7 +37,7 @@ public class ExplicitParameterInjectionViaPropertyTest {
 
     @BeforeAll
     public static void prepare() {
-        System.setProperty(WeldJupiterExtension.GLOBAL_EXPLICIT_PARAM_INJECTION, "true");
+        System.setProperty(WeldJUnitJupiterExtension.GLOBAL_EXPLICIT_PARAM_INJECTION, "true");
     }
 
     @Test
@@ -56,6 +56,6 @@ public class ExplicitParameterInjectionViaPropertyTest {
 
     @AfterAll
     public static void cleanUp() {
-        System.setProperty(WeldJupiterExtension.GLOBAL_EXPLICIT_PARAM_INJECTION, "");
+        System.setProperty(WeldJUnitJupiterExtension.GLOBAL_EXPLICIT_PARAM_INJECTION, "");
     }
 }

@@ -50,7 +50,7 @@ public class ExtensionContextUtils {
      */
     private static synchronized ExtensionContext.Store getRootExtensionStore(ExtensionContext context) {
         if (EXTENSION_NAMESPACE == null) {
-            EXTENSION_NAMESPACE = Namespace.create(WeldJupiterExtension.class);
+            EXTENSION_NAMESPACE = Namespace.create(WeldJUnitJupiterExtension.class);
         }
         return context.getRoot().getStore(EXTENSION_NAMESPACE);
     }
@@ -63,7 +63,7 @@ public class ExtensionContextUtils {
      * @return {@link ExtensionContext.Store} based on {@link ExtensionContext} and the required test class
      */
     private static ExtensionContext.Store getTestStore(ExtensionContext context) {
-        return context.getStore(Namespace.create(WeldJupiterExtension.class, context.getRequiredTestClass()));
+        return context.getStore(Namespace.create(WeldJUnitJupiterExtension.class, context.getRequiredTestClass()));
     }
 
     /**

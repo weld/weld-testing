@@ -3,7 +3,7 @@ package org.jboss.weld.junit.jupiter.nested;
 import jakarta.inject.Inject;
 
 import org.jboss.weld.junit.jupiter.WeldInitiator;
-import org.jboss.weld.junit.jupiter.WeldJupiterExtension;
+import org.jboss.weld.junit.jupiter.WeldJUnitJupiterExtension;
 import org.jboss.weld.junit.jupiter.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * {@code @BeforeEach} should still be invoked for nested classes. For the below scenario to work,
  * we need to make the parent class an injection target as well.
  */
-@ExtendWith(WeldJupiterExtension.class)
+@ExtendWith(WeldJUnitJupiterExtension.class)
 public class NestedTestClassTest {
 
     @WeldSetup
