@@ -7,7 +7,7 @@
    <parent>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit-parent</artifactId>
-      <version>5.0.3-SNAPSHOT</version>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>weld-spock</artifactId>
@@ -25,7 +25,7 @@
 
       <dependency>
          <groupId>org.jboss.weld</groupId>
-         <artifactId>weld-junit-common</artifactId>
+         <artifactId>weld-common</artifactId>
       </dependency>
 
       <!-- Spock dependencies -->

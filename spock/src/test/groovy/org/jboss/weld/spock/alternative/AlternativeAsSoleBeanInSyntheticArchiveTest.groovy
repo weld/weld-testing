@@ -19,7 +19,7 @@ package org.jboss.weld.spock.alternative
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import org.jboss.weld.junit.MockBean
+import org.jboss.weld.testing.MockBean
 import org.jboss.weld.spock.EnableWeld
 import org.jboss.weld.spock.WeldInitiator
 import org.jboss.weld.spock.WeldSetup

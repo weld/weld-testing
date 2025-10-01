@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-weld-junit:
-    name: "Weld Testing build, JDK ${{matrix.java.name}}"
+    name: "Weld Testing build, JDK ${{matrix.java.name}}, JUnit ${{matrix.junit.name}}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,6 +19,15 @@ jobs:
           - {
             name: "21",
             java-version: 21,
+          }
+        junit:
+          - {
+            name: "5.x",
+            profile: "junit5",
+          }
+          - {
+            name: "6.x",
+            profile: "junit6",
           }
     steps:
     - uses: actions/checkout@v5
@@ -40,8 +49,8 @@ jobs:
         # Caching is an automated pre/post action that installs the cache if the key exists and exports the cache
         # after the job is done. In this case we refresh the cache monthly (by changing key) to avoid unlimited growth.
         key: q2maven-master-${{ steps.get-date.outputs.date }}
-    - name: Build with Maven
-      run: WELD_JUNIT_DEBUG=spotbugs mvn clean install -Dno-format -Dspotbugs.failOnError=true
+    - name: Build with Maven (JUnit ${{matrix.junit.name}})
+      run: WELD_JUNIT_DEBUG=spotbugs mvn clean install -P${{matrix.junit.profile}} -Dno-format -Dspotbugs.failOnError=true
     - name: Delete Local Artifacts From Cache
       shell: bash
       run: rm -r ~/.m2/repository/org/jboss/weld/weld-junit*
@@ -53,5 +62,5 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: test-reports-jdk${{matrix.java.name}}
+        name: test-reports-jdk${{matrix.java.name}}-junit${{matrix.junit.name}}
         path: 'test-reports.tgz'

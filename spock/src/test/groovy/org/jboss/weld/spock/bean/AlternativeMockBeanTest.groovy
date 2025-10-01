@@ -18,7 +18,7 @@
 package org.jboss.weld.spock.bean
 
 import jakarta.enterprise.context.Dependent
-import org.jboss.weld.junit.MockBean
+import org.jboss.weld.testing.MockBean
 import org.jboss.weld.spock.EnableWeld
 import org.jboss.weld.spock.WeldInitiator
 import org.jboss.weld.spock.WeldSetup
