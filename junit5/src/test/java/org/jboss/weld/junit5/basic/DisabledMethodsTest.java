@@ -25,7 +25,7 @@ import org.junit.jupiter.api.parallel.Isolated;
  */
 @Isolated
 @ExtendWith(WeldJunit5Extension.class)
-@TestMethodOrder(value = MethodOrderer.Alphanumeric.class) // enforces ordering of methods, required!
+@TestMethodOrder(value = MethodOrderer.MethodName.class) // enforces ordering of methods, required!
 public class DisabledMethodsTest {
 
     @WeldSetup

@@ -57,7 +57,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
-import org.junit.platform.commons.util.CollectionUtils;
 import org.junit.platform.commons.util.Preconditions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -315,13 +314,13 @@ class ClassScanning {
     private static List<Field> findAnnotatedDeclaredFields(Class<?> clazz, Class<? extends Annotation> annotationType) {
         return getDeclaredFields(clazz).stream()
                 .filter((field) -> isAnnotated(field, annotationType))
-                .collect(CollectionUtils.toUnmodifiableList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     private static List<Method> findAnnotatedDeclaredMethods(Class<?> clazz, Class<? extends Annotation> annotationType) {
         return getDeclaredMethods(clazz).stream()
                 .filter((field) -> isAnnotated(field, annotationType))
-                .collect(CollectionUtils.toUnmodifiableList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     private static List<Constructor<?>> getDeclaredConstructors(Class<?> clazz) {
