@@ -239,34 +239,8 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <configuration>
-                        <links>
-                            <link>https://static.javadoc.io/org.jboss.weld.se/weld-se-core/${version.weld}/</link>
-                            <link>https://static.javadoc.io/jakarta.inject/jakarta.inject-api/${version.jakarta.inject}/</link>
-                            <link>https://static.javadoc.io/jakarta.enterprise/jakarta.enterprise.cdi-api/${version.jakarta.cdi}/</link>
-                            <link>https://static.javadoc.io/org.jboss.weld.environment/weld-environment-common/${version.weld}/</link>
-                            <link>https://static.javadoc.io/org.spockframework/spock-core/${version.spock}/</link>
-                        </links>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
-
-    <!-- Needed to download org.apache.maven.plugins:maven-compiler-plugin:jar -->
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Repository Group</name>
-            <url>https://repository.jboss.org/nexus/content/groups/public</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>
