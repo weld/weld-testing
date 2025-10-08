@@ -137,7 +137,7 @@ public class WeldInitiator extends AbstractWeldInitiator implements TestRule {
     /**
      * Create a builder instance.
      *
-     * @param weld
+     * @param beanClasses bean classes to add
      * @return a builder instance
      * @see #of(Class...)
      */
