@@ -49,11 +49,8 @@
        
        <!-- Versions -->
       <version.junit4>4.13.2</version.junit4>
-      <version.junit.jupiter>5.13.4</version.junit.jupiter>
-      <!-- version.spock and version.junit.platform should be upgraded together -->
-      <!-- see https://github.com/weld/weld-testing/pull/184#issuecomment-2024300488 -->
+       <!-- JUnit Jupiter versions are defined in `junit5`/`junit6` profiles -->
       <version.spock>2.4-M6-groovy-4.0</version.spock>
-      <version.junit.platform>1.12.2</version.junit.platform>
       <version.groovy>3.0.25</version.groovy>
       <version.weld>6.0.3.Final</version.weld>
       <version.mockito>5.20.0</version.mockito>
@@ -117,13 +114,6 @@
          </dependency>
 
          <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-testkit</artifactId>
-            <version>${version.junit.platform}</version>
-            <scope>test</scope>
-         </dependency>
-
-         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>${version.groovy}</version>
@@ -180,6 +170,30 @@
    </dependencyManagement>
 
    <profiles>
+       <profile>
+           <!-- Default profile, JUnit 5 -->
+           <id>junit5</id>
+           <activation>
+               <property>
+                   <name>!junit6</name>
+               </property>
+           </activation>
+           <properties>
+               <version.junit.jupiter>5.13.4</version.junit.jupiter>
+           </properties>
+       </profile>
+        <profile>
+            <!-- For compatibility testing with JUnit 6 -->
+            <id>junit6</id>
+            <activation>
+                <property>
+                    <name>junit6</name>
+                </property>
+            </activation>
+            <properties>
+                <version.junit.jupiter>6.0.0</version.junit.jupiter>
+            </properties>
+        </profile>
        <profile>
            <id>spotbugs</id>
            <activation>
