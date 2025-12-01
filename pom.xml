@@ -191,7 +191,7 @@
                 </property>
             </activation>
             <properties>
-                <version.junit.jupiter>6.0.0</version.junit.jupiter>
+                <version.junit.jupiter>6.0.1</version.junit.jupiter>
             </properties>
         </profile>
        <profile>
