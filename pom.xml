@@ -50,7 +50,7 @@
        <!-- Versions -->
       <version.junit4>4.13.2</version.junit4>
        <!-- JUnit Jupiter versions are defined in `junit5`/`junit6` profiles -->
-      <version.spock>2.4-M6-groovy-4.0</version.spock>
+      <version.spock>2.4-groovy-5.0</version.spock>
       <version.groovy>3.0.25</version.groovy>
       <version.weld>6.0.3.Final</version.weld>
       <version.mockito>5.20.0</version.mockito>
