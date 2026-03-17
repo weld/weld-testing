@@ -1,0 +1,24 @@
+#
+# Copyright The Weld Authors
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.jboss.weld.junit.MigrateToWeldJunitJupiter
+displayName: Migrate from weld-junit5 to weld-junit-jupiter
+description: >-
+  Migrates usages of `weld-junit5` to `weld-junit-jupiter`.
+  This includes changing the Maven artifact ID and renaming the
+  `org.jboss.weld.junit5` package to `org.jboss.weld.junit.jupiter`.
+recipeList:
+  - org.openrewrite.java.dependencies.ChangeDependency:
+      oldGroupId: org.jboss.weld
+      oldArtifactId: weld-junit5
+      newGroupId: org.jboss.weld
+      newArtifactId: weld-junit-jupiter
+      newVersion: 6.0.0.Final
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: org.jboss.weld.junit5
+      newPackageName: org.jboss.weld.junit.jupiter
+      recursive: true

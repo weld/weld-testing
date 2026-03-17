@@ -68,7 +68,7 @@
 
    <modules>
       <module>junit4</module>
-      <module>junit5</module>
+      <module>junit-jupiter</module>
       <module>spock</module>
       <module>junit-common</module>
    </modules>
