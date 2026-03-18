@@ -50,8 +50,8 @@
        <!-- Versions -->
       <version.junit4>4.13.2</version.junit4>
       <version.junit.jupiter>6.1.0</version.junit.jupiter>
-      <version.spock>2.4-M6-groovy-4.0</version.spock>
-      <version.groovy>3.0.25</version.groovy>
+      <version.spock>2.4-groovy-4.0</version.spock>
+      <version.groovy>4.0.30</version.groovy>
       <version.weld>7.0.0.Alpha1</version.weld>
       <version.mockito>5.23.0</version.mockito>
       <version.jakarta.ejb.api>4.0.1</version.jakarta.ejb.api>
@@ -114,7 +114,7 @@
          </dependency>
 
          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>${version.groovy}</version>
          </dependency>
