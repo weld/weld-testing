@@ -22,24 +22,36 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.persistence.Cache;
+import jakarta.persistence.CacheRetrieveMode;
+import jakarta.persistence.CacheStoreMode;
+import jakarta.persistence.ConnectionConsumer;
+import jakarta.persistence.ConnectionFunction;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.FindOption;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.LockOption;
+import jakarta.persistence.PersistenceUnitTransactionType;
 import jakarta.persistence.PersistenceUnitUtil;
 import jakarta.persistence.Query;
+import jakarta.persistence.RefreshOption;
+import jakarta.persistence.SchemaManager;
 import jakarta.persistence.StoredProcedureQuery;
 import jakarta.persistence.SynchronizationType;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.TypedQueryReference;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaSelect;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.metamodel.Metamodel;
 
@@ -330,6 +342,66 @@ public class InjectResourcesTest {
             @Override
             public void clear() {
             }
+
+            @Override
+            public <T> T find(Class<T> entityClass, Object primaryKey, FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> T find(EntityGraph<T> entityGraph, Object primaryKey, FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> T getReference(T entity) {
+                return null;
+            }
+
+            @Override
+            public void lock(Object entity, LockModeType lockMode, LockOption... options) {
+            }
+
+            @Override
+            public void refresh(Object entity, RefreshOption... options) {
+            }
+
+            @Override
+            public void setCacheRetrieveMode(CacheRetrieveMode cacheRetrieveMode) {
+            }
+
+            @Override
+            public void setCacheStoreMode(CacheStoreMode cacheStoreMode) {
+            }
+
+            @Override
+            public CacheRetrieveMode getCacheRetrieveMode() {
+                return null;
+            }
+
+            @Override
+            public CacheStoreMode getCacheStoreMode() {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createQuery(CriteriaSelect<T> selectQuery) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createQuery(TypedQueryReference<T> reference) {
+                return null;
+            }
+
+            @Override
+            public <C> void runWithConnection(ConnectionConsumer<C> action) {
+            }
+
+            @Override
+            public <C, T> T callWithConnection(ConnectionFunction<C, T> function) {
+                return null;
+            }
         };
     }
 
@@ -401,6 +473,40 @@ public class InjectResourcesTest {
 
             @Override
             public <T> void addNamedEntityGraph(String graphName, EntityGraph<T> entityGraph) {
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+
+            @Override
+            public PersistenceUnitTransactionType getTransactionType() {
+                return null;
+            }
+
+            @Override
+            public SchemaManager getSchemaManager() {
+                return null;
+            }
+
+            @Override
+            public <R> Map<String, TypedQueryReference<R>> getNamedQueries(Class<R> resultType) {
+                return null;
+            }
+
+            @Override
+            public <E> Map<String, EntityGraph<? extends E>> getNamedEntityGraphs(Class<E> entityType) {
+                return null;
+            }
+
+            @Override
+            public void runInTransaction(Consumer<EntityManager> work) {
+            }
+
+            @Override
+            public <R> R callInTransaction(Function<EntityManager, R> work) {
+                return null;
             }
         };
     }
