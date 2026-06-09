@@ -20,8 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -31,7 +33,10 @@ import jakarta.persistence.CacheRetrieveMode;
 import jakarta.persistence.CacheStoreMode;
 import jakarta.persistence.ConnectionConsumer;
 import jakarta.persistence.ConnectionFunction;
+import jakarta.persistence.EntityAgent;
 import jakarta.persistence.EntityGraph;
+import jakarta.persistence.EntityHandler;
+import jakarta.persistence.EntityListenerRegistration;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -44,20 +49,24 @@ import jakarta.persistence.PersistenceUnitUtil;
 import jakarta.persistence.Query;
 import jakarta.persistence.RefreshOption;
 import jakarta.persistence.SchemaManager;
+import jakarta.persistence.Statement;
+import jakarta.persistence.StatementOrTypedQuery;
+import jakarta.persistence.StatementReference;
 import jakarta.persistence.StoredProcedureQuery;
 import jakarta.persistence.SynchronizationType;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.TypedQueryReference;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaSelect;
-import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.CriteriaStatement;
 import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.sql.ResultSetMapping;
 
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
+
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  *
@@ -72,7 +81,8 @@ public class InjectResourcesTest {
             .bindResource("java:comp/env/baz", "hello2")
             .setEjbFactory(ip -> new DummySessionBean("ping"))
             .setPersistenceUnitFactory(getPUFactory())
-            .setPersistenceContextFactory(getPCFactory()).build();
+            .setPersistenceContextFactory(getPCFactory())
+            .setPersistenceAgentFactory(getPAFactory()).build();
 
     @Test
     public void testResourceInjection() {
@@ -94,6 +104,8 @@ public class InjectResourcesTest {
         assertFalse(foo.entityManagerFactory.isOpen());
         assertNotNull(foo.entityManager);
         assertFalse(foo.entityManager.isOpen());
+        assertNotNull(foo.entityAgent);
+        assertEquals("MockEntityAgent", foo.entityAgent.toString());
     }
 
     // Mock objects
@@ -120,10 +132,6 @@ public class InjectResourcesTest {
 
             @Override
             public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
-            }
-
-            @Override
-            public void refresh(Object entity, LockModeType lockMode) {
             }
 
             @Override
@@ -165,6 +173,12 @@ public class InjectResourcesTest {
                 return false;
             }
 
+            @Deprecated(since = "4.0", forRemoval = true)
+            @Override
+            public Statement createQuery(CriteriaStatement<?> statement) {
+                return null;
+            }
+
             @Override
             public EntityTransaction getTransaction() {
                 return null;
@@ -177,6 +191,11 @@ public class InjectResourcesTest {
 
             @Override
             public Map<String, Object> getProperties() {
+                return null;
+            }
+
+            @Override
+            public Statement createStatement(String qlString) {
                 return null;
             }
 
@@ -211,8 +230,23 @@ public class InjectResourcesTest {
             }
 
             @Override
+            public <T> EntityGraph<T> getEntityGraph(Class<T> rootType, String graphName) {
+                return null;
+            }
+
+            @Override
             public Object getDelegate() {
                 return null;
+            }
+
+            @Override
+            public void addOption(Option option) {
+
+            }
+
+            @Override
+            public Set<Option> getOptions() {
+                return Set.of();
             }
 
             @Override
@@ -230,13 +264,33 @@ public class InjectResourcesTest {
             }
 
             @Override
-            public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+            public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
                 return null;
             }
 
             @Override
-            public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+            public <T> T get(Class<T> entityClass, Object id) {
                 return null;
+            }
+
+            @Override
+            public <T> T get(Class<T> entityClass, Object id, @Nullable FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> T get(EntityGraph<T> graph, Object id, @Nullable FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> List<T> getMultiple(Class<T> entityClass, List<?> ids, @Nullable FindOption... options) {
+                return List.of();
+            }
+
+            @Override
+            public <T> List<T> getMultiple(EntityGraph<T> graph, List<?> ids, @Nullable FindOption... options) {
+                return List.of();
             }
 
             @Override
@@ -269,37 +323,37 @@ public class InjectResourcesTest {
             }
 
             @Override
-            public Query createQuery(CriteriaDelete deleteQuery) {
+            public <T> TypedQuery<T> createQuery(String qlString, EntityGraph<T> resultGraph) {
                 return null;
             }
 
             @Override
-            public Query createQuery(CriteriaUpdate updateQuery) {
+            public Statement createNamedStatement(String name) {
                 return null;
             }
 
             @Override
-            public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+            public StatementOrTypedQuery createQuery(String qlString) {
                 return null;
             }
 
             @Override
-            public Query createQuery(String qlString) {
+            public StatementOrTypedQuery createNativeQuery(String sqlString, String resultSetMapping) {
                 return null;
             }
 
             @Override
-            public Query createNativeQuery(String sqlString, String resultSetMapping) {
+            public <T> TypedQuery<T> createNativeQuery(String sqlString, ResultSetMapping<T> resultSetMapping) {
                 return null;
             }
 
             @Override
-            public Query createNativeQuery(String sqlString, Class resultClass) {
+            public <T> TypedQuery<T> createNativeQuery(String sqlString, Class<T> resultClass) {
                 return null;
             }
 
             @Override
-            public Query createNativeQuery(String sqlString) {
+            public StatementOrTypedQuery createNativeQuery(String sqlString) {
                 return null;
             }
 
@@ -314,10 +368,16 @@ public class InjectResourcesTest {
             }
 
             @Override
-            public Query createNamedQuery(String name) {
+            public Statement createStatement(StatementReference reference) {
                 return null;
             }
 
+            @Override
+            public StatementOrTypedQuery createNamedQuery(String name) {
+                return null;
+            }
+
+            @Deprecated(since = "4.0", forRemoval = true)
             @Override
             public EntityGraph<?> createEntityGraph(String graphName) {
                 return null;
@@ -349,6 +409,16 @@ public class InjectResourcesTest {
             @Override
             public <T> T find(EntityGraph<T> entityGraph, Object primaryKey, FindOption... options) {
                 return null;
+            }
+
+            @Override
+            public <T> List<T> findMultiple(Class<T> entityClass, List<?> ids, @Nullable FindOption... options) {
+                return List.of();
+            }
+
+            @Override
+            public <T> List<T> findMultiple(EntityGraph<T> graph, List<?> ids, @Nullable FindOption... options) {
+                return List.of();
             }
 
             @Override
@@ -388,7 +458,17 @@ public class InjectResourcesTest {
             }
 
             @Override
+            public Statement createStatement(CriteriaStatement<?> statement) {
+                return null;
+            }
+
+            @Override
             public <T> TypedQuery<T> createQuery(TypedQueryReference<T> reference) {
+                return null;
+            }
+
+            @Override
+            public Statement createNativeStatement(String sqlString) {
                 return null;
             }
 
@@ -432,6 +512,21 @@ public class InjectResourcesTest {
             }
 
             @Override
+            public EntityManager createEntityManager(@Nullable EntityManager.CreationOption... options) {
+                return null;
+            }
+
+            @Override
+            public EntityAgent createEntityAgent(@Nullable EntityAgent.CreationOption... options) {
+                return null;
+            }
+
+            @Override
+            public EntityAgent createEntityAgent(@Nullable Map<?, ?> properties) {
+                return null;
+            }
+
+            @Override
             public CriteriaBuilder getCriteriaBuilder() {
                 return null;
             }
@@ -442,22 +537,12 @@ public class InjectResourcesTest {
             }
 
             @Override
-            public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map) {
+            public EntityManager createEntityManager(SynchronizationType synchronizationType, Map<?, ?> map) {
                 return null;
             }
 
             @Override
-            public EntityManager createEntityManager(SynchronizationType synchronizationType) {
-                return null;
-            }
-
-            @Override
-            public EntityManager createEntityManager(Map map) {
-                return null;
-            }
-
-            @Override
-            public EntityManager createEntityManager() {
+            public EntityManager createEntityManager(Map<?, ?> map) {
                 return null;
             }
 
@@ -467,6 +552,16 @@ public class InjectResourcesTest {
 
             @Override
             public void addNamedQuery(String name, Query query) {
+            }
+
+            @Override
+            public <R> TypedQueryReference<R> addNamedQuery(String name, TypedQuery<R> query) {
+                return null;
+            }
+
+            @Override
+            public StatementReference addNamedStatement(String name, Statement statement) {
+                return null;
             }
 
             @Override
@@ -494,7 +589,23 @@ public class InjectResourcesTest {
             }
 
             @Override
+            public Map<String, StatementReference> getNamedStatements() {
+                return Map.of();
+            }
+
+            @Override
             public <E> Map<String, EntityGraph<? extends E>> getNamedEntityGraphs(Class<E> entityType) {
+                return null;
+            }
+
+            @Override
+            public <R> Map<String, ResultSetMapping<R>> getResultSetMappings(Class<R> resultType) {
+                return Map.of();
+            }
+
+            @Override
+            public <E> EntityListenerRegistration addListener(Class<E> entityType, Class<? extends Annotation> callbackType,
+                    Consumer<? super E> listener) {
                 return null;
             }
 
@@ -506,7 +617,347 @@ public class InjectResourcesTest {
             public <R> R callInTransaction(Function<EntityManager, R> work) {
                 return null;
             }
+
+            @Override
+            public <H extends EntityHandler> void runInTransaction(Class<H> handlerClass, Consumer<H> work) {
+
+            }
+
+            @Override
+            public <R, H extends EntityHandler> R callInTransaction(Class<H> handlerClass, Function<H, R> work) {
+                return null;
+            }
         };
     }
 
+    static Function<InjectionPoint, Object> getPAFactory() {
+        return ip -> new EntityAgent() {
+            @Override
+            public void insert(Object entity) {
+
+            }
+
+            @Override
+            public void insertMultiple(List<?> entities) {
+
+            }
+
+            @Override
+            public void update(Object entity) {
+
+            }
+
+            @Override
+            public void updateMultiple(List<?> entities) {
+
+            }
+
+            @Override
+            public void delete(Object entity) {
+
+            }
+
+            @Override
+            public void deleteMultiple(List<?> entities) {
+
+            }
+
+            @Override
+            public void upsert(Object entity) {
+
+            }
+
+            @Override
+            public void upsertMultiple(List<?> entities) {
+
+            }
+
+            @Override
+            public void refresh(Object entity) {
+
+            }
+
+            @Override
+            public void refreshMultiple(List<?> entities) {
+
+            }
+
+            @Override
+            public void refresh(Object entity, LockModeType lockMode) {
+
+            }
+
+            @Override
+            public <T> T fetch(T association) {
+                return null;
+            }
+
+            @Override
+            public void addOption(Option option) {
+
+            }
+
+            @Override
+            public Set<Option> getOptions() {
+                return Set.of();
+            }
+
+            @Override
+            public <T> T get(Class<T> entityClass, Object id) {
+                return null;
+            }
+
+            @Override
+            public <T> T get(Class<T> entityClass, Object id, FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> T get(EntityGraph<T> graph, Object id, FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> List<T> getMultiple(Class<T> entityClass, List<?> ids,
+                    FindOption... options) {
+                return List.of();
+            }
+
+            @Override
+            public <T> List<T> getMultiple(EntityGraph<T> graph, List<?> ids,
+                    FindOption... options) {
+                return List.of();
+            }
+
+            @Override
+            public <T> T find(Class<T> entityClass, Object id) {
+                return null;
+            }
+
+            @Override
+            public <T> T find(Class<T> entityClass, Object id, FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> T find(EntityGraph<T> graph, Object id, FindOption... options) {
+                return null;
+            }
+
+            @Override
+            public <T> List<T> findMultiple(Class<T> entityClass, List<?> ids,
+                    FindOption... options) {
+                return List.of();
+            }
+
+            @Override
+            public <T> List<T> findMultiple(EntityGraph<T> graph, List<?> ids,
+                    FindOption... options) {
+                return List.of();
+            }
+
+            @Override
+            public void setCacheRetrieveMode(CacheRetrieveMode cacheRetrieveMode) {
+
+            }
+
+            @Override
+            public void setCacheStoreMode(CacheStoreMode cacheStoreMode) {
+
+            }
+
+            @Override
+            public CacheRetrieveMode getCacheRetrieveMode() {
+                return null;
+            }
+
+            @Override
+            public CacheStoreMode getCacheStoreMode() {
+                return null;
+            }
+
+            @Override
+            public void setProperty(String propertyName, Object value) {
+
+            }
+
+            @Override
+            public Map<String, Object> getProperties() {
+                return Map.of();
+            }
+
+            @Override
+            public Statement createStatement(String qlString) {
+                return null;
+            }
+
+            @Override
+            public StatementOrTypedQuery createQuery(String qlString) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createQuery(CriteriaSelect<T> selectQuery) {
+                return null;
+            }
+
+            @Override
+            public Statement createStatement(CriteriaStatement<?> statement) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createQuery(String qlString, EntityGraph<T> resultGraph) {
+                return null;
+            }
+
+            @Override
+            public Statement createNamedStatement(String name) {
+                return null;
+            }
+
+            @Override
+            public StatementOrTypedQuery createNamedQuery(String name) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+                return null;
+            }
+
+            @Override
+            public Statement createStatement(StatementReference reference) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createQuery(TypedQueryReference<T> reference) {
+                return null;
+            }
+
+            @Override
+            public Statement createNativeStatement(String sqlString) {
+                return null;
+            }
+
+            @Override
+            public StatementOrTypedQuery createNativeQuery(String sqlString) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createNativeQuery(String sqlString, Class<T> resultClass) {
+                return null;
+            }
+
+            @Override
+            public StatementOrTypedQuery createNativeQuery(String sqlString, String resultSetMapping) {
+                return null;
+            }
+
+            @Override
+            public <T> TypedQuery<T> createNativeQuery(String sqlString,
+                    ResultSetMapping<T> resultSetMapping) {
+                return null;
+            }
+
+            @Override
+            public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
+                return null;
+            }
+
+            @Override
+            public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
+                return null;
+            }
+
+            @Override
+            public StoredProcedureQuery createStoredProcedureQuery(String procedureName,
+                    Class<?>... resultClasses) {
+                return null;
+            }
+
+            @Override
+            public StoredProcedureQuery createStoredProcedureQuery(String procedureName,
+                    String... resultSetMappings) {
+                return null;
+            }
+
+            @Override
+            public <T> T unwrap(Class<T> type) {
+                return null;
+            }
+
+            @Override
+            public void close() {
+
+            }
+
+            @Override
+            public boolean isOpen() {
+                return false;
+            }
+
+            @Override
+            public EntityTransaction getTransaction() {
+                return null;
+            }
+
+            @Override
+            public EntityManagerFactory getEntityManagerFactory() {
+                return null;
+            }
+
+            @Override
+            public CriteriaBuilder getCriteriaBuilder() {
+                return null;
+            }
+
+            @Override
+            public Metamodel getMetamodel() {
+                return null;
+            }
+
+            @Override
+            public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
+                return null;
+            }
+
+            @Override
+            public EntityGraph<?> getEntityGraph(String graphName) {
+                return null;
+            }
+
+            @Override
+            public <T> EntityGraph<T> getEntityGraph(Class<T> rootType, String graphName) {
+                return null;
+            }
+
+            @Override
+            public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
+                return List.of();
+            }
+
+            @Override
+            public <C> void runWithConnection(ConnectionConsumer<C> action) {
+
+            }
+
+            @Override
+            public <C, T> T callWithConnection(ConnectionFunction<C, T> function) {
+                return null;
+            }
+
+            @Override
+            public String toString() {
+                return "MockEntityAgent";
+            }
+        };
+    }
 }

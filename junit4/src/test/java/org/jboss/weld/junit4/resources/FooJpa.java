@@ -17,8 +17,10 @@
 package org.jboss.weld.junit4.resources;
 
 import jakarta.enterprise.context.Dependent;
+import jakarta.persistence.EntityAgent;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceAgent;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceUnit;
 
@@ -30,5 +32,8 @@ public class FooJpa {
 
     @PersistenceUnit
     EntityManagerFactory entityManagerFactory;
+
+    @PersistenceAgent
+    EntityAgent entityAgent;
 
 }

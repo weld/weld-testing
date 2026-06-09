@@ -19,6 +19,7 @@ package org.jboss.weld.junit;
 import java.util.function.Function;
 
 import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.persistence.EntityAgent;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -39,10 +40,14 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
 
     private final Function<InjectionPoint, Object> persistenceContextFactory;
 
+    private final Function<InjectionPoint, Object> persistenceAgentFactory;
+
     public MockJpaInjectionServices(Function<InjectionPoint, Object> persistenceUnitFactory,
-            Function<InjectionPoint, Object> persistenceContextFactory) {
+            Function<InjectionPoint, Object> persistenceContextFactory,
+            Function<InjectionPoint, Object> persistenceAgentFactory) {
         this.persistenceUnitFactory = persistenceUnitFactory;
         this.persistenceContextFactory = persistenceContextFactory;
+        this.persistenceAgentFactory = persistenceAgentFactory;
     }
 
     @Override
@@ -77,6 +82,24 @@ public class MockJpaInjectionServices implements JpaInjectionServices {
                     return new SimpleResourceReference<EntityManagerFactory>((EntityManagerFactory) unit);
                 }
                 throw new IllegalStateException("Not an EntityManagerFactory instance: " + unit);
+            }
+        };
+    }
+
+    @Override
+    public ResourceReferenceFactory<EntityAgent> registerPersistenceAgentInjectionPoint(InjectionPoint injectionPoint) {
+        return new ResourceReferenceFactory<EntityAgent>() {
+            @Override
+            public ResourceReference<EntityAgent> createResource() {
+                if (persistenceAgentFactory == null) {
+                    throw new IllegalStateException(
+                            "Persistence agent factory not set, cannot resolve injection point: " + injectionPoint);
+                }
+                Object agent = persistenceAgentFactory.apply(injectionPoint);
+                if (agent == null || agent instanceof EntityAgent) {
+                    return new SimpleResourceReference<EntityAgent>((EntityAgent) agent);
+                }
+                throw new IllegalStateException("Not an EntityAgent instance: " + agent);
             }
         };
     }
