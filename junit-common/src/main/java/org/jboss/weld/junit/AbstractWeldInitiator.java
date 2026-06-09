@@ -91,13 +91,16 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
     private final Function<InjectionPoint, Object> persistenceContextFactory;
 
+    private final Function<InjectionPoint, Object> persistenceAgentFactory;
+
     protected volatile WeldContainer container;
 
     protected AbstractWeldInitiator(Weld weld, List<Object> instancesToInject,
             Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans,
             Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory,
             Function<InjectionPoint, Object> persistenceUnitFactory,
-            Function<InjectionPoint, Object> persistenceContextFactory) {
+            Function<InjectionPoint, Object> persistenceContextFactory,
+            Function<InjectionPoint, Object> persistenceAgentFactory) {
         this.instancesToInject = new ArrayList<>();
         for (Object instance : instancesToInject) {
             this.instancesToInject.add(createToInject(instance));
@@ -137,6 +140,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         this.ejbFactory = ejbFactory;
         this.persistenceContextFactory = persistenceContextFactory;
         this.persistenceUnitFactory = persistenceUnitFactory;
+        this.persistenceAgentFactory = persistenceAgentFactory;
     }
 
     protected ToInject createToInject(Object instanceToInject) {
@@ -359,6 +363,8 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
         private Function<InjectionPoint, Object> persistenceContextFactory;
 
+        private Function<InjectionPoint, Object> persistenceAgentFactory;
+
         public AbstractBuilder(Weld weld) {
             this.weld = weld;
             this.instancesToInject = new ArrayList<>();
@@ -402,6 +408,10 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
 
         protected Function<InjectionPoint, Object> getPersistenceUnitFactory() {
             return persistenceUnitFactory;
+        }
+
+        protected Function<InjectionPoint, Object> getPersistenceAgentFactory() {
+            return persistenceAgentFactory;
         }
 
         /**
@@ -519,6 +529,18 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
             return self();
         }
 
+        /**
+         * Makes it possible to mock {@code PersistenceAgent} injection points.
+         *
+         * @param persistenceAgentFactory
+         * @return self
+         * @since 6.0
+         */
+        public T setPersistenceAgentFactory(Function<InjectionPoint, Object> persistenceAgentFactory) {
+            this.persistenceAgentFactory = persistenceAgentFactory;
+            return self();
+        }
+
         protected abstract T self();
 
         protected abstract I build(Weld weld, List<Object> instancesToInject, Set<Class<? extends Annotation>> scopesToActivate,
@@ -545,8 +567,9 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
         if (ejbFactory != null) {
             weld.addServices(new MockEjbInjectionServices(ejbFactory));
         }
-        if (persistenceContextFactory != null || persistenceUnitFactory != null) {
-            weld.addServices(new MockJpaInjectionServices(persistenceUnitFactory, persistenceContextFactory));
+        if (persistenceContextFactory != null || persistenceUnitFactory != null || persistenceAgentFactory != null) {
+            weld.addServices(
+                    new MockJpaInjectionServices(persistenceUnitFactory, persistenceContextFactory, persistenceAgentFactory));
         }
         // Init the container
         container = weld.initialize();

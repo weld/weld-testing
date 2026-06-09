@@ -172,7 +172,7 @@ public class WeldInitiator extends AbstractWeldInitiator {
         protected WeldInitiator build(Weld weld, List<Object> instancesToInject,
                 Set<Class<? extends Annotation>> scopesToActivate, Set<Bean<?>> beans) {
             return new WeldInitiator(weld, instancesToInject, scopesToActivate, beans, resources, getEjbFactory(),
-                    getPersistenceUnitFactory(), getPersistenceContextFactory());
+                    getPersistenceUnitFactory(), getPersistenceContextFactory(), getPersistenceAgentFactory());
         }
     }
 
@@ -180,9 +180,10 @@ public class WeldInitiator extends AbstractWeldInitiator {
             Set<Bean<?>> beans,
             Map<String, Object> resources, Function<InjectionPoint, Object> ejbFactory,
             Function<InjectionPoint, Object> persistenceUnitFactory,
-            Function<InjectionPoint, Object> persistenceContextFactory) {
+            Function<InjectionPoint, Object> persistenceContextFactory,
+            Function<InjectionPoint, Object> persistenceAgentFactory) {
         super(weld, instancesToInject, scopesToActivate, beans, resources, ejbFactory, persistenceUnitFactory,
-                persistenceContextFactory);
+                persistenceContextFactory, persistenceAgentFactory);
     }
 
     public void addObjectToInjectInto(Object instanceToInjectInto) {
