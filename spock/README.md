@@ -354,8 +354,8 @@ i.e. to create a bean instance with the desired behavior and verify behavior.
 
 In this case, there are two options.
 * The first option is to add a
-  [producer method](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#producer_method)
-  or [field](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#producer_field) to the specification
+  [producer method](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#producer_method)
+  or [field](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#producer_field) to the specification
   and add the specification as bean to the deployment. The test class will be recognized as a bean
   and therefore the producer will also be discovered.
 
@@ -395,7 +395,7 @@ In this case, there are two options.
   }
   ```
   This should work in most of the cases (assuming the test class
-  [meets some conditions](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#what_classes_are_beans))
+  [meets some conditions](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#what_classes_are_beans))
   although it's a little bit cumbersome.
 
 * The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during
@@ -522,7 +522,7 @@ By default, the extension will:
 * Inspect the specification and try to figure out what bean classes it needs based on injection points
   (field and parameter injection both work)
   * This is done by finding classes and verifying whether they have a
-    [bean defining annotation](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#bean_defining_annotations),
+    [bean defining annotation](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#bean_defining_annotations),
     so make sure they do
 * Add those classes to the Weld container
 * Process additional annotations on the specification and also on each discovered class
@@ -693,7 +693,7 @@ class ExplicitParamInjectionTest extends Specification {
 If you want to inject a bean where you would normally not use any qualifier,
 you can do that using `@Default` qualifier (as shown in the example above).
 This is in accordance with the CDI specification, feel free to
-[read more about it](https://jakarta.ee/specifications/cdi/3.0/jakarta-cdi-spec-3.0.html#builtin_qualifiers).
+[read more about it](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#builtin_qualifiers).
 
 #### Flat Deployment
 

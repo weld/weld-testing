@@ -240,7 +240,7 @@ class ContextsActivatedTest {
 Sometimes you might need to add a mock for a bean that cannot be part of the test deployment, e.g. the original bean implementation has dependencies which cannot be satisfied in the test environment.
 Very often, it's an ideal use case for mocking libraries, i.e. to create a bean instance with the desired behavior.
 In this case, there are two options.
-The first option is to add a [producer method](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#producer_method) or [field](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#producer_field) to the test class and add the test class to the deployment.
+The first option is to add a [producer method](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#producer_method) or [field](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#producer_field) to the test class and add the test class to the deployment.
 The test class will be recognized as a bean and therefore the producer will also be discovered.
 
 ```java
@@ -277,7 +277,7 @@ class TestClassProducerTest {
 }
 ```
 
-This should work in most of the cases (assuming the test class [meets some conditions](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#what_classes_are_beans)) although it's a little bit cumbersome.
+This should work in most of the cases (assuming the test class [meets some conditions](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
 You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or, for most use cases, a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
@@ -495,7 +495,7 @@ To use this approach, annotate your test class with `@ExtendWith(WeldJunit5AutoE
 By default, the extension will:
 
 * Inspect your test class and try to figure out what bean classes it needs based on injection points (field and parameter injection both work)
-  * This is done by finding classes and verifying whether they have a [bean defining annotation](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#bean_defining_annotations) so make sure they do
+  * This is done by finding classes and verifying whether they have a [bean defining annotation](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#bean_defining_annotations) so make sure they do
 * Add those classes to the Weld container
 * Process additional annotations on the test class and also on each discovered class
   * `@AddPackages`, `@AddExtensions`, `@ActivateScopes`, ...
@@ -679,7 +679,7 @@ class ExplicitParamInjectionTest {
 ```
 
 As you might know, if you want to inject a bean where you would normally not use any qualifier, you can do that using `@Default` qualifier (as shown in the code above).
-This is in accordance with the CDI specification, feel free to [read more about it](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#builtin_qualifiers).
+This is in accordance with the CDI specification, feel free to [read more about it](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#builtin_qualifiers).
 
 Last but not least, nested classes will automatically inherit this behavior from their enclosing class. They are however free to override this by declaring the annotation and its respective value themselves.
 
@@ -693,7 +693,7 @@ Note that this configuration only makes a difference if you run with *enabled di
 
 ## Limitations
 
-* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
+* `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
 
 ## Migrating from `weld-junit5`
 
