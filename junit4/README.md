@@ -166,7 +166,7 @@ class ContextsActivatedTest {
 Sometimes you might need to add a mock for a bean that cannot be part of the test deployment, e.g. the original bean implementation has dependencies which cannot be satisfied in the test environment.
 Very often, it's an ideal use case for mocking libraries, ie. to create a bean instance with the desired behavior.
 In this case, there are two options.
-The first option is to add a [producer method](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#producer_method) to the test class and add the test class to the deployment.
+The first option is to add a [producer method](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#producer_method) to the test class and add the test class to the deployment.
 The test class will be recognized as a bean and therefore the producer will also be discovered.
 
 ```java
@@ -202,7 +202,7 @@ class TestClassProducerTest {
 }
 ```
 
-This should work in most of the cases (assuming the test class [meets some conditions](http://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#what_classes_are_beans)) although it's a little bit cumbersome.
+This should work in most of the cases (assuming the test class [meets some conditions](https://jakarta.ee/specifications/cdi/5.0/jakarta-cdi-spec-5.0#what_classes_are_beans)) although it's a little bit cumbersome.
 The second option is `WeldInitiator.Builder.addBeans(Bean<?>...)` which makes it possible to add beans during `AfterBeanDiscovery` phase easily.
 You can provide your own `jakarta.enterprise.inject.spi.Bean` implementation or make use of existing solutions such as DeltaSpike [BeanBuilder](https://github.com/apache/deltaspike/blob/master/deltaspike/core/api/src/main/java/org/apache/deltaspike/core/util/bean/BeanBuilder.java) or for most use cases a convenient `org.jboss.weld.junit.MockBean` should be sufficient.
 Use `org.jboss.weld.junit.MockBean.builder()` to obtain a new builder instance.
