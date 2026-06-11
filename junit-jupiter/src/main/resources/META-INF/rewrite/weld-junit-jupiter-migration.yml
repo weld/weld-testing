@@ -17,8 +17,11 @@ recipeList:
       oldArtifactId: weld-junit5
       newGroupId: org.jboss.weld
       newArtifactId: weld-junit-jupiter
-      newVersion: 6.0.0.Final
+      newVersion: ${project.version}
   - org.openrewrite.java.ChangePackage:
       oldPackageName: org.jboss.weld.junit5
       newPackageName: org.jboss.weld.junit.jupiter
       recursive: true
+  - org.openrewrite.RenameFile:
+      fileMatcher: '**/META-INF/services/org.jboss.weld.junit5.WeldJunitEnricher'
+      fileName: org.jboss.weld.junit.jupiter.WeldJunitEnricher

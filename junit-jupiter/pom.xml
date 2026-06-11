@@ -62,4 +62,23 @@
 
    </dependencies>
 
+   <build>
+      <resources>
+         <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+               <include>META-INF/rewrite/*.yml</include>
+            </includes>
+         </resource>
+         <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+            <excludes>
+               <exclude>META-INF/rewrite/*.yml</exclude>
+            </excludes>
+         </resource>
+      </resources>
+   </build>
+
 </project>
