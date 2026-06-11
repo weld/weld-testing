@@ -95,12 +95,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
         BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
-    // global system property
+    // global system property; the old name is kept for backward compatibility
     public static final String GLOBAL_EXPLICIT_PARAM_INJECTION = "org.jboss.weld.junit.jupiter.explicitParamInjection";
+    static final String GLOBAL_EXPLICIT_PARAM_INJECTION_LEGACY = "org.jboss.weld.junit5.explicitParamInjection";
 
     private static void storeExplicitParamResolutionInformation(ExtensionContext ec) {
-        // check system property which may have set the global explicit param injection
-        boolean globalSettings = Boolean.parseBoolean(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION, "false"));
+        // check system property which may have set the global explicit param injection (new name takes precedence)
+        boolean globalSettings = Boolean.parseBoolean(System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION,
+                System.getProperty(GLOBAL_EXPLICIT_PARAM_INJECTION_LEGACY, "false")));
         if (globalSettings) {
             setExplicitInjectionInfoToStore(ec, true);
             return;

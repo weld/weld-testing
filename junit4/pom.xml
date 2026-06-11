@@ -48,8 +48,6 @@
       <dependency>
          <groupId>org.jboss.weld.module</groupId>
          <artifactId>weld-ejb</artifactId>
-         <version>${version.weld}</version>
-         <scope>test</scope>
       </dependency>
 
    </dependencies>

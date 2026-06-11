@@ -654,6 +654,7 @@ In such case, you can turn on explicit parameter resolution and Weld will only r
 There are two ways to enable it:
 * First option is enabling this globally through a system property - `org.jboss.weld.junit.jupiter.explicitParamInjection=true`
 This property is also available as a constant in our extension class; you can therefore refer to it via `org.jboss.weld.junit.jupiter.WeldJunit5Extension.GLOBAL_EXPLICIT_PARAM_INJECTION`.
+:warning: The previous property name `org.jboss.weld.junit5.explicitParamInjection` is still accepted for backward compatibility but will be removed in a future version. Please migrate to the new property name.
 * The other approach is to use `@ExplicitParamInjection(boolean)` on either test method, or test class.
 In case of test class this annotation will enforce the presence on qualifiers on all methods.
 
