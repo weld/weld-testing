@@ -44,6 +44,7 @@ Requirements are JUnit 5 and Java 17.
 * [Additional Configuration](#additional-configuration)
   * [Explicit Parameter Injection](#explicit-parameter-injection)
   * [Flat Deployment](#flat-deployment)
+* [Migrating from `weld-junit5`](#migrating-from-weld-junit5)
 
 ## Maven Artifact
 
@@ -693,3 +694,47 @@ Note that this configuration only makes a difference if you run with *enabled di
 ## Limitations
 
 * `@Produces`, `@Disposes`, and `@Observes` don't work in `@Nested` test classes which fail to meet [valid bean](https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#what_classes_are_beans) requirements due to the lack of a no-arg constructor and Weld ignores them silently. However, `@Inject` and parameter injection also work with `@Nested` classes.
+
+## Migrating from `weld-junit5`
+
+Starting with version 6.0.0, the artifact has been renamed from `weld-junit5` to `weld-junit-jupiter` and the
+`org.jboss.weld.junit5` package has been renamed to `org.jboss.weld.junit.jupiter`.
+
+An [OpenRewrite](https://docs.openrewrite.org/) migration recipe is provided to automate the transition.
+It handles the package rename in Java sources, the Maven dependency artifact change, and the
+`META-INF/services` SPI file rename for custom `WeldJunitEnricher` implementations.
+
+To run the migration, add the following plugin configuration to your `pom.xml`:
+
+```xml
+<plugin>
+    <groupId>org.openrewrite.maven</groupId>
+    <artifactId>rewrite-maven-plugin</artifactId>
+    <version>6.41.0</version>
+    <configuration>
+        <activeRecipes>
+            <recipe>org.jboss.weld.junit.MigrateToWeldJunitJupiter</recipe>
+        </activeRecipes>
+    </configuration>
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-junit-jupiter</artifactId>
+            <version>${version.weld-junit}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-java-dependencies</artifactId>
+            <version>1.55.3</version>
+        </dependency>
+    </dependencies>
+</plugin>
+```
+
+Then run:
+
+```sh
+mvn rewrite:run
+```
+
+After the migration completes, review the changes and remove the plugin configuration from your `pom.xml`.
