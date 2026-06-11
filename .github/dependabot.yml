@@ -3,24 +3,31 @@ updates:
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
-  open-pull-requests-limit: 20
+    interval: weekly
+  open-pull-requests-limit: 15
   target-branch: main
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
-  open-pull-requests-limit: 20
+    interval: weekly
+  open-pull-requests-limit: 15
   target-branch: "5.0"
 - package-ecosystem: maven
   directory: "/"
   schedule:
-    interval: monthly
-  open-pull-requests-limit: 20
+    interval: weekly
+  open-pull-requests-limit: 15
   target-branch: main
 - package-ecosystem: maven
   directory: "/"
   schedule:
-    interval: monthly
-  open-pull-requests-limit: 20
+    interval: weekly
+  open-pull-requests-limit: 15
   target-branch: "5.0"
+  ignore:
+    - dependency-name: "jakarta.ejb:jakarta.ejb-api"
+      versions: ["[4.1,)"]
+    - dependency-name: "jakarta.persistence:jakarta.persistence-api"
+      versions: ["[4.0,)"]
+    - dependency-name: "org.jboss.weld:weld-core-impl"
+      versions: ["[7.0,)"]
