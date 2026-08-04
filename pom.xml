@@ -56,7 +56,7 @@
       <version.mockito>5.23.0</version.mockito>
       <version.jakarta.ejb.api>4.0.1</version.jakarta.ejb.api>
       <version.jpa-api>4.0.0-M6</version.jpa-api>
-      <version.log4j>2.26.0</version.log4j>
+      <version.log4j>2.26.1</version.log4j>
       <!-- SpotBugs properties -->
       <version.spotbugs>4.10.2</version.spotbugs>
       <version.spotbugs.plugin>4.10.3.0</version.spotbugs.plugin>
