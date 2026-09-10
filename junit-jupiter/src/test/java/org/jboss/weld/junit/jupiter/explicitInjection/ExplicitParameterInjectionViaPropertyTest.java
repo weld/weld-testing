@@ -56,6 +56,6 @@ public class ExplicitParameterInjectionViaPropertyTest {
 
     @AfterAll
     public static void cleanUp() {
-        System.setProperty(WeldJunit5Extension.GLOBAL_EXPLICIT_PARAM_INJECTION, "");
+        System.clearProperty(WeldJunit5Extension.GLOBAL_EXPLICIT_PARAM_INJECTION);
     }
 }
