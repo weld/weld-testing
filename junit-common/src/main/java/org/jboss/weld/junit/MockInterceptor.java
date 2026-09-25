@@ -18,7 +18,6 @@ package org.jboss.weld.junit;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,6 +34,7 @@ import jakarta.enterprise.inject.spi.Interceptor;
 import jakarta.interceptor.InvocationContext;
 
 import org.jboss.weld.bean.builtin.BeanManagerProxy;
+import org.jboss.weld.contexts.CreationalContextImpl;
 import org.jboss.weld.junit.MockInterceptor.MockInterceptorInstance;
 import org.jboss.weld.util.bean.SerializableForwardingBean;
 import org.jboss.weld.util.collections.ImmutableSet;
@@ -165,34 +165,16 @@ public class MockInterceptor implements Interceptor<MockInterceptorInstance> {
     }
 
     private Bean<?> getInterceptedBean(CreationalContext<MockInterceptorInstance> ctx) {
-        if (!ctx.getClass().getName().startsWith("org.jboss.weld")) {
-            return null;
-        }
-        Bean<?> interceptedBean = null;
-        try {
-            // Note that we need to support both 2.x and 3.x
-            Class<?> ctxImplClazz;
-            if (ctx.getClass().getName().startsWith("org.jboss.weld.contexts")) {
-                // 3.x
-                ctxImplClazz = MockInterceptor.class.getClassLoader()
-                        .loadClass("org.jboss.weld.contexts.CreationalContextImpl");
-            } else {
-                // 2.x
-                ctxImplClazz = MockInterceptor.class.getClassLoader().loadClass("org.jboss.weld.context.CreationalContextImpl");
-            }
-            Object parentContext = ctxImplClazz.getMethod("getParentCreationalContext").invoke(ctx);
+        if (ctx instanceof CreationalContextImpl<?> weldContext) {
+            CreationalContextImpl<?> parentContext = weldContext.getParentCreationalContext();
             if (parentContext != null) {
-                Contextual<?> interceptedContextual = (Contextual<?>) ctxImplClazz.getMethod("getContextual")
-                        .invoke(parentContext);
-                if (interceptedContextual instanceof Bean<?>) {
-                    interceptedBean = (Bean<?>) interceptedContextual;
+                Contextual<?> interceptedContextual = parentContext.getContextual();
+                if (interceptedContextual instanceof Bean<?> bean) {
+                    return bean;
                 }
             }
-        } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException
-                | SecurityException | InvocationTargetException e) {
-            throw new IllegalStateException(e);
         }
-        return interceptedBean;
+        return null;
     }
 
     public static class MockInterceptorInstance implements Serializable {
