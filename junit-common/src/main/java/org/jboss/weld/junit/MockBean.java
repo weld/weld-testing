@@ -25,13 +25,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import jakarta.enterprise.context.AutoClose;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.Eager;
 import jakarta.enterprise.context.NormalScope;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Reserve;
 import jakarta.enterprise.inject.Stereotype;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.InjectionPoint;
@@ -63,6 +68,8 @@ import org.jboss.weld.util.reflection.HierarchyDiscovery;
  */
 public class MockBean<T> implements Bean<T>, PassivationCapable {
 
+    private static final Logger LOGGER = Logger.getLogger(MockBean.class.getName());
+
     /**
      * By default, the bean:
      * <ul>
@@ -72,6 +79,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
      * <li>has {@link Object} bean type</li>
      * <li>has no stereotypes</li>
      * <li>is not an alternative</li>
+     * <li>is not a reserve, eagerly initialized, or auto-closeable</li>
      * </ul>
      *
      * <p>
@@ -123,6 +131,12 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     private final boolean alternative;
 
+    private final boolean reserve;
+
+    private final boolean eager;
+
+    private final boolean autoClose;
+
     private final boolean selectForSyntheticBeanArchive;
 
     private final String name;
@@ -145,9 +159,20 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             boolean selectForSyntheticBeanArchive, String name,
             Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope, CreateFunction<T> createCallback,
             DestroyFunction<T> destroyCallback) {
+        this(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope,
+                createCallback, destroyCallback, false, false, false);
+    }
+
+    protected MockBean(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative,
+            boolean selectForSyntheticBeanArchive, String name,
+            Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope, CreateFunction<T> createCallback,
+            DestroyFunction<T> destroyCallback, boolean reserve, boolean eager, boolean autoClose) {
         this.beanClass = beanClass;
         this.stereotypes = stereotypes;
         this.alternative = alternative;
+        this.reserve = reserve;
+        this.eager = eager;
+        this.autoClose = autoClose;
         this.selectForSyntheticBeanArchive = selectForSyntheticBeanArchive;
         this.name = name;
         this.qualifiers = qualifiers;
@@ -166,8 +191,21 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
     @Override
     public void destroy(T instance, CreationalContext<T> creationalContext) {
-        if (destroyCallback != null) {
-            destroyCallback.destroy(instance, creationalContext);
+        try {
+            if (destroyCallback != null) {
+                destroyCallback.destroy(instance, creationalContext);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Unable to destroy mock bean " + id, e);
+        }
+        try {
+            if (isAutoClose() && instance instanceof AutoCloseable closeable) {
+                closeable.close();
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Unable to auto-close mock bean " + id, e);
+        } finally {
+            creationalContext.release();
         }
     }
 
@@ -209,6 +247,21 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
     @Override
     public boolean isAlternative() {
         return alternative;
+    }
+
+    @Override
+    public boolean isReserve() {
+        return reserve;
+    }
+
+    @Override
+    public boolean isEager() {
+        return eager;
+    }
+
+    @Override
+    public boolean isAutoClose() {
+        return autoClose;
     }
 
     /**
@@ -282,7 +335,16 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
                 }
             }
         }
+        builder.reserve(hasAnnotation(beanClass, stereotypes, Reserve.class));
+        builder.eager(hasAnnotation(beanClass, stereotypes, Eager.class));
+        builder.autoClose(hasAnnotation(beanClass, stereotypes, AutoClose.class));
         return builder;
+    }
+
+    private static boolean hasAnnotation(Class<?> beanClass, Set<Annotation> stereotypes,
+            Class<? extends Annotation> annotation) {
+        return beanClass.isAnnotationPresent(annotation)
+                || stereotypes.stream().anyMatch(stereotype -> stereotype.annotationType().isAnnotationPresent(annotation));
     }
 
     private static Set<Annotation> getStereotypes(AnnotatedElement element) {
@@ -327,6 +389,12 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         private Set<Class<? extends Annotation>> stereotypes;
 
         private boolean alternative;
+
+        private boolean reserve;
+
+        private boolean eager;
+
+        private boolean autoClose;
 
         private boolean selectForSyntheticBeanArchive;
 
@@ -456,8 +524,53 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
         }
 
         /**
+         * Marks the bean as a reserve. Select it with {@link #priority(int)} to make it available as a fallback
+         * when no non-reserve bean matches. A bean cannot be both a reserve and an alternative.
+         *
+         * @param value whether the bean is a reserve
+         * @return self
+         * @see Bean#isReserve()
+         * @since 6.0
+         */
+        public Builder<T> reserve(boolean value) {
+            this.reserve = value;
+            return this;
+        }
+
+        /**
+         * Requests initialization during container startup. Eager beans must have
+         * {@link jakarta.enterprise.context.ApplicationScoped} scope.
+         *
+         * @param value whether the bean is eagerly initialized
+         * @return self
+         * @see Bean#isEager()
+         * @since 6.0
+         */
+        public Builder<T> eager(boolean value) {
+            this.eager = value;
+            return this;
+        }
+
+        /**
+         * Calls {@link AutoCloseable#close()} on an auto-closeable instance after the destroy callback and
+         * before releasing the creational context. Exceptions from closing are logged and do not prevent cleanup.
+         * Has no effect on instances that do not implement {@link AutoCloseable}.
+         *
+         * @param value whether the bean is auto-closeable
+         * @return self
+         * @see Bean#isAutoClose()
+         * @since 6.0
+         */
+        public Builder<T> autoClose(boolean value) {
+            this.autoClose = value;
+            return this;
+        }
+
+        /**
          * Programmatic equivalent to to putting {@link jakarta.annotation.Priority} annotation on a bean class.
-         * Allows for globally enabled alternatives.
+         * Allows for globally enabled alternatives and reserves.
+         * Use distinct {@link #beanClass(Class)} values for beans with different priorities: Weld associates
+         * their enablement priorities with the bean class, and mock beans share a default bean class.
          *
          * @param priority
          * @return self
@@ -637,11 +750,11 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             if (priority != null) {
                 return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, priority,
                         name, normalizedQualfiers, types, scope, createCallback,
-                        destroyCallback);
+                        destroyCallback, reserve, eager, autoClose);
             } else {
                 return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name,
                         normalizedQualfiers, types, scope, createCallback,
-                        destroyCallback);
+                        destroyCallback, reserve, eager, autoClose);
             }
         }
 

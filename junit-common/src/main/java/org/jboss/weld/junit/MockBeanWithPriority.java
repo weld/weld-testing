@@ -9,7 +9,8 @@ import jakarta.enterprise.inject.spi.Prioritized;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * A subclass of {@link MockBean} implementing {@link Prioritized} hence allowing for globally enabled alternatives.
+ * A subclass of {@link MockBean} implementing {@link Prioritized} hence allowing for globally enabled alternatives and
+ * reserves.
  * Used instead of {@link MockBean} if user specified {@link MockBean.Builder#priority(int)}.
  *
  * @author Matej Novotny
@@ -22,9 +23,10 @@ class MockBeanWithPriority<T> extends MockBean<T> implements Prioritized {
     MockBeanWithPriority(Class<?> beanClass, Set<Class<? extends Annotation>> stereotypes, boolean alternative,
             boolean selectForSyntheticBeanArchive, int priority, String name,
             Set<Annotation> qualifiers, Set<Type> types, Class<? extends Annotation> scope,
-            CreateFunction<T> createCallback, DestroyFunction<T> destroyCallback) {
+            CreateFunction<T> createCallback, DestroyFunction<T> destroyCallback, boolean reserve, boolean eager,
+            boolean autoClose) {
         super(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name, qualifiers, types, scope,
-                createCallback, destroyCallback);
+                createCallback, destroyCallback, reserve, eager, autoClose);
         if (priority <= 0) {
             throw new IllegalArgumentException("MockBean cannot have priority equal or lower than 0!");
         }
