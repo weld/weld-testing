@@ -490,6 +490,7 @@ installed. `WeldInitiator.Builder` comes with several convenient methods which a
 * `setEjbFactory()` - to handle `@EJB`
 * `setPersistenceUnitFactory()` - to handle `@PersistenceUnit`
 * `setPersistenceContextFactory()` - to handle `@PersistenceContext`
+* `setPersistenceAgentFactory()` - to handle `@PersistenceAgent` (Jakarta Persistence 4.0)
 
 _**Example:**_
 ```groovy

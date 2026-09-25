@@ -493,7 +493,7 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
          * Makes it possible to mock {@code @EJB} injection points.
          *
          * <p>
-         * Note that for Weld 3 {@code org.jboss.weld.module:weld-ejb} dependency is also required.
+         * The {@code org.jboss.weld.module:weld-ejb} dependency is also required.
          * </p>
          *
          * @param ejbFactory
