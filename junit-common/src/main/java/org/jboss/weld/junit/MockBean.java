@@ -39,7 +39,6 @@ import jakarta.enterprise.inject.spi.PassivationCapable;
 import jakarta.enterprise.inject.spi.Prioritized;
 import jakarta.enterprise.inject.spi.Unmanaged;
 import jakarta.enterprise.inject.spi.Unmanaged.UnmanagedInstance;
-import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Named;
 import jakarta.inject.Qualifier;
 import jakarta.inject.Scope;
@@ -349,7 +348,7 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             this.stereotypes = new HashSet<>();
             this.alternative = false;
             this.qualifiers = new HashSet<>();
-            this.qualifiers.add(AnyLiteral.INSTANCE);
+            this.qualifiers.add(Any.Literal.INSTANCE);
             this.scope = Dependent.class;
             this.types = new HashSet<>();
             this.types.add(Object.class);
@@ -667,30 +666,6 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
          * @param creationalContext
          */
         void destroy(T instance, CreationalContext<T> creationalContext);
-
-    }
-
-    @SuppressWarnings("all")
-    static class AnyLiteral extends AnnotationLiteral<Any> implements Any {
-
-        private static final long serialVersionUID = -1366513826361712883L;
-
-        public static final Any INSTANCE = new AnyLiteral();
-
-        private AnyLiteral() {
-        }
-
-    }
-
-    @SuppressWarnings("all")
-    static class DefaultLiteral extends AnnotationLiteral<Default> implements Default {
-
-        private static final long serialVersionUID = -1395539980812895226L;
-
-        public static final Default INSTANCE = new DefaultLiteral();
-
-        private DefaultLiteral() {
-        }
 
     }
 
