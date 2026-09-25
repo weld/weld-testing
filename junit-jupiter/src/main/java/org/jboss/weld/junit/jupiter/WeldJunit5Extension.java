@@ -31,8 +31,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -324,10 +322,7 @@ public class WeldJunit5Extension implements AfterAllCallback, BeforeAllCallback,
                         fieldInstance = field.get(testInstance);
                     } catch (IllegalAccessException e) {
                         // In case we cannot get to the field, we need to set accessibility as well
-                        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                            field.setAccessible(true);
-                            return null;
-                        });
+                        field.setAccessible(true);
                         try {
                             fieldInstance = field.get(testInstance);
                         } catch (IllegalAccessException e2) {
