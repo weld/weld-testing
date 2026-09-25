@@ -17,8 +17,6 @@
 package org.jboss.weld.junit;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -234,17 +232,9 @@ public abstract class AbstractWeldInitiator implements Instance<Object>, Contain
      *
      * @return an event object
      */
-    @SuppressWarnings("unchecked")
     public Event<Object> event() {
         checkContainer();
-        try {
-            // We need to use reflection due to some compatibility issues
-            Method eventMethod = container.getClass().getMethod("event");
-            return (Event<Object>) eventMethod.invoke(container);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new IllegalStateException("Cannot invoke WeldContainer.event() method using reflection", e);
-        }
+        return container.event();
     }
 
     @Override
