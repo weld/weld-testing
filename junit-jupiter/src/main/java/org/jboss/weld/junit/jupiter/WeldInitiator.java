@@ -31,7 +31,7 @@ import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.junit.AbstractWeldInitiator;
 
 /**
- * JUnit 5 initiator - can be used to customize the Weld SE container started by {@link WeldJunit5Extension}.
+ * JUnit Jupiter initiator - can be used to customize the Weld SE container started by {@link WeldJunit5Extension}.
  *
  * <p>
  * <b>Example:</b>

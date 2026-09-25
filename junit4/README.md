@@ -293,6 +293,7 @@ If a bean under the test declares a non-CDI injection point (such as `@Resource`
 * `setEjbFactory()` - to handle `@EJB`
 * `setPersistenceUnitFactory()` - to handle `@PersistenceUnit`
 * `setPersistenceContextFactory()` - to handle `@PersistenceContext`
+* `setPersistenceAgentFactory()` - to handle `@PersistenceAgent` (Jakarta Persistence 4.0)
 
 ```java
 class Baz {

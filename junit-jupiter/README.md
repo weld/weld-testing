@@ -1,11 +1,11 @@
-# Weld JUnit 5 (Jupiter) Extensions
+# Weld JUnit Jupiter Extensions
 
-There are two extension here, both of which follow the extension mechanism introduced in JUnit 5.
+There are two extensions here, both of which follow the extension mechanism introduced in JUnit 5.
 Therefore, in order to use this extension in your test, you have to annotate your test class with `@ExtendWith(WeldJunit5Extension.class)` or `@ExtendWith(WeldJunit5AutoExtension.class)` respectively.
 In their default behaviour, the extensions will automatically start/stop Weld SE container and inject into all your `@Inject` fields and method parameters in the given test instance.
 Furthermore, you can provide configuration and modify Weld bootstrapping process in various ways - extensions, scope activation, interception, ...
 
-These JUnit extensions supports both test lifecycles [as described by JUnit 5](https://junit.org/junit5/docs/current/user-guide/#writing-tests-test-instance-lifecycle) - per method and per class.
+These extensions support both test lifecycles [as described by JUnit](https://docs.junit.org/current/writing-tests/test-instance-lifecycle.html) - per method and per class.
 
 These extensions fully support parallel execution mode of JUnit Jupiter, except for if `WeldContainer.current()` is
 used which does not work if multiple containers are running from the same class loader. This includes the usage of
@@ -14,7 +14,7 @@ internally, as soon as the according beans are resolved and thus created. If eit
 get a `WELD-ENV-002016` error if another container is running at the same time, so you should use `@Isolated`
 for these features to make sure they are running individually.
 
-Requirements are JUnit 5 and Java 17.
+This extension requires Java 17 or newer.
 
 ## Table of contents
 
@@ -41,6 +41,7 @@ Requirements are JUnit 5 and Java 17.
   * [`@EnableAlternatives`](#enablealternatives)
   * [`@ExcludeBean`](#excludebean)
   * [`@ExcludeBeanClasses`](#excludebeanclasses)
+  * [`@SetBeanDiscoveryMode`](#setbeandiscoverymode)
 * [Additional Configuration](#additional-configuration)
   * [Explicit Parameter Injection](#explicit-parameter-injection)
   * [Flat Deployment](#flat-deployment)
@@ -370,6 +371,7 @@ If a bean under the test declares a non-CDI injection point (such as `@Resource`
 * `setEjbFactory()` - to handle `@EJB`
 * `setPersistenceUnitFactory()` - to handle `@PersistenceUnit`
 * `setPersistenceContextFactory()` - to handle `@PersistenceContext`
+* `setPersistenceAgentFactory()` - to handle `@PersistenceAgent` (Jakarta Persistence 4.0)
 
 ```java
 class Baz {
@@ -639,6 +641,25 @@ This annotation works as an inverse of [`@AddBeanClasses`](#addbeanclasses) henc
 
 NOTE: This annotation will only exclude beans defined by class annotations.
 It will not exclude beans of the specified type that are defined by `Produces` producer methods/fields or synthetic beans.
+
+### `@SetBeanDiscoveryMode`
+
+Sets the discovery mode of the synthetic bean archive used by the auto extension.
+The default is `BeanDiscoveryMode.ANNOTATED`, which discovers classes with bean defining annotations.
+Use `BeanDiscoveryMode.ALL` to include classes without such annotations, for example when adding a package:
+
+```java
+@EnableAutoWeld
+@AddPackages(MyService.class)
+@SetBeanDiscoveryMode(BeanDiscoveryMode.ALL)
+class MyServiceTest {
+    // Tests can inject classes from MyService's package without bean defining annotations.
+}
+```
+
+Import `org.jboss.weld.junit.jupiter.auto.SetBeanDiscoveryMode` and
+`org.jboss.weld.bootstrap.spi.BeanDiscoveryMode` to use this configuration.
+This changes the synthetic archive's discovery mode; it does not enable classpath discovery.
 
 ## Additional Configuration
 
