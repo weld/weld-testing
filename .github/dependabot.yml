@@ -31,3 +31,8 @@ updates:
       versions: ["[4.0,)"]
     - dependency-name: "org.jboss.weld:weld-core-impl"
       versions: ["[7.0,)"]
+    # Both dependencies use version.weld; keep the 5.0 branch on Weld 6.
+    - dependency-name: "org.jboss.weld.se:weld-se-core"
+      versions: ["[7.0,)"]
+    - dependency-name: "org.jboss.weld.module:weld-ejb"
+      versions: ["[7.0,)"]
