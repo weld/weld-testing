@@ -39,6 +39,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Reserve;
 import jakarta.enterprise.inject.Stereotype;
 import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.inject.spi.PassivationCapable;
 import jakarta.enterprise.inject.spi.Prioritized;
@@ -49,7 +50,6 @@ import jakarta.inject.Qualifier;
 import jakarta.inject.Scope;
 
 import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.util.collections.ImmutableSet;
 import org.jboss.weld.util.reflection.HierarchyDiscovery;
 
@@ -666,36 +666,21 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
 
         /**
          * Use {@link Unmanaged} to create/destroy the bean instance.
+         * The mock must be registered through {@code WeldInitiator.Builder.addBeans(Bean...)} so that its unmanaged
+         * lifecycle can be bound to the owning container's {@link BeanManager}.
          *
          * <p>
          * NOTE: {@code CreationalContext#toString()} is used as a key in a map and therefore must be unique for the lifetime of
-         * a bean instance. Weld
-         * implementation fulfills this requirement.
+         * a bean instance. Weld implementation fulfills this requirement.
          * </p>
          *
          * @return self
          * @see UnmanagedInstance
          */
-        @SuppressWarnings("unchecked")
         public Builder<T> useUnmanaged(Class<T> beanClass) {
-            Map<String, UnmanagedInstance<?>> ctxToUnmanaged = new ConcurrentHashMap<>();
-            create(ctx -> {
-                Unmanaged<?> unmanaged = new Unmanaged<>(WeldContainer.current().getBeanManager(), beanClass);
-                UnmanagedInstance<?> unmanagedInstance = unmanaged.newInstance();
-                ctxToUnmanaged.put(ctx.toString(), unmanagedInstance);
-                return (T) unmanagedInstance.produce().inject().postConstruct().get();
-            });
-            destroy((o, ctx) -> {
-                UnmanagedInstance<?> unmanagedInstance = ctxToUnmanaged.remove(ctx.toString());
-                if (unmanagedInstance != null) {
-                    if (!unmanagedInstance.get().equals(o)) {
-                        throw new IllegalStateException(
-                                "Unmanaged instance [" + unmanagedInstance.get()
-                                        + "] is not equal to the bean instance to be destroyed: " + o);
-                    }
-                    unmanagedInstance.preDestroy().dispose();
-                }
-            });
+            UnmanagedLifecycle<T> lifecycle = new UnmanagedLifecycle<>(beanClass, null);
+            create(lifecycle);
+            destroy(lifecycle);
             return this;
         }
 
@@ -758,6 +743,68 @@ public class MockBean<T> implements Bean<T>, PassivationCapable {
             }
         }
 
+    }
+
+    // The same MockBean may be shared by multiple initiators, including in parallel tests. Setting its BeanManager
+    // in place would let one container overwrite another's manager. Instead, copy mocks with unmanaged callbacks
+    // so each deployment has its own BeanManager binding and unmanaged instance tracking.
+    MockBean<T> forBeanManager(BeanManager beanManager) {
+        CreateFunction<T> creation = createCallback;
+        DestroyFunction<T> destruction = destroyCallback;
+        if (creation instanceof UnmanagedLifecycle<T> lifecycle) {
+            UnmanagedLifecycle<T> bound = new UnmanagedLifecycle<>(lifecycle.beanClass, beanManager);
+            creation = bound;
+            if (destruction == lifecycle) {
+                destruction = bound;
+            }
+        }
+        if (destruction == destroyCallback && destruction instanceof UnmanagedLifecycle<T> lifecycle) {
+            destruction = new UnmanagedLifecycle<>(lifecycle.beanClass, beanManager);
+        }
+        if (creation == createCallback && destruction == destroyCallback) {
+            return this;
+        }
+        if (this instanceof Prioritized prioritized) {
+            return new MockBeanWithPriority<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive,
+                    prioritized.getPriority(), name, qualifiers, types, scope, creation, destruction, reserve, eager,
+                    autoClose);
+        }
+        return new MockBean<>(beanClass, stereotypes, alternative, selectForSyntheticBeanArchive, name,
+                qualifiers, types, scope, creation, destruction, reserve, eager, autoClose);
+    }
+
+    private static class UnmanagedLifecycle<T> implements CreateFunction<T>, DestroyFunction<T> {
+        private final Class<T> beanClass;
+        private final BeanManager beanManager;
+        private final Map<String, UnmanagedInstance<T>> instances = new ConcurrentHashMap<>();
+
+        private UnmanagedLifecycle(Class<T> beanClass, BeanManager beanManager) {
+            this.beanClass = beanClass;
+            this.beanManager = beanManager;
+        }
+
+        @Override
+        public T create(CreationalContext<T> context) {
+            if (beanManager == null) {
+                throw new IllegalStateException(
+                        "Unmanaged mock creation requires a BeanManager bound by WeldInitiator.addBeans()");
+            }
+            UnmanagedInstance<T> instance = new Unmanaged<>(beanManager, beanClass).newInstance();
+            instances.put(context.toString(), instance);
+            return instance.produce().inject().postConstruct().get();
+        }
+
+        @Override
+        public void destroy(T instance, CreationalContext<T> context) {
+            UnmanagedInstance<T> unmanaged = instances.remove(context.toString());
+            if (unmanaged != null) {
+                if (!unmanaged.get().equals(instance)) {
+                    throw new IllegalStateException("Unmanaged instance [" + unmanaged.get()
+                            + "] is not equal to the bean instance to be destroyed: " + instance);
+                }
+                unmanaged.preDestroy().dispose();
+            }
+        }
     }
 
     public interface CreateFunction<T> {

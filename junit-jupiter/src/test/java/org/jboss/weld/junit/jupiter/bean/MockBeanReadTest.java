@@ -32,12 +32,9 @@ import org.jboss.weld.junit.jupiter.EnableWeld;
 import org.jboss.weld.junit.jupiter.WeldInitiator;
 import org.jboss.weld.junit.jupiter.WeldSetup;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-// MockBean.read() uses Unmanaged and WeldContainer.current(), which requires a single running container.
-@Isolated
 @EnableWeld
 class MockBeanReadTest {
     @Inject
