@@ -56,7 +56,7 @@ class WeldCDIExtension implements Extension {
         }
         if (beans != null) {
             for (Bean<?> bean : beans) {
-                event.addBean(bean);
+                event.addBean(bean instanceof MockBean<?> mockBean ? mockBean.forBeanManager(beanManager) : bean);
             }
         }
     }
